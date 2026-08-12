@@ -80,10 +80,7 @@ export default function RosterRail() {
               >
                 {fav === open.id ? '최애 선수 해제' : '최애 선수로 지정'}
               </button>
-              <div className="note">
-                최애로 지정하면 이 선수 관련 알림만 따로 받습니다. 선수별 세부 지표(KDA·분당 딜량)는 공개 API
-                에서 제공하지 않아 아직 싣지 않았습니다.
-              </div>
+              <div className="note">최애로 지정하면 이 선수 소식만 따로 알림을 받습니다.</div>
             </div>
           </div>
         </div>

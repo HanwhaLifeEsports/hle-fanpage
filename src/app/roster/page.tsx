@@ -45,9 +45,7 @@ export default function RosterPage() {
         ))}
       </div>
 
-      <div className="note">
-        선수 사진은 초상권 확인이 끝난 것만 싣습니다. 지금은 자리를 비워두고 포지션과 등번호로 구분합니다.
-      </div>
+
     </div>
   );
 }

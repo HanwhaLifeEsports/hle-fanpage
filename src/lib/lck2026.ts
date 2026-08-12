@@ -39,7 +39,7 @@ export const PLATFORMS: Record<PlatformId, Platform> = {
     detectable: true,
     color: '#00FFA3',
     channelUrl: 'https://chzzk.naver.com/live/9381e7d6816e6d915a44a13c0195b202',
-    note: '라이브 플레이어 임베드 미지원 (클립만 가능) — 앱/웹으로 이동',
+    note: '치지직에서 시청할 수 있습니다',
   },
   soop: {
     id: 'soop',
@@ -48,7 +48,7 @@ export const PLATFORMS: Record<PlatformId, Platform> = {
     detectable: true,
     color: '#3B82F6',
     channelUrl: 'https://play.sooplive.co.kr/aflol',
-    note: '공식 임베드 플레이어 제공 — 방송 중일 때만 화면이 나온다',
+    note: 'SOOP에서 시청할 수 있습니다',
   },
   youtube: {
     id: 'youtube',
@@ -57,7 +57,7 @@ export const PLATFORMS: Record<PlatformId, Platform> = {
     detectable: false, // Data API 키가 있어야 판정 가능. 임베드가 스스로 라이브를 찾아가므로 판정 없이 붙인다
     color: '#FF0033',
     channelUrl: 'https://www.youtube.com/@LCK',
-    note: '2026년부터 국내 LCK 생중계 없음 — 국제 대회만',
+    note: '국내 정규시즌은 하이라이트·다시보기만 올라옵니다',
   },
   disney: {
     id: 'disney',
@@ -66,7 +66,7 @@ export const PLATFORMS: Record<PlatformId, Platform> = {
     detectable: false,
     color: '#0E63BE',
     channelUrl: 'https://www.disneyplus.com/',
-    note: 'DRM + 로그인 필수 → 플레이어 임베드 불가, 앱 딥링크만',
+    note: '디즈니+ 앱에서 시청할 수 있습니다',
   },
 };
 

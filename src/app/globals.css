@@ -27,6 +27,7 @@
   --win:#A98CFF; --win-soft:rgba(169,140,255,.16);
   --loss:#E5484D; --live:#E01B24;   /* 흰 텍스트 대비 4.83:1 (기존 #FF3B30 은 3.55:1 로 미달) */
   --flame-text:#FF8A47;             /* 어두운 면 위 오렌지 '텍스트' 전용 — flame 원색은 4.46:1 로 미달 */
+  --note-ink:#A3A3A5;               /* 각주 — 반투명이면 얹히는 면에 따라 대비가 흔들려 불투명값으로 고정 */
   --r-card:8px; --r-lg:16px; --r-full:9999px;
   --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:72px;
   /* next/font 가 주입하는 --font-anton 을 우선 사용, 없으면 로컬 폴백 */
@@ -167,7 +168,9 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
   font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--flame);background:rgba(23,24,27,.35);border-radius:var(--r-card)}
 
 /* ---------- live ---------- */
-.livebar{border:1px solid rgba(255,59,48,.35);background:linear-gradient(180deg,rgba(255,59,48,.10),rgba(255,59,48,0));
+/* 방송 중 표시는 LIVE 배지와 테두리가 맡는다. 배경 그라디언트는 장식일 뿐이고,
+   반투명 층이 겹치면 그 위 글자의 대비를 보장할 수 없어 단색 면으로 둔다. */
+.livebar{border:1px solid rgba(224,27,36,.4);background:var(--surface-card);
   border-radius:var(--r-card);padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)}
 .livebar.off{border-color:var(--hairline);background:var(--surface-card)}
 .live-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);flex-wrap:wrap}
@@ -184,7 +187,10 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .pframe .lbl{position:absolute;top:8px;left:8px;z-index:2;display:inline-flex;align-items:center;gap:6px;
   height:26px;padding:0 11px;border-radius:var(--r-full);background:rgba(0,0,0,.72);backdrop-filter:blur(6px);
   font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-.pframe iframe{display:block;width:100%;aspect-ratio:16/9;border:0;background:#0B0B0C}
+.pframe iframe,.pframe video{display:block;width:100%;aspect-ratio:16/9;border:0;background:#0B0B0C;object-fit:contain}
+.pframe video[poster]{object-fit:contain}
+.pholder{aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  background:#0B0B0C;font-size:13px;font-weight:600;color:var(--mute);text-align:center;padding:16px}
 .noembed{display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding:var(--s5);
   background:var(--surface-card);border:1px dashed var(--hairline);border-radius:var(--r-card)}
 
@@ -219,10 +225,9 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 table{width:100%;border-collapse:collapse;font-size:14px}
 th{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);text-align:left;padding:10px 8px;border-bottom:1px solid var(--hairline)}
 td{padding:12px 8px;border-bottom:1px solid var(--hairline);font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:0}
 tr.me td{background:var(--flame-soft)}
 tr.me td:first-child{box-shadow:inset 3px 0 0 var(--flame)}
-/* 레전드 그룹 / 라이즈 그룹 경계 */
-tr.cut td{border-bottom:2px solid var(--flame)}
 .grouplabel{display:flex;align-items:baseline;gap:10px;font-size:13px;color:var(--mute);padding:var(--s5) 8px 8px}
 .grouplabel b{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
 
@@ -269,7 +274,7 @@ label.fl{display:block;font-size:12px;font-weight:600;color:var(--mute);margin:0
 .banner{background:var(--flame-soft);border:1px solid rgba(255,106,19,.3);border-radius:var(--r-card);padding:14px;display:flex;gap:12px;align-items:flex-start}
 .banner b{font-size:13px;color:var(--flame-text);display:block}
 .banner span{font-size:13px;color:var(--body);line-height:1.55}
-.note{border-left:1px solid var(--hairline);padding:2px 0 2px 14px;font-size:13px;color:var(--mute);margin-top:var(--s4);line-height:1.6}
+.note{border-left:1px solid var(--hairline);padding:2px 0 2px 14px;font-size:13px;color:var(--note-ink);margin-top:var(--s4);line-height:1.6}
 .note b{color:#fff}
 .flamestrip{background:var(--flame);color:var(--ink-dark);padding:var(--s6) var(--s5);display:flex;align-items:center;justify-content:space-between;gap:var(--s5);flex-wrap:wrap;border-radius:var(--r-card)}
 footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin-top:var(--s7)}

@@ -18,9 +18,7 @@ export default async function Home() {
     return (
       <div className="wrap sec">
         <h2 className="ko ptitle">지금 순위·일정을 불러오지 못했습니다</h2>
-        <p className="lede" style={{ marginTop: 10 }}>
-          LoL Esports API 응답이 없습니다. 잠시 뒤 새로고침해 주세요.
-        </p>
+        <p className="lede" style={{ marginTop: 10 }}>잠시 뒤 새로고침해 주세요.</p>
       </div>
     );
   }
@@ -119,8 +117,7 @@ export default async function Home() {
                     현재 {us.rank}위 — {outcome[us.rank]}
                   </b>
                   <div className="cap" style={{ marginTop: 2 }}>
-                    잔여 {scenarios.remaining.filter((r) => r.a === OUR_TAG || r.b === OUR_TAG).length}경기 ·{' '}
-                    {scenarios.total.toLocaleString()}가지 전수 계산
+                    남은 경기 {scenarios.remaining.filter((r) => r.a === OUR_TAG || r.b === OUR_TAG).length}경기
                   </div>
                 </div>
               </div>

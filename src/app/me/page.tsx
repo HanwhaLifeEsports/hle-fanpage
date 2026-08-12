@@ -90,10 +90,6 @@ export default function MePage() {
             </button>
           </div>
         </div>
-        <div className="note">
-          권한 요청은 사용자가 <b>버튼을 누른 뒤에만</b> 띄웁니다. 진입 즉시 요청하면 거절률이 크게 오르고, 한 번
-          거절당하면 되돌리기 어렵습니다.
-        </div>
       </div>
 
       <div className="card" style={{ marginBottom: 'var(--s5)' }}>

@@ -16,11 +16,11 @@ export default async function SchedulePage() {
   let bundle;
   try {
     bundle = await getSeason();
-  } catch (e) {
+  } catch {
     return (
       <div className="wrap sec">
         <h2 className="ko ptitle">일정을 불러오지 못했습니다</h2>
-        <div className="note">{e instanceof Error ? e.message : '알 수 없는 오류'}</div>
+        <p className="lede" style={{ marginTop: 10 }}>잠시 뒤 새로고침해 주세요.</p>
       </div>
     );
   }
@@ -46,9 +46,7 @@ export default async function SchedulePage() {
       <Standings rows={season.rise} group="rise" />
 
       <div className="note">
-        LoL Esports API 는 스플릿을 <b>별개 토너먼트로</b> 내려주고 세트 득실은 아예 주지 않습니다. 위 표는
-        스플릿2(정규 1~2R) 순위와 스플릿3(3~4R 그룹) 순위를 합치고, 세트 득실은 전체 일정의 세트 스코어에서
-        직접 집계한 값입니다. 동률은 승-패 → 승자승 → 세트 득실 순으로 정렬합니다.
+        정규 1~2라운드와 3~4라운드를 <b>합산한 성적</b>입니다. 동률은 승자승, 그다음 세트 득실 순으로 가립니다.
       </div>
 
       <div className="shead">

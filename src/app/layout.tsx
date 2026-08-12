@@ -61,7 +61,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
               <span>
                 팬이 운영하는 비공식 사이트입니다. 한화생명e스포츠 · 라이엇 게임즈와 관계가 없습니다.
               </span>
-              <span>일정 · 순위 · 경기 결과는 LoL Esports 공개 API에서 실시간으로 가져옵니다.</span>
+              <span>일정과 순위는 LCK 공식 기록을 실시간으로 반영합니다.</span>
             </div>
             <nav>
               <Link href="/board">커뮤니티</Link>
