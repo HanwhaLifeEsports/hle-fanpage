@@ -236,8 +236,11 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 table{width:100%;border-collapse:collapse;font-size:14px}
 th{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);text-align:left;padding:10px 8px;border-bottom:1px solid var(--hairline)}
 td{padding:12px 8px;border-bottom:1px solid var(--hairline);font-variant-numeric:tabular-nums}
+/* 우리 팀 행 — 배경 띠와 팀명 강조로만 표시한다.
+   왼쪽 3px 막대를 쓰면 td 공통 아래 테두리와 만나 ㄴ 자 프레임처럼 보이고,
+   주황 선은 아래 tr.cut(플레이오프 진출선)의 의미와도 겹친다. */
 tr.me td{background:var(--flame-soft)}
-tr.me td:first-child{box-shadow:inset 3px 0 0 var(--flame)}
+tr.me td:nth-child(2){color:var(--flame-text);font-weight:600}
 /* 레전드 그룹 / 라이즈 그룹 경계 */
 tr.cut td{border-bottom:2px solid var(--flame)}
 .grouplabel{display:flex;align-items:baseline;gap:10px;font-size:13px;color:var(--mute);padding:var(--s5) 8px 8px}
