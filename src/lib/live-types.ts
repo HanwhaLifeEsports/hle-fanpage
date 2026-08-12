@@ -17,8 +17,6 @@ export interface LiveSource {
   embedUrl?: string;
   channelUrl: string;
   note?: string;
-  /** 강제 LIVE 스위치로만 켜진 상태 — 실제 송출은 없다 */
-  forcedOnly?: boolean;
   error?: string;
 }
 
@@ -26,7 +24,6 @@ export interface LiveResponse {
   checkedAt: string;
   window: { matchId: string; opponent: string; kickoff: string } | null;
   isLive: boolean;
-  forced: boolean;
   sources: LiveSource[];
   nextKickoff: string | null;
 }

@@ -3,25 +3,14 @@
 import { useState } from 'react';
 import { PLAYERS, type Player } from '@/lib/lck2026';
 import { Star, X } from 'lucide-react';
-import { patchState, toast, useDemo } from '@/lib/useDemoState';
+import { patchState, toast, useApp } from '@/lib/useAppState';
 
-function Card({
-  p,
-  onOpen,
-  fav,
-  pomToday,
-}: {
-  p: Player;
-  onOpen: () => void;
-  fav: boolean;
-  pomToday: boolean;
-}) {
+function Card({ p, onOpen, fav }: { p: Player; onOpen: () => void; fav: boolean }) {
   return (
-    <button className={`pcard${pomToday ? ' pomhit' : ''}`} onClick={onOpen}>
+    <button className="pcard" onClick={onOpen}>
       <div className="ph">
         <span className="pos">{p.pos}</span>
         <div className="tags">
-          {pomToday && <span className="badge b-flame">오늘의 POM</span>}
           {fav && <span className="badge b-flame">최애</span>}
           {p.joined2026 && <span className="badge b-new">NEW</span>}
         </div>
@@ -30,17 +19,14 @@ function Card({
       </div>
       <div className="mt">
         <span className="cap">{p.ko}</span>
-        <span className="figs">
-          <span>KDA {p.kda}</span>
-          <span className="pom">POM {p.pom}</span>
-        </span>
+        <span className="kda">#{p.no}</span>
       </div>
     </button>
   );
 }
 
-export default function RosterRail({ pomPlayerId = null }: { pomPlayerId?: string | null }) {
-  const { fav } = useDemo();
+export default function RosterRail() {
+  const { fav } = useApp();
   const [open, setOpen] = useState<Player | null>(null);
 
   const toggleFav = (id: string) => {
@@ -58,13 +44,7 @@ export default function RosterRail({ pomPlayerId = null }: { pomPlayerId?: strin
     <>
       <div className="rail">
         {PLAYERS.map((p) => (
-          <Card
-            key={p.id}
-            p={p}
-            fav={fav === p.id}
-            pomToday={pomPlayerId === p.id}
-            onOpen={() => setOpen(p)}
-          />
+          <Card key={p.id} p={p} fav={fav === p.id} onOpen={() => setOpen(p)} />
         ))}
       </div>
 
@@ -86,24 +66,7 @@ export default function RosterRail({ pomPlayerId = null }: { pomPlayerId?: strin
                 <span className="badge b-soon">#{open.no}</span>
                 {open.joined2026 && <span className="badge b-new">2026 합류</span>}
               </div>
-              <div className="statgrid" style={{ marginBottom: 18, gridTemplateColumns: 'repeat(2,1fr)' }}>
-                {(
-                  [
-                    ['KDA', open.kda],
-                    ['분당 딜량', open.dpm],
-                    ['출전', `${open.games}경기`],
-                    ['POM 포인트', open.pom],
-                  ] as const
-                ).map(([k, v]) => (
-                  <div className="card" style={{ padding: 14 }} key={k}>
-                    <div className="cap-xs">{k}</div>
-                    <div className="num" style={{ fontSize: 26, marginTop: 4 }}>
-                      {v}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <h3 className="grouphead">시그니처 챔피언</h3>
+              <h3 className="grouphead">대표 챔피언</h3>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
                 {open.champs.map((c) => (
                   <span className="chip" key={c}>
@@ -118,10 +81,7 @@ export default function RosterRail({ pomPlayerId = null }: { pomPlayerId?: strin
                 <Star size={16} fill={fav === open.id ? 'currentColor' : 'none'} />
                 {fav === open.id ? '최애 선수 해제' : '최애 선수로 지정'}
               </button>
-              <div className="note">
-                최애로 지정하면 이 선수 관련 알림(<b>player.{open.id}</b>)만 따로 켜집니다. 개인 스탯은 샘플
-                데이터입니다.
-              </div>
+              <div className="note">최애로 지정하면 이 선수 소식만 따로 알림을 받습니다.</div>
             </div>
           </div>
         </div>

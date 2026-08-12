@@ -130,11 +130,7 @@ function disneySource(slot: BroadcastSlot): LiveSource {
   };
 }
 
-export async function GET(request: Request) {
-  const url = new URL(request.url);
-  // 개발/데모용 강제 라이브. 방송 없는 시간대에도 UI를 확인하려고 둔 스위치.
-  const forced = url.searchParams.get('force') === '1';
-
+export async function GET() {
   const now = Date.now();
   let windowMatch: MatchRow | null = null;
   let nextKickoff: string | null = null;
@@ -157,11 +153,7 @@ export async function GET(request: Request) {
     }),
   );
 
-  const sources = forced
-    ? results.map((s) =>
-        s.detectable ? { ...s, live: true, forcedOnly: !s.live, title: s.title ?? '데모 강제 LIVE' } : s,
-      )
-    : results;
+  const sources = results;
 
   const body: LiveResponse = {
     checkedAt: new Date().toISOString(),
@@ -173,7 +165,6 @@ export async function GET(request: Request) {
         }
       : null,
     isLive: sources.some((s) => s.detectable && s.live),
-    forced,
     sources,
     nextKickoff,
   };

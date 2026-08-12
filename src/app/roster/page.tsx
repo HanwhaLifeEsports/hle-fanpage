@@ -1,20 +1,14 @@
 import RosterRail from '@/components/Roster';
-import { PLAYERS, STAFF, todayPom } from '@/lib/lck2026';
-import { getSeason } from '@/lib/season';
+import { PLAYERS, STAFF } from '@/lib/lck2026';
+import type { Metadata } from 'next';
 
-export const dynamic = 'force-dynamic';
+export const metadata: Metadata = {
+  title: '선수단',
+  description: '2026 시즌 한화생명e스포츠 로스터와 코칭스태프.',
+};
 
-export default async function RosterPage() {
+export default function RosterPage() {
   const joined = PLAYERS.filter((p) => p.joined2026);
-
-  // 순위·일정이 없어도 로스터는 보여야 한다. POM 하이라이트만 포기한다.
-  let pomPlayerId: string | null = null;
-  try {
-    const { season } = await getSeason();
-    pomPlayerId = todayPom(season.matches)?.playerId ?? null;
-  } catch {
-    pomPlayerId = null;
-  }
 
   return (
     <div className="wrap sec">
@@ -35,7 +29,7 @@ export default async function RosterPage() {
         </div>
       )}
 
-      <RosterRail pomPlayerId={pomPlayerId} />
+      <RosterRail />
 
       <div className="shead" style={{ marginTop: 'var(--s7)' }}>
         <h2 className="ko">코칭스태프</h2>
@@ -51,11 +45,6 @@ export default async function RosterPage() {
         ))}
       </div>
 
-      <div className="note">
-        <b>로스터·코칭스태프는 실제 2026 시즌 기준</b>입니다. 개인 스탯(KDA·분당 딜량·출전·POM)은 샘플이며, 사진
-        슬롯은 4:5 풀블리드로 비워뒀습니다 — 실제 이미지는 공식 SNS 임베드 또는 허가받은 촬영분으로 교체합니다.
-        POM 은 LoL Esports API 가 내려주지 않아 중계 발표를 관리자가 입력하는 방식으로 채워야 합니다.
-      </div>
     </div>
   );
 }

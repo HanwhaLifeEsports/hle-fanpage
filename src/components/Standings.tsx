@@ -1,9 +1,6 @@
 import type { GroupId, TeamRow } from '@/lib/lolesports';
 import { OUR_TAG, SEASON } from '@/lib/lck2026';
 
-/** 진출 결과가 갈리는 지점에 선을 긋는다 */
-const CUTS: Record<GroupId, number[]> = { legend: [2, 4], rise: [3] };
-
 export default function Standings({ rows, group }: { rows: TeamRow[]; group: GroupId }) {
   const meta = SEASON[group];
   return (
@@ -26,10 +23,7 @@ export default function Standings({ rows, group }: { rows: TeamRow[]; group: Gro
           </thead>
           <tbody>
             {rows.map((t) => (
-              <tr
-                key={t.code}
-                className={`${t.code === OUR_TAG ? 'me' : ''} ${CUTS[group].includes(t.rank) ? 'cut' : ''}`.trim() || undefined}
-              >
+              <tr key={t.code} className={t.code === OUR_TAG ? 'me' : undefined}>
                 <td>{t.rank}</td>
                 <td>{t.name}</td>
                 <td>

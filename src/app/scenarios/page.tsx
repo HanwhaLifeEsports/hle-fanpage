@@ -2,6 +2,12 @@ import { getSeason } from '@/lib/season';
 import { OUR_TAG, SEASON } from '@/lib/lck2026';
 import { LEGEND_OUTCOME, RISE_OUTCOME } from '@/lib/scenarios';
 import { fmtDate } from '@/lib/format';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '플레이오프 경우의 수',
+  description: '한화생명e스포츠의 남은 경기를 전부 전개해 계산한 순위 확률과 경기별 영향력.',
+};
 
 export const dynamic = 'force-dynamic';
 
@@ -11,11 +17,11 @@ export default async function ScenariosPage() {
   let bundle;
   try {
     bundle = await getSeason();
-  } catch (e) {
+  } catch {
     return (
       <div className="wrap sec">
         <h2 className="ko ptitle">경우의 수를 계산하지 못했습니다</h2>
-        <div className="note">{e instanceof Error ? e.message : '알 수 없는 오류'}</div>
+        <p className="lede" style={{ marginTop: 10 }}>잠시 뒤 새로고침해 주세요.</p>
       </div>
     );
   }
@@ -30,9 +36,7 @@ export default async function ScenariosPage() {
     <div className="wrap sec">
       <h2 className="ko ptitle">플레이오프 경우의 수</h2>
       <p className="lede" style={{ margin: '10px 0 var(--s5)' }}>
-        {SEASON[ourGroup].label} 잔여 {sc.remaining.length}경기를 세트 스코어까지 전부 전개해{' '}
-        <b style={{ color: '#fff' }}>{sc.total.toLocaleString()}가지</b>를 계산했습니다.{' '}
-        {sc.exhaustive ? '전수 계산입니다.' : '표본 추정입니다.'}
+{SEASON[ourGroup].label} 잔여 {sc.remaining.length}경기에서 나올 수 있는 모든 결과를 따져본 확률입니다.
       </p>
 
       {us && (
@@ -174,9 +178,8 @@ export default async function ScenariosPage() {
       </div>
 
       <div className="note">
-        동률은 <b>승-패 → 승자승(동률 팀들끼리의 맞대결) → 세트 득실</b> 순으로 갈랐습니다. 실제 LCK 는 여기서도
-        갈리지 않으면 타이브레이커 경기를 치르므로, 마지막까지 완전 동률인 경우의 순위는 확정이 아닙니다. 확률은
-        모든 경기 결과가 같은 확률로 나온다고 가정한 값이라 전력 차는 반영되어 있지 않습니다.
+모든 경기가 <b>반반 확률</b>이라고 놓고 센 값이라 팀 전력 차는 들어 있지 않습니다. 끝까지 동률이면
+        타이브레이커 경기로 순위를 가립니다.
       </div>
     </div>
   );

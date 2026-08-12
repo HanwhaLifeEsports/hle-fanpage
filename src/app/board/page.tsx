@@ -1,17 +1,20 @@
+import type { Metadata } from 'next';
 import BoardView from '@/components/Board';
-import { getSeason, inLiveWindow } from '@/lib/season';
+import { getSeason } from '@/lib/season';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata: Metadata = {
+  title: '커뮤니티',
+  description: '한화생명e스포츠 팬 커뮤니티 — 계정 기능 준비 중입니다.',
+};
+
 export default async function BoardPage() {
-  let chatOpen = false;
   let nextKickoff: string | null = null;
   try {
-    const { season, next } = await getSeason();
-    chatOpen = !!inLiveWindow(season.matches);
-    nextKickoff = next?.startTime ?? null;
+    nextKickoff = (await getSeason()).next?.startTime ?? null;
   } catch {
-    // 시즌 데이터가 없어도 게시판은 열려 있어야 한다
+    /* 일정이 없어도 안내는 보여준다 */
   }
-  return <BoardView chatOpen={chatOpen} nextKickoff={nextKickoff} />;
+  return <BoardView nextKickoff={nextKickoff} />;
 }

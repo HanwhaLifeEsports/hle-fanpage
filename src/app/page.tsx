@@ -1,13 +1,12 @@
 import Link from 'next/link';
-import { Bell, CalendarDays, ListOrdered, MessageSquare, Target, Users, Waypoints } from 'lucide-react';
+import { Bell, CalendarDays, ListOrdered, Target, Users, Waypoints } from 'lucide-react';
 import { Countdown, MatchCard } from '@/components/Shared';
 import { sidesOf } from '@/lib/pick';
 import { fmtDate } from '@/lib/format';
 import LiveNow from '@/components/LiveNow';
 import RosterRail from '@/components/Roster';
-import { HotPosts } from '@/components/Board';
 import { getSeason } from '@/lib/season';
-import { OUR_TAG, SEASON, todayPom } from '@/lib/lck2026';
+import { OUR_TAG, SEASON } from '@/lib/lck2026';
 import { LEGEND_OUTCOME, RISE_OUTCOME } from '@/lib/scenarios';
 
 export const dynamic = 'force-dynamic';
@@ -20,19 +19,20 @@ export default async function Home() {
     return (
       <div className="wrap sec">
         <h2 className="ko ptitle">지금 순위·일정을 불러오지 못했습니다</h2>
-        <p className="lede" style={{ marginTop: 10 }}>
-          LoL Esports API 응답이 없습니다. 잠시 뒤 새로고침해 주세요.
-        </p>
+        <p className="lede" style={{ marginTop: 10 }}>잠시 뒤 새로고침해 주세요.</p>
       </div>
     );
   }
 
   const { season, us, next, recent, ourGroup, scenarios } = bundle;
+  const upcoming = season.matches
+    .filter((m) => m.stage === 'regular' && m.state !== 'completed')
+    .filter((m) => m.a.code === OUR_TAG || m.b.code === OUR_TAG)
+    .slice(0, 3);
   const group = ourGroup === 'legend' ? season.legend : season.rise;
   const outcome = ourGroup === 'legend' ? LEGEND_OUTCOME : RISE_OUTCOME;
   const opp = next ? sidesOf(next).them : null;
   const oppRow = opp ? group.find((t) => t.code === opp.code) : undefined;
-  const pom = todayPom(season.matches);
   // rank[] 는 경우의 수 '개수'라 백분율로 환산해야 한다
   const topProb =
     (scenarios.rank.slice(0, scenarios.seedCut).reduce((a, b) => a + b, 0) / scenarios.total) * 100;
@@ -123,8 +123,7 @@ export default async function Home() {
                     현재 {us.rank}위 — {outcome[us.rank]}
                   </b>
                   <div className="cap" style={{ marginTop: 2 }}>
-                    잔여 {scenarios.remaining.filter((r) => r.a === OUR_TAG || r.b === OUR_TAG).length}경기 ·{' '}
-                    {scenarios.total.toLocaleString()}가지 전수 계산
+                    남은 경기 {scenarios.remaining.filter((r) => r.a === OUR_TAG || r.b === OUR_TAG).length}경기
                   </div>
                 </div>
               </div>
@@ -152,16 +151,20 @@ export default async function Home() {
             전체 프로필
           </Link>
         </div>
-        <RosterRail pomPlayerId={pom?.playerId ?? null} />
+        <RosterRail />
 
         <div className="shead">
-          <h2 className="ko">지금 뜨는 글</h2>
-          <Link className="btn btn-ghost btn-sm" href="/board">
-            <MessageSquare size={14} />
-            커뮤니티
+          <h2 className="ko">다가오는 일정</h2>
+          <Link className="btn btn-ghost btn-sm" href="/schedule">
+            <CalendarDays size={14} />
+            전체 일정
           </Link>
         </div>
-        <HotPosts />
+        <div className="g3">
+          {upcoming.map((m) => (
+            <MatchCard key={m.id} m={m} />
+          ))}
+        </div>
 
         <div className="flamestrip" style={{ marginTop: 'var(--s8)' }}>
           <div>

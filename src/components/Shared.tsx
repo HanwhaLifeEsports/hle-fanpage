@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { dismissToast, useDemo, useToasts } from '@/lib/useDemoState';
+import { dismissToast, useApp, useToasts } from '@/lib/useAppState';
 import { fmtDate, pad } from '@/lib/format';
 import { sidesOf } from '@/lib/pick';
 import type { MatchRow } from '@/lib/lolesports';
@@ -49,7 +49,7 @@ export function Countdown({ target }: { target: string }) {
 
 
 export function MatchCard({ m }: { m: MatchRow }) {
-  const { prefs, revealed, reveal } = useDemo();
+  const { prefs, revealed, reveal } = useApp();
   const { us, them, mine } = sidesOf(m);
   const d = new Date(m.startTime);
 

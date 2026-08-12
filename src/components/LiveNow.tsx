@@ -1,31 +1,21 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import type { LiveResponse, LiveSource } from '@/lib/live-types';
 import { fmtClock } from '@/lib/format';
 import { ExternalLink, Radio } from 'lucide-react';
-import { toast, useDemo } from '@/lib/useDemoState';
+import { toast, useApp } from '@/lib/useAppState';
+
+// hls.js 를 끌고 오므로 실제로 열릴 때만 로드한다
+const ChzzkPlayer = dynamic(() => import('./ChzzkPlayer'), { ssr: false });
 
 const POLL_MS = 30_000;
+/** 치지직 자체 플레이어. 문제가 생기면 환경변수 하나로 전부 끈다. */
+const CHZZK_PLAYER_ON = process.env.NEXT_PUBLIC_CHZZK_PLAYER !== 'off';
 
-/** 임베드 가능한 소스만 플레이어로. 치지직·디즈니+는 여기 오지 않는다. */
-function Player({ s }: { s: LiveSource }) {
+function EmbedPlayer({ s }: { s: LiveSource }) {
   const yt = s.platform === 'youtube';
-  // 강제 LIVE 로만 켜진 경우 실제 송출이 없어 빈 흰 화면이 뜬다 → 자리표시자로 대체
-  if (s.forcedOnly) {
-    return (
-      <div className="pframe">
-        <span className="lbl" style={{ color: s.color }}>
-          <i className="dot" style={{ background: s.color }} />
-          {s.name}
-        </span>
-        <div className="pholder">
-          실제 송출이 없어 플레이어를 비워둡니다
-          <span>방송이 시작되면 이 자리에 {s.name} 플레이어가 들어갑니다</span>
-        </div>
-      </div>
-    );
-  }
   return (
     <div className="pframe">
       <span className="lbl" style={{ color: s.color }}>
@@ -47,13 +37,16 @@ function Player({ s }: { s: LiveSource }) {
   );
 }
 
-/** 임베드가 불가능한 채널 — 이유를 밝히고 딥링크만 준다 */
+/** 페이지 안에 띄울 수 없는 채널 — 어디서 볼 수 있는지만 알려준다 */
 function LinkCard({ s }: { s: LiveSource }) {
   return (
     <div className="noembed">
       <div>
         <b style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <i className="pd" style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, display: 'inline-block' }} />
+          <i
+            className="pd"
+            style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, display: 'inline-block' }}
+          />
           {s.name}
           <span className="badge b-soon">{s.role}</span>
           {s.live && (
@@ -64,17 +57,11 @@ function LinkCard({ s }: { s: LiveSource }) {
           )}
         </b>
         <div className="cap" style={{ marginTop: 6 }}>
-          {s.note ?? '플레이어 임베드가 제공되지 않습니다.'}
-          {s.live && s.title ? ` · ${s.title}` : ''}
+          {s.live && s.title ? s.title : (s.note ?? '')}
           {s.live && s.viewers ? ` · 시청 ${s.viewers.toLocaleString()}명` : ''}
         </div>
       </div>
-      <a
-        className={`btn btn-sm ${s.live ? 'btn-primary' : 'btn-ghost'}`}
-        href={s.channelUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a className="btn btn-ghost btn-sm" href={s.channelUrl} target="_blank" rel="noopener noreferrer">
         {s.name}에서 보기
         <ExternalLink size={14} />
       </a>
@@ -83,23 +70,24 @@ function LinkCard({ s }: { s: LiveSource }) {
 }
 
 export default function LiveNow() {
-  const { prefs, forceLive } = useDemo();
+  const { prefs } = useApp();
   const [data, setData] = useState<LiveResponse | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [picked, setPicked] = useState<string[]>([]);
+  const [active, setActive] = useState<string | null>(null);
+  const [both, setBoth] = useState(false);
   const wasLive = useRef(false);
 
   useEffect(() => {
     let alive = true;
     const load = async () => {
       try {
-        const res = await fetch(`/api/live${forceLive ? '?force=1' : ''}`, { cache: 'no-store' });
+        const res = await fetch('/api/live', { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const d: LiveResponse = await res.json();
         if (!alive) return;
         setData(d);
         setErr(null);
-        // 꺼짐 → 켜짐 전환 순간에만 알림. 폴링마다 울리면 안 된다.
+        // 꺼짐 → 켜짐 전환 순간에만 알린다
         if (d.isLive && !wasLive.current && prefs.onair) {
           toast('방송이 시작됐습니다', d.sources.find((s) => s.live)?.title ?? 'LCK 중계', '방송 시작 알림');
         }
@@ -114,7 +102,7 @@ export default function LiveNow() {
       alive = false;
       clearInterval(t);
     };
-  }, [forceLive, prefs.onair]);
+  }, [prefs.onair]);
 
   if (!data && !err) {
     return (
@@ -133,10 +121,19 @@ export default function LiveNow() {
   const isLive = data?.isLive ?? false;
   const headline = sources.find((s) => s.live)?.title;
 
-  // 임베드 가능 + (실제 방송 중이거나 판정 불가한 채널)만 플레이어로 띄운다
-  const playable = sources.filter((s) => s.embeddable && s.embedUrl && (s.live || !s.detectable));
-  const shown = picked.length ? playable.filter((s) => picked.includes(s.platform)) : playable;
-  const links = sources.filter((s) => !s.embeddable || !s.embedUrl);
+  const canPlay = (s: LiveSource) =>
+    (s.platform === 'chzzk' && CHZZK_PLAYER_ON && s.live) ||
+    (s.embeddable && !!s.embedUrl && (s.live || !s.detectable));
+
+  // 페이지 안에서 볼 수 있는 채널. 치지직을 앞에 둔다.
+  const channels = sources
+    .filter(canPlay)
+    .sort((a, b) => (a.platform === 'chzzk' ? -1 : b.platform === 'chzzk' ? 1 : 0));
+  const linkOnly = sources.filter((s) => !canPlay(s));
+
+  // 기본은 한 채널만. 목록이 바뀌어도 선택이 살아 있으면 유지한다.
+  const current = channels.find((c) => c.platform === active) ?? channels[0];
+  const visible = both ? channels : current ? [current] : [];
 
   return (
     <div className={`livebar${isLive ? '' : ' off'}`}>
@@ -154,31 +151,28 @@ export default function LiveNow() {
             </span>
           )}
           <b style={{ fontSize: 15 }}>{isLive ? (headline ?? 'LCK 중계 진행 중') : '지금은 방송 중이 아닙니다'}</b>
-          {data?.forced && <span className="badge b-flame">강제 LIVE</span>}
         </div>
         <span className="cap">
-          {err ? `확인 실패 · ${err}` : data ? `${fmtClock(data.checkedAt)} 확인 · 30초마다 갱신` : ''}
+          {err ? '상태를 확인하지 못했습니다' : data ? `${fmtClock(data.checkedAt)} 기준` : ''}
         </span>
       </div>
 
-      {/* 채널 상태 — 점 색이 곧 방송 여부 */}
       <div className="plat-tabs">
         {sources.map((s) => {
-          const canToggle = s.embeddable && !!s.embedUrl;
-          const on = shown.some((x) => x.platform === s.platform);
+          const playable = channels.some((c) => c.platform === s.platform);
+          const on = playable && visible.some((v) => v.platform === s.platform);
           return (
             <button
               key={s.platform}
               className={`plat${on ? ' on' : ''}`}
-              title={s.note ?? undefined}
+              aria-pressed={on}
               onClick={() => {
-                if (!canToggle) {
+                if (!playable) {
                   window.open(s.channelUrl, '_blank', 'noopener');
                   return;
                 }
-                setPicked((prev) =>
-                  prev.includes(s.platform) ? prev.filter((p) => p !== s.platform) : [...prev, s.platform],
-                );
+                setActive(s.platform);
+                setBoth(false);
               }}
             >
               <i
@@ -191,26 +185,37 @@ export default function LiveNow() {
               {s.live && s.viewers ? (
                 <span style={{ color: 'var(--mute)', fontWeight: 400 }}>{s.viewers.toLocaleString()}</span>
               ) : null}
-              {!canToggle && <ExternalLink size={13} />}
+              {!playable && <ExternalLink size={13} />}
             </button>
           );
         })}
+
+        {channels.length > 1 && (
+          <button className={`chip${both ? ' on' : ''}`} aria-pressed={both} onClick={() => setBoth((v) => !v)}>
+            함께 보기
+          </button>
+        )}
       </div>
 
-      {/* 플레이어 — 동시 송출이면 나란히 */}
-      {shown.length > 0 && (
-        <div className={`players${shown.length > 1 ? ' two' : ''}`}>
-          {shown.map((s) => (
-            <Player key={s.platform} s={s} />
-          ))}
+      {visible.length > 0 && (
+        <div className={`players${visible.length > 1 ? ' two' : ''}`}>
+          {visible.map((s) =>
+            s.platform === 'chzzk' ? (
+              <ChzzkPlayer key="chzzk" />
+            ) : (
+              <EmbedPlayer key={s.platform} s={s} />
+            ),
+          )}
         </div>
       )}
 
-      {/* 임베드 불가 채널 */}
-      {links.map((s) => (
+      {linkOnly.map((s) => (
         <LinkCard key={s.platform} s={s} />
       ))}
 
+      <div className="note" style={{ marginTop: 0 }}>
+        LCK 국내 중계는 치지직과 SOOP에서 볼 수 있습니다. 유튜브는 하이라이트·다시보기 채널입니다.
+      </div>
     </div>
   );
 }
