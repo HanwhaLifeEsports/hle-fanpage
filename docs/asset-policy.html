@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HLE 팬페이지 이미지 및 2차 창작 정책 검토</title>
+<style>
+  :root{
+    --canvas:#08090A; --surface:#121315; --card:#17181B;
+    --flame:#FF6A13; --flame-text:#FF8A47; --flame-soft:rgba(255,106,19,.13);
+    --ink:#fff; --body:rgba(255,255,255,.72); --mute:rgba(255,255,255,.44);
+    --hairline:rgba(255,255,255,.10);
+    --hi:#FF7A7E; --mid:#FFB020; --lo:#5BC98C;
+    --sans:'Freesentation','Pretendard','Apple SD Gothic Neo',-apple-system,BlinkMacSystemFont,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--canvas); color:var(--body);
+    font-family:var(--sans); font-size:16px; line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:860px; margin:0 auto; padding:56px 24px 96px}
+  header{border-bottom:1px solid var(--hairline); padding-bottom:26px; margin-bottom:16px}
+  .eyebrow{
+    color:var(--flame-text); font-size:12px; letter-spacing:.16em;
+    text-transform:uppercase; font-weight:700; margin:0 0 12px
+  }
+  h1{color:var(--ink); font-size:30px; line-height:1.3; margin:0 0 14px; letter-spacing:-.01em}
+  .meta{color:var(--mute); font-size:13px; margin:0}
+  h2{
+    color:var(--ink); font-size:21px; margin:56px 0 16px; letter-spacing:-.01em;
+    padding-left:12px; border-left:3px solid var(--flame)
+  }
+  h3{color:var(--ink); font-size:16.5px; margin:34px 0 10px}
+  h4{color:var(--flame-text); font-size:14px; margin:22px 0 8px; letter-spacing:.02em}
+  p{margin:0 0 14px}
+  a{color:var(--flame-text); text-decoration:none; border-bottom:1px solid rgba(255,138,71,.35)}
+  a:hover{border-bottom-color:var(--flame-text)}
+  ul{margin:0 0 14px; padding-left:20px}
+  li{margin-bottom:8px}
+  .revised{
+    background:rgba(255,176,32,.10); border:1px solid rgba(255,176,32,.30);
+    border-radius:8px; padding:16px 20px; margin:0 0 40px; font-size:14.5px
+  }
+  .revised b{color:var(--mid)}
+  .verdict{
+    background:var(--flame-soft); border:1px solid rgba(255,106,19,.28);
+    border-radius:8px; padding:22px 24px
+  }
+  .verdict p:last-child{margin-bottom:0}
+  .verdict strong{color:var(--ink)}
+  blockquote{
+    margin:0 0 14px; padding:15px 19px; background:var(--card);
+    border-left:2px solid var(--flame); border-radius:0 6px 6px 0;
+    color:var(--ink); font-size:14.5px; line-height:1.7
+  }
+  blockquote p{margin:0 0 9px}
+  blockquote p:last-of-type{margin-bottom:0}
+  blockquote .art{color:var(--flame-text); font-weight:700; display:block; margin-bottom:5px; font-size:13px}
+  cite{
+    display:block; margin-top:11px; padding-top:9px; border-top:1px solid var(--hairline);
+    font-style:normal; color:var(--mute); font-size:12.5px
+  }
+  .tbl{overflow-x:auto; margin:0 0 16px; border:1px solid var(--hairline); border-radius:8px}
+  table{width:100%; border-collapse:collapse; font-size:14px; min-width:600px}
+  th,td{padding:12px 15px; text-align:left; border-bottom:1px solid var(--hairline); vertical-align:top}
+  th{
+    background:var(--surface); color:var(--ink); font-weight:700;
+    font-size:11.5px; letter-spacing:.08em; text-transform:uppercase
+  }
+  tr:last-child td{border-bottom:none}
+  td strong{color:var(--ink)}
+  .tag{
+    display:inline-block; padding:2px 9px; border-radius:9999px;
+    font-size:11.5px; font-weight:700; white-space:nowrap
+  }
+  .tag.hi{background:rgba(229,72,77,.16); color:var(--hi)}
+  .tag.mid{background:rgba(255,176,32,.16); color:var(--mid)}
+  .tag.lo{background:rgba(91,201,140,.16); color:var(--lo)}
+  .tag.gap{background:rgba(255,255,255,.08); color:var(--mute)}
+  .rule{
+    background:var(--card); border:1px solid var(--hairline); border-radius:8px;
+    padding:18px 22px; margin-bottom:12px
+  }
+  .rule .n{
+    display:inline-block; background:var(--flame); color:#0B0B0C;
+    width:24px; height:24px; border-radius:9999px; text-align:center;
+    line-height:24px; font-weight:800; font-size:12.5px; margin-right:9px
+  }
+  .rule .h{color:var(--ink); font-weight:700}
+  .rule p{margin:9px 0 0; font-size:14.5px}
+  .rule .why{color:var(--mute); font-size:13px; margin-top:7px}
+  .note{
+    border:1px dashed var(--hairline); border-radius:8px;
+    padding:17px 21px; color:var(--mute); font-size:14px; margin-bottom:14px
+  }
+  .note strong{color:var(--body)}
+  .danger{
+    border:1px solid rgba(229,72,77,.35); background:rgba(229,72,77,.07);
+    border-radius:8px; padding:18px 22px; margin-bottom:14px; font-size:14.5px
+  }
+  .danger strong{color:var(--hi)}
+  .src{list-style:none; padding:0; margin:0}
+  .src li{padding:14px 0; border-bottom:1px solid var(--hairline); margin:0}
+  .src li:last-child{border-bottom:none}
+  .src .t{color:var(--ink); display:block; margin-bottom:3px}
+  .src .u{color:var(--mute); font-size:12.5px; word-break:break-all; display:block}
+  footer{
+    margin-top:64px; padding-top:24px; border-top:1px solid var(--hairline);
+    color:var(--mute); font-size:12.5px
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">HLE 팬페이지 사전 검토</p>
+  <h1>선수 사진, 팀 마크, 2차 창작 정책 검토</h1>
+  <p class="meta">개정 2판 / 조사일 2026년 8월 12일 / 비공식 팬페이지 프로젝트 내부 문서 / 법률 자문 아님</p>
+</header>
+
+<div class="revised">
+  <b>1판에서 정정된 사항</b><br>
+  1판은 "한화생명e스포츠가 공개한 팬 콘텐츠 기준이 없다"고 결론지었으나, 이는 <b>틀렸다</b>. 웹 검색으로 잡히지 않았을 뿐 구단 공식 공지 <b>「선수단 IP 활용 및 2차 창작 가이드라인」</b>이 존재하며, 별도로 <b>HLE Official Membership 이용약관</b>도 확인됐다. 두 문서를 반영해 전면 개정한다.
+</div>
+
+<h2>결론</h2>
+<div class="verdict">
+  <p><strong>구단이 정한 기준은 존재한다. 다만 그 기준이 다루는 대상은 영상이다.</strong> 「선수단 IP 활용 및 2차 창작 가이드라인」은 공식 유튜브 영상과 선수단 개인방송을 대상으로 하며, 정지 이미지(선수 프로필 사진, 경기 사진)와 팀 엠블럼은 문언상 다루지 않는다.</p>
+  <p><strong>따라서 팬페이지가 지켜야 할 규칙은 네 개 문서에서 나온다.</strong> 구단 가이드라인(영상), 멤버십 이용약관(멤버십 게시물), 라이엇 및 LCK 정책(게임 IP와 경기 방송), 그리고 법령(초상, 성명). 사진과 엠블럼은 어느 문서도 명시적으로 허용하지 않은 <strong>규정 공백</strong> 상태로 남는다.</p>
+  <p><strong>가장 확실해진 것은 수익화 금지다.</strong> 이제 이건 해석이 아니라 구단이 문서로 명시한 규정이다. 팬페이지에 광고, 후원, 유료화를 붙이면 명백한 위반이 된다.</p>
+  <p><strong>공식 멤버십 약관과의 충돌은 현재 없다.</strong> 약관은 (주)한컴과 회원 사이의 계약이고 팬사이트 개설을 금지하는 조항이 없다. 다만 공식으로 오인되는 것, 유료 콘텐츠를 대체하는 것, 계정을 연동하는 것 세 가지는 앞으로 기능을 붙일 때 선을 넘기 쉬운 지점이다.</p>
+</div>
+
+<h2>어느 문서가 어느 자산을 다루는가</h2>
+<p>네 개 문서의 관할이 서로 다르다. 이 지도가 이번 검토의 핵심이다.</p>
+<div class="tbl">
+<table>
+  <thead>
+    <tr><th>자산</th><th>관할 문서</th><th>상태</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>공식 유튜브 영상, 선수단 개인방송</td>
+      <td>HLE 2차 창작 가이드라인</td>
+      <td><span class="tag lo">조건부 허용</span></td>
+    </tr>
+    <tr>
+      <td>멤버십 사이트 게시물 일체</td>
+      <td>HLE Official Membership 이용약관 제22조</td>
+      <td><span class="tag hi">사전 승낙 필요</span></td>
+    </tr>
+    <tr>
+      <td>LCK 경기 방송, 경기 사진</td>
+      <td>LCK 콘텐츠 크리에이터 가이드라인</td>
+      <td><span class="tag mid">비상업 한정</span></td>
+    </tr>
+    <tr>
+      <td>게임 내 이미지, 라이엇 로고</td>
+      <td>라이엇 지식재산 이용 정책</td>
+      <td><span class="tag hi">로고는 금지</span></td>
+    </tr>
+    <tr>
+      <td>선수 프로필 사진</td>
+      <td>없음 (초상권, 저작권 일반 법리로 판단)</td>
+      <td><span class="tag gap">규정 공백</span></td>
+    </tr>
+    <tr>
+      <td>팀 엠블럼</td>
+      <td>없음 (상표권 일반 법리로 판단)</td>
+      <td><span class="tag gap">규정 공백</span></td>
+    </tr>
+    <tr>
+      <td>팬아트, 일러스트</td>
+      <td>없음</td>
+      <td><span class="tag gap">규정 공백</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>문서 A. HLE 선수단 IP 활용 및 2차 창작 가이드라인</h2>
+<p>구단 공식 공지 이미지로 배포된 문서다. 아래는 전문이다.</p>
+
+<blockquote>
+  <span class="art">제목</span>
+  <p>[공지] 한화생명e스포츠(HLE) 선수단 IP 활용 및 2차 창작 가이드라인</p>
+  <span class="art" style="margin-top:14px">인사말</span>
+  <p>"언제나 선수들을 아껴주시고, 다양한 콘텐츠로 응원해 주시는 팬 여러분께 진심으로 감사드립니다. 팬 여러분의 자유로운 창작 활동을 존중하고 장려하기 위해, 선수단 개인 방송 및 공식 콘텐츠 활용 가이드라인을 안내드립니다."</p>
+  <span class="art" style="margin-top:14px">1. 자유로운 창작과 공유를 환영합니다.</span>
+  <p><b>SNS 공유용 클립</b><br>"1분 미만의 단순 공유용 영상은 별도의 허가 없이 자유롭게 업로드하실 수 있습니다."</p>
+  <p><b>편집 콘텐츠</b><br>"선수단 개인 방송 및 공식 유튜브 영상을 활용한 2차 가공(컷 편집, 자막 추가, 쇼츠 등) 시, 출처(원본 링크)를 명확히 기재해 주시면 게시가 가능합니다."</p>
+  <span class="art" style="margin-top:14px">2. 수익 창출은 엄격히 금지됩니다.</span>
+  <p>"한화생명e스포츠의 모든 영상 자산은 '비영리 목적'으로만 사용 가능합니다. (공식 유튜브 채널 영상, 선수단 개인방송)"</p>
+  <p>"모든 2차 창작물은 수익 창출 설정을 금지하며, 영상 설명란 혹은 댓글을 통해 "본 가공 영상으로 수익을 창출하지 않음"을 반드시 명시해 주시기 바랍니다."</p>
+  <p>"영리를 목적으로 하는 채널이나, 추후 수익 창출이 확인되는 경우 사전 통보 없이 삭제 조치될 수 있습니다."</p>
+  <span class="art" style="margin-top:14px">3. 건전한 콘텐츠 문화를 만들어 주세요.</span>
+  <p>"단순히 원본 영상을 짧게 자르거나 자막만 추가하는 편집 방식(예: 1분 미만의 쇼츠 영상)은 저작권법상 '변형적 저작물'로 인정되지 않습니다."</p>
+  <p>"선수를 비방하거나 악의적으로 내용을 왜곡하는 경우, 또는 허위 사실을 유포하는 편집물은 저작권과 별개로 즉각적인 제재 대상이 됩니다."</p>
+  <span class="art" style="margin-top:14px">단서</span>
+  <p>"본 가이드라인은 구단의 운영 정책에 따라 변경될 수 있으며, 가이드라인을 준수하더라도 구단 판단하에 부적절하다고 간주되는 콘텐츠는 삭제 요청 등의 조치가 취해질 수 있습니다."</p>
+  <cite>출처: 한화생명e스포츠 공식 공지 이미지. 원본 게시 URL은 미확인이며 문서 하단 미확인 사항 참조.</cite>
+</blockquote>
+
+<h4>팬페이지에 적용되는 부분</h4>
+<ul>
+  <li><strong>대상이 영상으로 한정된다.</strong> "모든 영상 자산", "공식 유튜브 채널 영상, 선수단 개인방송"으로 범위를 스스로 특정했다. 사진과 엠블럼을 여기에 끌어다 붙이는 해석은 무리다.</li>
+  <li><strong>수익화 금지가 명문화됐다.</strong> 팬페이지에 광고를 넣지 않는다는 판단이 이제 자율적 선택이 아니라 구단 규정 준수가 된다.</li>
+  <li><strong>출처 표기 요구가 있다.</strong> 영상에 대한 요구지만, 팬페이지 전역 원칙으로 확대 적용하는 편이 구단 의사에 부합한다.</li>
+  <li><strong>비수익 명시 요구가 있다.</strong> "본 가공 영상으로 수익을 창출하지 않음"을 명시하라는 조항이다. 팬페이지 푸터에 같은 취지 문구를 넣으면 정합적이다.</li>
+  <li><strong>철회권이 유보돼 있다.</strong> 가이드라인을 지켜도 구단 판단으로 삭제 요청이 올 수 있다. 라이엇 정책의 철회 조항과 같은 구조다. 즉 어느 문서를 지키든 최종 결정권은 권리자에게 있다.</li>
+</ul>
+
+<div class="note">
+  <strong>용어 하나를 짚어둔다.</strong> 3번 항목의 "저작권법상 '변형적 저작물'"은 한국 저작권법의 법정 용어가 아니다. 저작권법에 있는 용어는 제5조의 '2차적저작물'과 제35조의5의 '저작물의 공정한 이용'이다. '변형적(transformative)'은 미국 공정이용 판단에서 쓰는 개념이다. 다만 구단이 전하려는 취지, 즉 단순 컷 편집만으로는 면책되지 않는다는 경고 자체는 방향이 맞다. 용어가 부정확하다고 해서 무시해도 된다는 뜻이 아니라, <strong>구단 방침으로 존중하되 법적 근거를 이 문장에서 찾지는 말라</strong>는 의미다.
+</div>
+
+<h2>문서 B. HLE Official Membership 이용약관</h2>
+<p>2024년 12월 23일 시행. 이번 검토에서 가장 예상 밖이었던 발견이 운영 주체다.</p>
+
+<blockquote>
+  <span class="art">제1조 (목적)</span>
+  <p>"이 약관은 (주)한컴 (이하 "회사"라 한다)가 운영하는 HLE Official Membership (이하 "서비스"이라 한다)에서 제공하는 인터넷 관련 서비스를 이용함에 있어 서비스와 이용자의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다."</p>
+  <cite>출처: HLE Official Membership 이용약관 (시행일 2024년 12월 23일)</cite>
+</blockquote>
+
+<p>즉 멤버십 서비스의 운영 주체이자 약관상 저작권 귀속 주체는 한화생명e스포츠가 아니라 <strong>(주)한컴</strong>이다. 멤버십 콘텐츠 사용을 문의할 창구가 구단 메일이 아닐 수 있다는 뜻이므로, 실제 문의 전에 사이트 하단 사업자 정보를 확인해야 한다.</p>
+
+<blockquote>
+  <span class="art">제2조 (정의) 제5호</span>
+  <p>""콘텐츠"라 함은 회사가 제공하는 서비스와 관련되어 게시한 내용물 일체를 의미합니다."</p>
+  <span class="art" style="margin-top:14px">제22조 (저작권의 귀속 및 이용제한)</span>
+  <p>"① "서비스"가 작성한 저작물에 대한 저작권 기타 지적재산권은 "서비스"에 귀속합니다."</p>
+  <p>"② 이용자는 "서비스"를 이용함으로써 얻은 정보 중 "서비스"에게 지적재산권이 귀속된 정보를 "서비스"의 사전 승낙 없이 복제, 송신, 출판, 배포, 방송 기타 방법에 의하여 영리목적으로 이용하거나 제3자에게 이용하게 하여서는 안됩니다."</p>
+  <span class="art" style="margin-top:14px">제20조 (이용자의 의무)</span>
+  <p>"3. "서비스"에 게시된 정보의 변경"</p>
+  <p>"5. "서비스" 기타 제3자의 저작권 등 지적재산권에 대한 침해"</p>
+  <span class="art" style="margin-top:14px">제7조 (회원 탈퇴 및 자격 상실 등) 제2항 제4호</span>
+  <p>""서비스"을 이용하여 법령 또는 이 약관이 금지하거나 공서양속에 반하는 행위를 하는 경우"</p>
+  <cite>출처: HLE Official Membership 이용약관 (시행일 2024년 12월 23일)</cite>
+</blockquote>
+
+<h4>읽는 법</h4>
+<ul>
+  <li><strong>"콘텐츠" 정의가 넓다.</strong> "게시한 내용물 일체"이므로 멤버십 사이트에 올라온 선수 사진, 영상, 텍스트가 모두 포함된다.</li>
+  <li><strong>제22조 제2항의 문언은 "영리목적으로"를 조건으로 건다.</strong> 문언만 보면 비영리 복제는 이 조항의 금지 범위 밖으로 읽힐 여지가 있다. 그러나 <strong>여기서 안심하면 안 된다.</strong> 약관은 회사와 회원 사이의 계약일 뿐이고, 저작권법상 권리는 약관과 별개로 존재한다. 약관이 비영리 사용을 명시적으로 허락한 것도 아니다. 게다가 제20조 제5호가 지적재산권 침해 자체를 회원 의무 위반으로 규정하므로, 비영리라도 저작권법상 침해에 해당하면 결국 걸린다.</li>
+  <li><strong>제20조 제3호의 "게시된 정보의 변경"</strong>은 멤버십 이미지를 잘라 쓰거나 가공하는 행위에 직접 닿는다.</li>
+  <li><strong>제재는 계정으로 온다.</strong> 제7조에 따라 약관 위반은 회원 자격 제한, 정지, 상실로 이어진다. 팬페이지 운영자가 멤버십 회원이라면 저작권 분쟁 이전에 계정부터 잃을 수 있다.</li>
+</ul>
+
+<div class="danger">
+  <strong>가장 위험한 행위 하나를 특정한다.</strong> 멤버십 사이트에서만 볼 수 있는 사진이나 영상을 팬페이지에 올리는 것. 유료 회원 전용 콘텐츠를 외부에 공개하는 행위이므로 저작권 문제에 더해 유료 서비스의 가치를 직접 훼손한다. 라이엇 정책이 금지하는 "과금 장벽으로 막은 프로젝트"와는 방향이 반대지만, 권리자 입장에서 가장 강하게 대응할 유형이라는 점은 같다. <strong>멤버십 콘텐츠는 출처를 밝히더라도 팬페이지에 재게시하지 않는다.</strong>
+</div>
+
+<h3>우리 사이트가 멤버십 약관과 충돌하는가</h3>
+<p>자산 사용과 별개로, 우리가 만드는 사이트 자체가 공식 멤버십 서비스와 부딪히는지를 따로 점검한다. 먼저 구속 관계부터 정리하면, <strong>이용약관은 (주)한컴과 멤버십 회원 사이의 계약이다.</strong> 비공식 팬페이지는 이 계약의 당사자가 아니므로 약관이 우리 사이트를 직접 규율하지는 않는다. 우리가 약관에 묶이는 경로는 두 개뿐이다.</p>
+<ul>
+  <li><strong>운영자가 멤버십 회원인 경우.</strong> 회원 자격으로 제20조의 의무를 지고, 위반하면 제7조에 따라 계정 제재를 받는다. 사이트가 아니라 사람이 걸린다.</li>
+  <li><strong>멤버십 콘텐츠를 가져다 쓰는 경우.</strong> 제22조가 적용된다.</li>
+</ul>
+<p>그리고 <strong>약관에는 팬사이트 개설을 금지하는 조항이 없다.</strong> 회원 의무를 정한 제20조에도 외부 사이트 운영을 제한하는 항목은 없다. 따라서 사이트의 존재 자체는 충돌하지 않는다. 실제로 조심할 충돌은 아래 다섯 가지다.</p>
+
+<div class="tbl">
+<table>
+  <thead>
+    <tr><th>충돌 지점</th><th>관련 조항</th><th>회피 방법</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>공식으로 오인되는 것</strong></td>
+      <td>제20조 제6호 (제3자의 명예 손상, 업무 방해), 부정경쟁방지법상 영업표지 혼동</td>
+      <td>사이트명, 헤더, 푸터에 비공식임을 명시한다. 공식 멤버십의 로고 조합이나 화면 구성을 모방하지 않는다. 도메인과 서비스명에 official, 공식, membership 류의 단어를 쓰지 않는다.</td>
+    </tr>
+    <tr>
+      <td><strong>유료 서비스를 대체하는 것</strong></td>
+      <td>제2조 제6호 (유료서비스), 제20조 제6호</td>
+      <td>멤버십이 유료로 제공하는 것을 우리가 무료로 제공하지 않는다. 멤버십 혜택을 소개하고 가입 페이지로 링크하는 것은 문제없으나, 전용 콘텐츠를 옮겨오는 순간 대체재가 된다.</td>
+    </tr>
+    <tr>
+      <td><strong>멤버십 게시물 전재</strong></td>
+      <td>제22조, 제20조 제3호 및 제5호</td>
+      <td>캡처, 재편집, 요약 게시 모두 하지 않는다. 앞 항목에서 최고 위험으로 분류한 그것이다.</td>
+    </tr>
+    <tr>
+      <td><strong>계정 연동, 자동 수집</strong></td>
+      <td>제19조 (ID 및 비밀번호 의무), 제20조 제2호 (타인의 정보 도용)</td>
+      <td>멤버십 계정으로 로그인하는 기능을 만들지 않는다. 로그인이 필요한 페이지를 자동으로 긁어오지 않는다. 공개 페이지만 다룬다.</td>
+    </tr>
+    <tr>
+      <td><strong>외부 링크</strong></td>
+      <td>제21조 (연결서비스와 피연결서비스)</td>
+      <td>문제없다. 오히려 공식 멤버십으로 나가는 링크를 두는 편이 오인 방지에 도움이 된다.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <strong>현재 상태 점검.</strong> 저장소에 이미지 자산이 하나도 없고, 로그인이나 계정 기능도 없으며, 수익 요소도 없다. 로스터 페이지의 사진 슬롯은 비어 있고 주석에 "공식 SNS 임베드 또는 허가받은 촬영분으로 교체"라고 적혀 있다. <strong>지금 시점에서 멤버십 약관과 충돌하는 지점은 없다.</strong> 위 다섯 항목은 앞으로 기능을 붙일 때 지킬 기준이다.
+</div>
+
+<h2>문서 C. 라이엇게임즈와 LCK</h2>
+
+<h3>라이엇게임즈 지식재산 이용 정책</h3>
+<blockquote>
+  <span class="art">허용되는 범위</span>
+  <p>"라이엇의 IP에 기반한 이차적 저작물의 이용, 전시, 창작에 대해 개인적이고 비독점적이며 재라이선스 불가능하고 양도 불가능하며 취소 가능한 제한적인 라이선스"</p>
+  <span class="art" style="margin-top:14px">상업적 프로젝트 금지</span>
+  <p>"라이엇과의 서면 라이선스 계약 없이는 일부 자금이라도 크라우드펀딩으로 확보한 프로젝트를 포함한 상업적 프로젝트, 사업체 또는 법인이 관여하는 프로젝트, 콘텐츠를 과금 장벽(예: 패트리온, 유튜브 프리미엄 등)으로 막은 프로젝트를 창작할 수 없습니다."</p>
+  <span class="art" style="margin-top:14px">로고와 상표</span>
+  <p>"라이엇과 서면으로 라이선스 계약을 체결하지 않는 한, 귀하는 귀하의 프로젝트, 웹사이트, 광고물, 영상 또는 기타 게시물에서 라이엇의 로고 또는 상표를 일절 이용할 수 없습니다."</p>
+  <span class="art" style="margin-top:14px">철회권</span>
+  <p>"라이엇은 전적이고 절대적인 재량에 따라 IP를 부적절하게 이용했다고 판단하는 경우를 포함해 여하한 사유 또는 특별한 사유 없이도 수시로 IP 이용을 금지할 권리를 보유합니다."</p>
+  <span class="art" style="margin-top:14px">수익 예외</span>
+  <p>"프리롤 광고, 중간 광고, 스폰서의 오버레이 광고를 포함하는 적절한 광고로 수동적인 수익을 창출하는 행위는 허용"</p>
+  <span class="art" style="margin-top:14px">필수 고지 문구</span>
+  <p>"[본인 프로젝트의 이름]은 라이엇 게임즈의 '지식재산 이용 정책'에 따라 라이엇 게임즈 소유의 자산을 이용하여 제작되었습니다. 라이엇 게임즈는 이 프로젝트를 지지하거나 후원하지 않습니다."</p>
+  <cite>출처: 라이엇게임즈 지식재산 이용 정책, riotgames.com/ko/legal</cite>
+</blockquote>
+
+<div class="note">
+  <strong>충돌 지점.</strong> 라이엇은 플랫폼 광고 수익을 예외로 허용하지만, HLE 가이드라인은 "수익 창출 설정을 금지"한다. <strong>더 엄격한 쪽인 HLE 기준을 따른다.</strong> 두 권리자의 자산을 함께 쓰는 이상 각각의 기준을 모두 만족해야 하기 때문이다.
+</div>
+
+<h3>LCK 콘텐츠 크리에이터 가이드라인</h3>
+<blockquote>
+  <span class="art">LCK IP의 범위</span>
+  <p>"사진, 동영상, 공식 경기 방송, LCK 브랜드 (로고, 명칭 등)"</p>
+  <span class="art" style="margin-top:14px">이용 조건</span>
+  <p>"개인적이고 비상업적인 목적과 형태, 방식으로만 LCK IP를 활용한 콘텐츠를 제작하고 이용할 수 있"</p>
+  <p>"LCK IP는 LCK와의 서면 협의 없이 콘텐츠 자체에 대한 판매나 다른 형태의 소유권 양도로 보상을 요구할 수 없습니다."</p>
+  <p>"LCK IP 기반 콘텐츠는 LCK 브랜드를 훼손하거나 시장가치를 하락시키도록 자의적으로 변형해서는 안 됩니다."</p>
+  <span class="art" style="margin-top:14px">금지</span>
+  <p>"LCK 생방송이 진행 중일 때에는 경기 화면을 동시 스트리밍하거나 온라인으로 함께 시청할 수 없습니다."</p>
+  <p>"LCK에서 제공한 콘텐츠를 자체적인 제작 분량 없이 미러링하는 행위는 금지"</p>
+  <p>"LCK 스폰서사의 로고를 가리거나, 제거하거나, 변환해서는 안 됩니다."</p>
+  <cite>출처: LCK 콘텐츠 크리에이터 가이드라인, lolesports.com</cite>
+</blockquote>
+<p>주목할 점은 <strong>LCK IP 정의에 사진이 명시적으로 들어간다는 것</strong>이다. 경기장에서 촬영된 선수 사진은 상당수가 여기 걸린다. 반대로 팀 로고는 이 정의에 없으므로 LCK 가이드라인으로는 커버되지 않는다.</p>
+
+<h2>문서 D. 법령 층</h2>
+<p>구단이나 리그가 허락해도 선수 개인의 권리는 별도로 남는다. 2차 창작에서 특히 그렇다.</p>
+
+<h3>부정경쟁방지법상 유명인 식별표지 보호</h3>
+<blockquote>
+  <span class="art">제2조 제1호 타목</span>
+  <p>"국내에 널리 인식되고 경제적 가치를 가지는 타인의 성명, 초상, 음성, 서명 등 그 타인을 식별할 수 있는 표지를 공정한 상거래 관행이나 경쟁질서에 반하는 방법으로 자신의 영업을 위하여 무단으로 사용함으로써 타인의 경제적 이익을 침해하는 행위"</p>
+  <cite>출처: 부정경쟁방지 및 영업비밀보호에 관한 법률. 2021년 개정으로 신설, 2022년 4월 시행. 목 표기는 개정 이력에 따라 달라질 수 있으므로 실제 인용 시 국가법령정보센터에서 확인 필요.</cite>
+</blockquote>
+<p>이 조항의 성립 요건에는 <strong>"자신의 영업을 위하여"</strong>가 들어 있다. 비영리 팬페이지는 이 요건을 충족하지 않을 가능성이 높다. 뒤집어 말하면 <strong>팬페이지에 수익 모델을 붙이는 순간 이 조항의 사정권에 들어간다.</strong> 앞서 나온 세 문서의 수익화 금지와 이 조항이 같은 방향을 가리킨다는 점이 중요하다.</p>
+
+<h3>초상권</h3>
+<p>퍼블리시티권과 별개로, 선수 개인의 인격권으로서 초상권이 존재한다. 영리 여부와 무관하게 문제될 수 있으며, 프로 선수의 초상은 통상 팀 계약으로 관리되므로 선수 개인 동의만으로도 팀 동의만으로도 깔끔하게 해소되지 않는다. 이 영역은 공개된 정책 문서가 없어 일반 법리로 판단할 수밖에 없다.</p>
+
+<h2>2차 창작 유형별 판단</h2>
+<div class="tbl">
+<table>
+  <thead>
+    <tr><th>유형</th><th>위험</th><th>근거</th><th>조건</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>공식 영상 클립, 편집물</strong></td>
+      <td><span class="tag lo">허용</span></td>
+      <td>HLE 가이드라인 1항</td>
+      <td>출처 원본 링크 기재, 수익 창출 설정 해제, 비수익 명시</td>
+    </tr>
+    <tr>
+      <td><strong>1분 미만 SNS 공유 클립</strong></td>
+      <td><span class="tag lo">허용</span></td>
+      <td>HLE 가이드라인 1항</td>
+      <td>별도 허가 불필요. 단 수익화 금지는 그대로 적용</td>
+    </tr>
+    <tr>
+      <td><strong>공식 SNS 게시물 임베드</strong></td>
+      <td><span class="tag lo">낮음</span></td>
+      <td>호스팅 주체가 플랫폼</td>
+      <td>현재 사진 문제의 가장 안전한 우회로</td>
+    </tr>
+    <tr>
+      <td><strong>직접 그린 팬아트</strong></td>
+      <td><span class="tag mid">중</span></td>
+      <td>구단 규정 없음, 초상권 남음</td>
+      <td>비영리, 비방이나 왜곡 없음. 유니폼과 엠블럼 정밀 재현은 피하기</td>
+    </tr>
+    <tr>
+      <td><strong>팀 엠블럼 게재</strong></td>
+      <td><span class="tag mid">중</span></td>
+      <td>상표권, 공개 라이선스 없음</td>
+      <td>팀 식별 목적, 원본 비율과 색 유지, 변형 금지. 사전 문의 권장</td>
+    </tr>
+    <tr>
+      <td><strong>경기 사진, 중계 캡처</strong></td>
+      <td><span class="tag mid">중상</span></td>
+      <td>LCK IP에 사진 포함</td>
+      <td>비상업, 스폰서 로고 유지. 다량 호스팅과 미러링 금지</td>
+    </tr>
+    <tr>
+      <td><strong>선수 프로필 사진 직접 호스팅</strong></td>
+      <td><span class="tag hi">상</span></td>
+      <td>저작권과 초상권 중첩, 규정 공백</td>
+      <td>하지 않는다</td>
+    </tr>
+    <tr>
+      <td><strong>멤버십 전용 콘텐츠 재게시</strong></td>
+      <td><span class="tag hi">최상</span></td>
+      <td>약관 제22조, 제20조. 유료 서비스 가치 훼손</td>
+      <td>하지 않는다</td>
+    </tr>
+    <tr>
+      <td><strong>굿즈 제작, 판매</strong></td>
+      <td><span class="tag hi">최상</span></td>
+      <td>네 문서 모두 영리 목적을 금지</td>
+      <td>하지 않는다</td>
+    </tr>
+    <tr>
+      <td><strong>AI 생성 선수 이미지</strong></td>
+      <td><span class="tag hi">상</span></td>
+      <td>학습 자료 출처 불명, 초상권 직격</td>
+      <td>권장하지 않는다. 아래 참고</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <strong>AI 생성물에 대해.</strong> 네 문서 중 어느 것도 AI 생성 콘텐츠를 언급하지 않는다. 규정이 없다는 것이 허용을 뜻하지는 않는다. 실존 인물의 얼굴을 재현하는 생성물은 초상권 측면에서 사진과 다를 바 없고, 오히려 "왜곡"으로 읽힐 여지가 있어 HLE 가이드라인 3항의 제재 대상에 가까워진다. 이 영역은 정책이 없는 것이 아니라 아직 쓰이지 않은 것으로 보고 보수적으로 접근한다.
+</div>
+
+<h2>팬페이지 운영 규칙</h2>
+
+<div class="rule">
+  <span class="n">1</span><span class="h">수익 모델을 붙이지 않는다.</span>
+  <p>광고, 후원 버튼, 유료 멤버십, 굿즈 판매, 제휴 링크 전부 제외한다.</p>
+  <p class="why">근거: HLE 가이드라인 2항 "수익 창출은 엄격히 금지됩니다", 라이엇 상업적 프로젝트 금지, LCK 비상업 조건, 부정경쟁방지법 "자신의 영업을 위하여" 요건. 네 문서가 모두 같은 방향을 가리키는 유일한 지점이다.</p>
+</div>
+
+<div class="rule">
+  <span class="n">2</span><span class="h">푸터에 세 가지를 고지한다.</span>
+  <p>비공식 팬페이지 표기, 라이엇 필수 문구, 비수익 운영 명시.</p>
+  <p class="why">라이엇 문구는 원문 그대로 넣어야 한다. 비수익 명시는 HLE 가이드라인 2항이 "영상 설명란 혹은 댓글을 통해 반드시 명시"하라고 요구한 것을 사이트 단위로 옮긴 것이다.</p>
+</div>
+
+<div class="rule">
+  <span class="n">3</span><span class="h">선수 사진은 직접 호스팅하지 않는다.</span>
+  <p>공식 SNS 임베드로만 처리하고, 이미지 파일을 저장소나 서버에 두지 않는다.</p>
+  <p class="why">사진은 규정 공백 영역이면서 저작권과 초상권이 겹치는 가장 위험한 자산이다. 임베드는 호스팅 책임을 플랫폼에 남긴다.</p>
+</div>
+
+<div class="rule">
+  <span class="n">4</span><span class="h">멤버십 콘텐츠는 어떤 형태로도 옮기지 않는다.</span>
+  <p>캡처, 재편집, 요약 게시 모두 포함한다.</p>
+  <p class="why">이용약관 제22조와 제20조 위반이며, 위반 시 저작권 문제 이전에 회원 자격 상실로 이어진다.</p>
+</div>
+
+<div class="rule">
+  <span class="n">5</span><span class="h">영상을 쓸 때는 원본 링크를 반드시 건다.</span>
+  <p>구단이 요구한 유일한 적극적 의무다. 사진과 데이터에도 같은 원칙을 확대 적용한다.</p>
+  <p class="why">HLE 가이드라인 1항 "출처(원본 링크)를 명확히 기재해 주시면 게시가 가능합니다".</p>
+</div>
+
+<div class="rule">
+  <span class="n">6</span><span class="h">엠블럼과 사진의 직접 호스팅이 필요해지면 문의한다.</span>
+  <p>비영리 여부, 광고 없음, 도메인, 사용할 자산 목록, 표기 방식을 특정해서 보낸다. 멤버십 콘텐츠 관련이면 문의처가 (주)한컴일 수 있으므로 사업자 정보를 먼저 확인한다.</p>
+  <p class="why">규정 공백 영역은 문의로만 해소된다. 구단 공개 연락처는 hanwhalife.esports@gmail.com이다.</p>
+</div>
+
+<div class="rule">
+  <span class="n">7</span><span class="h">삭제 요청이 오면 즉시 따른다.</span>
+  <p>다투지 않는다.</p>
+  <p class="why">HLE 가이드라인과 라이엇 정책 모두 철회권을 명시적으로 유보하고 있다. "가이드라인을 준수하더라도 구단 판단하에 부적절하다고 간주되는 콘텐츠는 삭제 요청 등의 조치가 취해질 수 있습니다."</p>
+</div>
+
+<h2>보류 중인 결정: 권리자 연락 창구</h2>
+<p>푸터 고지는 배포했으나 <strong>연락 수단은 아직 정하지 못했다.</strong> 임의로 주소를 넣지 않고 보류한 상태이며, 아래는 결정에 필요한 판단 근거다.</p>
+
+<h4>왜 필요한가</h4>
+<p>푸터에 "권리자의 요청이 있을 경우 해당 콘텐츠를 즉시 삭제합니다"라고 약속해 두었다. 그런데 연락할 곳이 없으면 이 문장은 지킬 수 없는 약속이 되고, 고지 전체의 신뢰도를 떨어뜨린다.</p>
+<p>더 실질적인 이유가 있다. <strong>창구가 없으면 권리자의 다음 수단이 곧바로 강한 쪽으로 넘어간다.</strong> 메일 한 통이면 끝날 일이 호스팅 사업자 신고, 도메인 등록기관 신고, 내용증명으로 시작된다. HLE 가이드라인과 라이엇 정책이 모두 "삭제 요청"을 1차 수단으로 상정하고 있는데, 그 요청을 받을 통로가 없으면 1차 단계가 통째로 생략되는 셈이다. 연락 창구는 방어 장치가 아니라 <strong>완충 장치</strong>다.</p>
+
+<h4>왜 즉시 정하지 못했는가</h4>
+<ul>
+  <li><strong>개인 메일을 그대로 노출하면 운영자 신원이 드러난다.</strong> 비공식 팬사이트 운영자가 실명이나 상시 사용 계정을 공개하는 것은 위험 부담이 있다. 구단 관련 사안이나 팬덤 내 갈등이 생겼을 때 개인이 직접 표적이 될 수 있다.</li>
+  <li><strong>공개된 메일 주소는 수집 봇에 긁힌다.</strong> 스팸 유입은 물론, 이후 다른 서비스 계정과 연결되면 피해 범위가 넓어진다.</li>
+  <li><strong>선택지가 여럿이고 각각 성격이 다르다.</strong> 프로젝트 전용 별칭 메일, 웹 문의 폼, SNS 계정 DM, 저장소 이슈 트래커. 권리자 입장에서는 기록이 남고 법적 통지로도 쓸 수 있는 채널을 선호하므로 폼이나 DM보다 메일이 유리하다.</li>
+  <li><strong>개인정보 처리 문제가 따라온다.</strong> 문의를 받는 순간 상대방의 개인정보를 처리하게 된다. 규모가 작아 법적 의무 수준은 낮겠지만, 수집 항목과 보관 기간을 한 줄이라도 안내하는 편이 안전하다.</li>
+</ul>
+
+<h4>권장안</h4>
+<p>이 프로젝트 전용 별칭 메일 하나를 만들어 개인 메일과 분리하고, 푸터에 그 주소만 노출한다. 신원을 드러내지 않으면서 기록이 남는 채널을 확보할 수 있고, 문제가 생기면 별칭만 폐기하면 된다. 노출 시에는 텍스트 그대로 쓰기보다 최소한의 난독화나 링크 형태를 쓴다.</p>
+
+<div class="note">
+  <strong>결정 전까지의 상태.</strong> 현재 사이트에는 이미지 자산이 없고 수익 요소도 없어 삭제 요청이 들어올 여지 자체가 크지 않다. 다만 <strong>선수 사진이나 팀 엠블럼을 처음 넣는 시점보다 먼저</strong> 연락 창구를 확정해야 한다. 그 순서가 뒤바뀌면 약속만 있고 통로가 없는 구간이 생긴다.
+</div>
+
+<h2>미확인 사항</h2>
+<div class="note">
+  <p style="margin-bottom:11px"><strong>HLE 2차 창작 가이드라인의 원본 게시 URL.</strong> 공지 이미지의 내용은 확인했으나 어느 채널에 언제 게시됐는지는 확인하지 못했다. 웹 검색으로 잡히지 않는다. 개정 여부를 추적하려면 원본 게시물 위치를 확보해야 한다.</p>
+  <p style="margin-bottom:11px"><strong>(주)한컴의 정확한 사업자 정보.</strong> 약관 제1조에 상호만 나오고 이 검토에서 별도 확인은 하지 않았다. 문의 전 멤버십 사이트 하단 사업자 정보를 확인할 것.</p>
+  <p style="margin-bottom:11px"><strong>부정경쟁방지법 해당 조항의 현행 목 표기.</strong> 조문 내용은 여러 출처에서 일치하나 목 표기(타목)는 개정 이력이 잦아 국가법령정보센터 원문 확인이 필요하다. 이 검토에서는 확인하지 못했다.</p>
+  <p style="margin-bottom:11px"><strong>인격표지영리권 민법 개정안의 현재 상태.</strong> 2022년 말 입법예고까지는 확인되나 이후 국회 통과 여부는 확인하지 못했다. 통과됐다면 초상 관련 판단 기준이 달라진다.</p>
+  <p style="margin-bottom:0"><strong>팀 엠블럼과 팬아트에 대한 구단 방침.</strong> 확인된 가이드라인이 영상만 다루므로 이 두 영역은 여전히 공백이다. 구단이 별도 공지를 냈을 가능성을 배제할 수 없다.</p>
+</div>
+
+<h2>출처</h2>
+<ul class="src">
+  <li>
+    <span class="t">한화생명e스포츠 「선수단 IP 활용 및 2차 창작 가이드라인」 공식 공지</span>
+    <span class="u">구단 배포 공지 이미지. 원본 게시 URL 미확인.</span>
+  </li>
+  <li>
+    <span class="t">HLE Official Membership 이용약관</span>
+    <span class="u">시행일 2024년 12월 23일. 운영 주체 (주)한컴.</span>
+  </li>
+  <li>
+    <a class="t" href="https://lolesports.com/ko-KR/news/lck-content-creator-guideline">LCK 콘텐츠 크리에이터 가이드라인</a>
+    <span class="u">https://lolesports.com/ko-KR/news/lck-content-creator-guideline</span>
+  </li>
+  <li>
+    <a class="t" href="https://www.riotgames.com/ko/legal">라이엇게임즈 지식재산 이용 정책</a>
+    <span class="u">https://www.riotgames.com/ko/legal</span>
+  </li>
+  <li>
+    <a class="t" href="https://www.kimchang.com/ko/insights/detail.kc?sch_section=4&idx=24264">김앤장, 유명인의 초상 성명 등 식별표지 무단사용행위 규제 부정경쟁방지법 개정</a>
+    <span class="u">https://www.kimchang.com/ko/insights/detail.kc?sch_section=4&idx=24264</span>
+  </li>
+  <li>
+    <a class="t" href="https://hle.kr/">한화생명e스포츠 공식 사이트</a>
+    <span class="u">https://hle.kr/ (공개 연락처 확인 근거)</span>
+  </li>
+  <li>
+    <a class="t" href="https://www.invenglobal.com/articles/4903/trust-teamwork-innovation-hanwha-life-esports-reveal-of-their-official-emblem-and-uniform">Inven Global, 한화생명e스포츠 공식 엠블럼과 유니폼 공개</a>
+    <span class="u">https://www.invenglobal.com/articles/4903/</span>
+  </li>
+</ul>
+
+<footer>
+  <p style="margin:0">이 문서는 공개된 정책 문서와 구단 공지를 근거로 정리한 내부 검토 자료이며 법률 자문이 아니다. 인용문은 각 출처의 표현을 그대로 옮긴 것이나, 웹 출처는 요약 도구를 거쳐 수집됐으므로 대외 인용 전 원문 대조를 권한다. 구단 가이드라인은 "구단의 운영 정책에 따라 변경될 수 있"다고 명시하고 있으므로, 실제 자산 도입 시점에 다시 확인할 것.</p>
+</footer>
+
+</div>
+</body>
+</html>
