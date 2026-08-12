@@ -50,7 +50,7 @@ export default async function Home() {
           <div className="hero-cta">
             <Link className="btn btn-primary" href="/me">
               <Bell size={17} />
-              경기 알림 받기
+              알림 설정
             </Link>
             <Link className="btn btn-ghost" href="/schedule">
               <CalendarDays size={17} />
