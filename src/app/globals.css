@@ -52,7 +52,8 @@ button{font-family:inherit}
 /* 카드 안 그룹 제목 — 마이크로 대문자 라벨 대신 읽히는 소제목 */
 .grouphead{font-size:14px;font-weight:600;color:var(--ink);margin:0 0 10px;letter-spacing:-.01em}
 /* 라이브 상태 — 제목이 아니라 상태 표시라 아이콘이 정보를 나른다 */
-.livestat{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--mute)}
+.livestat{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--mute);white-space:nowrap}
+.livestat.on{color:var(--flame-text)}
 .cap{font-size:13px;color:var(--mute)}
 .cap-xs{font-size:12px;color:var(--mute)}
 .bodytx{font-size:15px;color:var(--body)}
@@ -67,9 +68,6 @@ button{font-family:inherit}
 .btn-primary:hover{background:#FF7D2E}
 .btn-ghost{background:rgba(255,255,255,.09);color:var(--ink)}
 .btn-ghost:hover{background:rgba(255,255,255,.16)}
-/* 켜져 있는 토글형 버튼. .tg.on / .plat.on / .chip.on 과 같은 규칙을 따른다 */
-.btn-ghost.on{background:var(--flame-soft);color:var(--flame-text);box-shadow:inset 0 0 0 1px rgba(255,106,19,.45)}
-.btn-ghost.on:hover{background:rgba(255,106,19,.2)}
 .btn-light{background:#fff;color:var(--ink-dark)}
 .btn-sm{height:36px;padding:0 16px;font-size:13px}
 .btn-block{width:100%}

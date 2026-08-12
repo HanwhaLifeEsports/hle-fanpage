@@ -59,27 +59,37 @@ const NOTIFY_VIEW: Record<string, { Icon: typeof Bell; label: string; on: boolea
   default: { Icon: Bell, label: '알림 켜기', on: false },
 };
 
+const NOTIFY_HINT: Record<string, string> = {
+  granted: '받을 항목은 알림 설정에서 고를 수 있습니다. 전체 차단은 브라우저 사이트 설정에서 합니다.',
+  denied: '브라우저 사이트 설정에서 알림을 허용해 주세요.',
+  unsupported: '이 브라우저는 웹 알림을 지원하지 않습니다.',
+};
+
+/**
+ * 권한을 요청할 수 있을 때만 버튼이고, 나머지는 상태 표시다.
+ *
+ * 브라우저는 한 번 허용한 알림 권한을 사이트가 되돌리는 수단을 주지 않는다
+ * (requestPermission 만 있고 해제가 없다). 차단·미지원도 마찬가지로 여기서
+ * 할 수 있는 일이 없다. 할 일이 없는데 버튼 모양으로 두면 눌러도 아무 일이
+ * 없는 버튼이 되므로, 그 세 상태는 .livestat 상태 표시로 내린다.
+ * 알림 설정으로 가는 길은 상단 네비·하단 탭·홈 CTA 에 이미 있다.
+ */
 function NotifyButton({ permission, onAsk }: { permission: string; onAsk: () => void }) {
   const { Icon, label, on } = NOTIFY_VIEW[permission] ?? NOTIFY_VIEW.default;
-  const cls = `btn btn-ghost btn-sm${on ? ' on' : ''}`;
 
-  // 브라우저는 한 번 허용한 알림 권한을 사이트가 되돌리는 수단을 주지 않는다
-  // (requestPermission 만 있고 해제가 없다). 그래서 켜진 뒤에는 스위치가 아니라,
-  // 항목별로 끌 수 있는 알림 설정으로 가는 입구가 된다. aria-pressed 를 붙이면
-  // 스크린리더에 토글이라고 알리게 되므로 쓰지 않는다.
-  if (on) {
+  if (permission === 'default') {
     return (
-      <Link className={cls} href="/me" title="받을 알림 항목은 알림 설정에서 고를 수 있습니다">
+      <button className="btn btn-ghost btn-sm" onClick={onAsk}>
         <Icon size={15} />
         {label}
-      </Link>
+      </button>
     );
   }
   return (
-    <button className={cls} onClick={onAsk}>
+    <span className={`livestat${on ? ' on' : ''}`} title={NOTIFY_HINT[permission]}>
       <Icon size={15} />
       {label}
-    </button>
+    </span>
   );
 }
 
