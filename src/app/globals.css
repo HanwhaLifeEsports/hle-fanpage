@@ -269,7 +269,8 @@ label.fl{display:block;font-size:12px;font-weight:600;color:var(--mute);margin:0
 .pick{background:var(--surface-card);border:1px solid var(--hairline);border-radius:var(--r-card);padding:16px 10px;cursor:pointer;text-align:center;transition:.15s}
 .pick:hover{border-color:rgba(255,255,255,.28)}
 .pick.on{border-color:var(--flame);background:var(--flame-soft)}
-.pick b{display:block;font-size:24px;font-weight:300;font-variant-numeric:tabular-nums}
+/* 홈의 경기 스코어(.match .sc)와 같은 디스플레이 서체 */
+.pick b{display:block;font-family:var(--display);font-size:30px;letter-spacing:.01em;font-variant-numeric:tabular-nums}
 .pick span{font-size:11px;color:var(--mute)}
 
 /* ---------- modal / toast ---------- */
