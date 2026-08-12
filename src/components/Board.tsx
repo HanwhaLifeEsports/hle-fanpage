@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Ki } from './IconSprite';
 import { toast } from '@/lib/useDemoState';
-import { matchInLiveWindow, nextMatch } from '@/lib/lck2026';
 
 /* ---------------- 글 저장소 (데모: 메모리) ---------------- */
 
@@ -131,12 +130,10 @@ const NAMES = ['불꽃징크스', '상암주민', '짤장인', '분석충', '이
 const LINES = ['가자 한화!!', '오늘 밴픽 좋다', '카나비 갱각 나온다', '와 이거 각인데?', '드래곤 스택 챙기자',
   '구마 라인전 이겼다', '한타 각 보인다', '제카 궁 아껴라', '오늘 승률 좋다', '응원합니다 🔥'];
 
-function LiveChat() {
+function LiveChat({ open, nextKickoff }: { open: boolean; nextKickoff: string | null }) {
   const [msgs, setMsgs] = useState<{ n: string; t: string; mine?: boolean }[]>([]);
   const [v, setV] = useState('');
   const boxRef = useRef<HTMLDivElement>(null);
-  const open = !!matchInLiveWindow();
-  const next = nextMatch();
 
   useEffect(() => {
     if (!open) return;
@@ -158,7 +155,7 @@ function LiveChat() {
     return (
       <div className="note" style={{ marginTop: 0, marginBottom: 'var(--s6)' }}>
         <b>실시간 응원 채팅은 경기 시간에만 열립니다.</b> 다음 개방은{' '}
-        {next ? new Date(next.kickoff).toLocaleString('ko-KR', { dateStyle: 'medium', timeStyle: 'short' }) : '미정'}{' '}
+        {nextKickoff ? new Date(nextKickoff).toLocaleString('ko-KR', { dateStyle: 'medium', timeStyle: 'short' }) : '미정'}{' '}
         기준 30분 전입니다. 상시 개방하면 대부분의 시간에 빈 방이 되어 &quot;죽은 사이트&quot; 인상을 줍니다.
       </div>
     );
@@ -202,7 +199,7 @@ function LiveChat() {
 
 /* ---------------- 커뮤니티 화면 ---------------- */
 
-export default function BoardView() {
+export default function BoardView({ chatOpen, nextKickoff }: { chatOpen: boolean; nextKickoff: string | null }) {
   const all = usePosts();
   const [f, setF] = useState<string>('all');
   const [open, setOpen] = useState<Post | null>(null);
@@ -220,7 +217,7 @@ export default function BoardView() {
         </button>
       </div>
 
-      <LiveChat />
+      <LiveChat open={chatOpen} nextKickoff={nextKickoff} />
 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 'var(--s4)' }}>
         {['all', ...BOARDS].map((b) => (

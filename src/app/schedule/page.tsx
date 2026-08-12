@@ -1,108 +1,78 @@
-'use client';
+import MatchFilter from '@/components/MatchFilter';
+import Standings from '@/components/Standings';
+import { getSeason } from '@/lib/season';
+import { OUR_TAG, SEASON } from '@/lib/lck2026';
+import { fmtDate } from '@/lib/format';
 
-import { useState } from 'react';
-import { MatchCard } from '@/components/Shared';
-import { LEGEND_GROUP_SIZE, MATCHES, OUR_TAG, SEASON, TEAMS } from '@/lib/lck2026';
+export const dynamic = 'force-dynamic';
 
-const FILTERS = [
-  { k: 'all', t: '전체' },
-  { k: 'upcoming', t: '예정' },
-  { k: 'done', t: '종료' },
-] as const;
+export default async function SchedulePage() {
+  let bundle;
+  try {
+    bundle = await getSeason();
+  } catch (e) {
+    return (
+      <div className="wrap sec">
+        <h2 className="ko ptitle">일정을 불러오지 못했습니다</h2>
+        <div className="note">{e instanceof Error ? e.message : '알 수 없는 오류'}</div>
+      </div>
+    );
+  }
 
-export default function SchedulePage() {
-  const [f, setF] = useState<string>('all');
-
-  const list = MATCHES.filter((m) => f === 'all' || m.status === f).sort((a, b) =>
-    a.status === b.status
-      ? a.status === 'upcoming'
-        ? +new Date(a.kickoff) - +new Date(b.kickoff)
-        : +new Date(b.kickoff) - +new Date(a.kickoff)
-      : a.status === 'upcoming'
-        ? -1
-        : 1,
-  );
-
-  const ranked = [...TEAMS].sort((a, b) => b.w - a.w || b.diff - a.diff);
+  const { season, fetchedAt } = bundle;
+  // 정규 순위에 반영되는 경기만 이 화면에 세운다 (플레이오프는 대진이 TBD 라 별도)
+  const regular = season.matches.filter((m) => m.stage === 'regular');
+  const bracket = season.matches.filter((m) => m.stage !== 'regular' && m.startTime > '2026-07-01');
 
   return (
     <div className="wrap sec">
-      <h2 className="ko ptitle">일정 &amp; 결과</h2>
+      <h2 className="ko ptitle">일정 &amp; 순위</h2>
       <p className="lede" style={{ margin: '10px 0 var(--s5)' }}>
         {SEASON.year} 시즌 · {SEASON.format}
       </p>
 
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 'var(--s5)' }}>
-        {FILTERS.map((x) => (
-          <button key={x.k} className={`chip${f === x.k ? ' on' : ''}`} onClick={() => setF(x.k)}>
-            {x.t}
-          </button>
-        ))}
-      </div>
-
-      <div className="g3">
-        {list.map((m) => (
-          <MatchCard key={m.id} m={m} />
-        ))}
-      </div>
-
-      <div className="shead" style={{ marginTop: 'var(--s7)' }}>
+      <div className="shead">
         <h2 className="ko">순위표</h2>
+        <span className="cap">{new Date(fetchedAt).toLocaleTimeString('ko-KR')} 기준</span>
       </div>
 
-      <div className="grouplabel">
-        <b>레전드 그룹</b>1~2라운드 상위 {LEGEND_GROUP_SIZE}팀 · 플레이오프 직행
-      </div>
-      <div style={{ overflowX: 'auto' }}>
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>팀</th>
-              <th>승-패</th>
-              <th>세트 득실</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ranked.slice(0, LEGEND_GROUP_SIZE).map((t, i) => (
-              <tr key={t.tag} className={t.tag === OUR_TAG ? 'me' : undefined}>
-                <td>{i + 1}</td>
-                <td>{t.name}</td>
-                <td>
-                  {t.w}-{t.l}
-                </td>
-                <td>{t.diff > 0 ? `+${t.diff}` : t.diff}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="grouplabel">
-        <b>라이즈 그룹</b>하위 5팀 · 6~10위는 플레이-인으로 PO 6번 시드 경쟁
-      </div>
-      <div style={{ overflowX: 'auto' }}>
-        <table>
-          <tbody>
-            {ranked.slice(LEGEND_GROUP_SIZE).map((t, i) => (
-              <tr key={t.tag} className={t.tag === OUR_TAG ? 'me' : undefined}>
-                <td style={{ width: 40 }}>{LEGEND_GROUP_SIZE + i + 1}</td>
-                <td>{t.name}</td>
-                <td>
-                  {t.w}-{t.l}
-                </td>
-                <td>{t.diff > 0 ? `+${t.diff}` : t.diff}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Standings rows={season.legend} group="legend" />
+      <Standings rows={season.rise} group="rise" />
 
       <div className="note">
-        <b>참가 10팀과 시즌 포맷은 실제 2026 LCK 기준</b>입니다 (개막 {SEASON.opensAt} · 결승 {SEASON.finalsAt} ·
-        정규 {SEASON.rounds}라운드, 팀당 {SEASON.gamesPerTeam}경기). 개별 경기 일정과 승패 기록은 샘플이며,
-        실서비스에서는 수집기 + 관리자 오버라이드로 채웁니다.
+        LoL Esports API 는 스플릿을 <b>별개 토너먼트로</b> 내려주고 세트 득실은 아예 주지 않습니다. 위 표는
+        스플릿2(정규 1~2R) 순위와 스플릿3(3~4R 그룹) 순위를 합치고, 세트 득실은 전체 일정의 세트 스코어에서
+        직접 집계한 값입니다. 동률은 승-패 → 승자승 → 세트 득실 순으로 정렬합니다.
       </div>
+
+      <div className="shead">
+        <h2 className="ko">경기 일정</h2>
+      </div>
+      <MatchFilter matches={regular} ourTag={OUR_TAG} />
+
+      {bracket.length > 0 && (
+        <>
+          <div className="shead">
+            <h2 className="ko">포스트시즌</h2>
+          </div>
+          <div className="plist">
+            {bracket.map((m) => (
+              <div className="prow" key={m.id} style={{ cursor: 'default' }}>
+                <span className="bd">{m.blockName}</span>
+                <span className="ti">
+                  {m.a.code === 'TBD' && m.b.code === 'TBD'
+                    ? '대진 미정'
+                    : `${m.a.name} vs ${m.b.name}`}
+                </span>
+                <span className="st">
+                  <span>{fmtDate(m.startTime)}</span>
+                  <span>BO{m.bo}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

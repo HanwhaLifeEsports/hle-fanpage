@@ -7,6 +7,7 @@ import { useNotify } from '@/lib/useDemoState';
 const NAV = [
   { href: '/', label: '홈' },
   { href: '/schedule', label: '일정' },
+  { href: '/scenarios', label: '경우의 수' },
   { href: '/roster', label: '선수' },
   { href: '/board', label: '커뮤니티' },
   { href: '/predict', label: '예측' },
@@ -17,7 +18,7 @@ const TABS = [
   { href: '/', label: '홈', d: 'M3 10.5 12 3l9 7.5V21H3z' },
   { href: '/schedule', label: '일정', d: 'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4' },
   { href: '/board', label: '커뮤니티', d: 'M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z' },
-  { href: '/predict', label: '예측', d: 'M4 20V10M10 20V4M16 20v-7M22 20H2' },
+  { href: '/scenarios', label: '경우의 수', d: 'M4 20V10M10 20V4M16 20v-7M22 20H2' },
   { href: '/me', label: 'MY', d: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4 3.6-6 8-6s8 2 8 6' },
 ];
 

@@ -108,46 +108,21 @@ export function broadcastsFor(competition: Competition): BroadcastSlot[] {
 }
 
 /* ------------------------------------------------------------------ */
-/* 팀                                                                  */
+/* 팀 · 시즌 메타                                                       */
 /* ------------------------------------------------------------------ */
-
-export interface Team {
-  tag: string;
-  name: string;
-  /** 정규 1~2라운드 성적 (샘플) */
-  w: number;
-  l: number;
-  diff: number;
-}
-
-/** 2026 LCK 참가 10팀 — 팀명/태그는 실제, 승패는 샘플 */
-export const TEAMS: Team[] = [
-  { tag: 'GEN', name: 'Gen.G', w: 14, l: 4, diff: 18 },
-  { tag: 'HLE', name: 'Hanwha Life Esports', w: 13, l: 5, diff: 15 },
-  { tag: 'T1', name: 'T1', w: 13, l: 5, diff: 13 },
-  { tag: 'DK', name: 'Dplus Kia', w: 11, l: 7, diff: 6 },
-  { tag: 'KT', name: 'kt Rolster', w: 10, l: 8, diff: 3 },
-  { tag: 'BFX', name: 'BNK FEARX', w: 8, l: 10, diff: -2 },
-  { tag: 'DNS', name: 'DN SOOPers', w: 7, l: 11, diff: -6 },
-  { tag: 'KRX', name: 'KIWOOM DRX', w: 6, l: 12, diff: -10 },
-  { tag: 'NS', name: 'Nongshim RedForce', w: 5, l: 13, diff: -14 },
-  { tag: 'BRO', name: 'HANJIN BRION', w: 3, l: 15, diff: -23 },
-];
 
 export const OUR_TAG = 'HLE';
 
-/** 2026 포맷: 1~2라운드 상위 5팀 = 레전드 그룹 / 하위 5팀 = 라이즈 그룹 */
-export const LEGEND_GROUP_SIZE = 5;
-
+/** 순위·일정·전적은 전부 LoL Esports API 에서 온다 (src/lib/lolesports.ts).
+ *  샘플 테이블을 두지 않는 이유: 사실이 두 곳에 있으면 반드시 어긋난다. */
 export const SEASON = {
   year: 2026,
-  opensAt: '2026-04-01',
   finalsAt: '2026-09-13',
-  /** 정규 4라운드(더블 라운드 로빈), 팀당 26경기 */
-  rounds: 4,
-  gamesPerTeam: 26,
+  /** 스플릿2(정규 1~2R) + 스플릿3(3~4R 그룹)을 합친 것이 실제 정규 순위다 */
   format:
-    '정규 4라운드 · 1~2R 성적으로 레전드/라이즈 그룹 분할 · 상위 5팀 플레이오프 직행, 6~10위는 플레이-인',
+    '정규 1~2라운드 성적으로 레전드·라이즈 그룹을 나누고, 3~4라운드는 그룹 안에서 치른다. 순위는 두 구간 합산.',
+  legend: { label: '레전드 그룹', note: '1~2위 플레이오프 2라운드 직행 · 3~4위 1라운드 · 5위 플레이-인' },
+  rise: { label: '라이즈 그룹', note: '1~3위 플레이-인 · 4~5위 시즌 종료' },
 } as const;
 
 /* ------------------------------------------------------------------ */
@@ -184,48 +159,9 @@ export const STAFF = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* 일정 — 샘플                                                          */
+/* 라이브 창                                                            */
 /* ------------------------------------------------------------------ */
 
-export interface Match {
-  id: string;
-  opponent: string; // team tag
-  kickoff: string; // ISO (KST)
-  bo: number;
-  competition: Competition;
-  status: 'upcoming' | 'done';
-  us?: number;
-  them?: number;
-}
-
-export const MATCHES: Match[] = [
-  { id: 'm-0814', opponent: 'T1', kickoff: '2026-08-14T17:00:00+09:00', bo: 3, competition: 'lck', status: 'upcoming' },
-  { id: 'm-0818', opponent: 'GEN', kickoff: '2026-08-18T19:00:00+09:00', bo: 3, competition: 'lck', status: 'upcoming' },
-  { id: 'm-0822', opponent: 'DK', kickoff: '2026-08-22T15:00:00+09:00', bo: 3, competition: 'lck', status: 'upcoming' },
-  { id: 'm-0809', opponent: 'KT', kickoff: '2026-08-09T17:00:00+09:00', bo: 3, competition: 'lck', status: 'done', us: 2, them: 0 },
-  { id: 'm-0805', opponent: 'BRO', kickoff: '2026-08-05T19:00:00+09:00', bo: 3, competition: 'lck', status: 'done', us: 2, them: 1 },
-  { id: 'm-0801', opponent: 'NS', kickoff: '2026-08-01T15:00:00+09:00', bo: 3, competition: 'lck', status: 'done', us: 1, them: 2 },
-  { id: 'm-0728', opponent: 'DNS', kickoff: '2026-07-28T17:00:00+09:00', bo: 3, competition: 'lck', status: 'done', us: 2, them: 0 },
-];
-
-/** 라이브 창 — 킥오프 10분 전부터 4시간까지를 "경기 시간대"로 본다.
- *  실제 LIVE 판정은 이 창 안에서 서버가 치지직·SOOP를 폴링해 결정한다. */
+/** 킥오프 10분 전 ~ 4시간 후를 "경기 시간대"로 본다.
+ *  실제 LIVE 판정은 이 창 안에서 서버가 치지직·SOOP 를 폴링해 내린다. */
 export const LIVE_WINDOW = { beforeMs: 10 * 60 * 1000, afterMs: 4 * 60 * 60 * 1000 };
-
-export function teamOf(tag: string): Team | undefined {
-  return TEAMS.find((t) => t.tag === tag);
-}
-
-export function nextMatch(now = Date.now()): Match | undefined {
-  return MATCHES.filter((m) => m.status === 'upcoming' && +new Date(m.kickoff) > now).sort(
-    (a, b) => +new Date(a.kickoff) - +new Date(b.kickoff),
-  )[0];
-}
-
-/** 지금이 어떤 경기의 방송 시간대인가 */
-export function matchInLiveWindow(now = Date.now()): Match | undefined {
-  return MATCHES.find((m) => {
-    const k = +new Date(m.kickoff);
-    return now >= k - LIVE_WINDOW.beforeMs && now <= k + LIVE_WINDOW.afterMs;
-  });
-}

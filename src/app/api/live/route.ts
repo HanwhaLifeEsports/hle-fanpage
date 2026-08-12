@@ -1,12 +1,6 @@
-import {
-  CHANNELS,
-  PLATFORMS,
-  broadcastsFor,
-  matchInLiveWindow,
-  nextMatch,
-  type BroadcastSlot,
-  type Match,
-} from '@/lib/lck2026';
+import { CHANNELS, PLATFORMS, broadcastsFor, type BroadcastSlot } from '@/lib/lck2026';
+import { getSeason, inLiveWindow } from '@/lib/season';
+import type { MatchRow } from '@/lib/lolesports';
 import type { LiveResponse, LiveSource } from '@/lib/live-types';
 
 /**
@@ -142,9 +136,17 @@ export async function GET(request: Request) {
   const forced = url.searchParams.get('force') === '1';
 
   const now = Date.now();
-  const windowMatch: Match | undefined = matchInLiveWindow(now);
-  const target = windowMatch ?? nextMatch(now);
-  const slots = broadcastsFor(target?.competition ?? 'lck');
+  let windowMatch: MatchRow | null = null;
+  let nextKickoff: string | null = null;
+  try {
+    const b = await getSeason();
+    windowMatch = inLiveWindow(b.season.matches, now);
+    nextKickoff = b.next?.startTime ?? null;
+  } catch {
+    // 시즌 데이터를 못 가져와도 중계 채널 자체는 안내할 수 있어야 한다
+  }
+  // LCK 국내 정규시즌 기준. 국제 대회 일정이 섞이면 여기서 분기한다.
+  const slots = broadcastsFor('lck');
 
   const results = await Promise.all(
     slots.map((slot) => {
@@ -164,12 +166,16 @@ export async function GET(request: Request) {
   const body: LiveResponse = {
     checkedAt: new Date().toISOString(),
     window: windowMatch
-      ? { matchId: windowMatch.id, opponent: windowMatch.opponent, kickoff: windowMatch.kickoff }
+      ? {
+          matchId: windowMatch.id,
+          opponent: `${windowMatch.a.code} vs ${windowMatch.b.code}`,
+          kickoff: windowMatch.startTime,
+        }
       : null,
     isLive: sources.some((s) => s.detectable && s.live),
     forced,
     sources,
-    nextKickoff: nextMatch(now)?.kickoff ?? null,
+    nextKickoff,
   };
 
   return Response.json(body, {

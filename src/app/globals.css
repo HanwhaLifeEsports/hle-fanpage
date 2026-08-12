@@ -287,3 +287,14 @@ label.fl{display:block;font-size:12px;font-weight:600;color:var(--mute);margin:0
 footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);color:var(--faint);font-size:12px;margin-top:var(--s7)}
 .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,#2A2B31,#141519);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--body);flex:none}
 .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+
+/* ---------- 경우의 수 ---------- */
+.oddsrow{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s5);flex-wrap:wrap}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:132px 1fr 64px;align-items:center;gap:var(--s4)}
+.bar .bl{font-size:13px;font-weight:600;display:flex;flex-direction:column;gap:2px}
+.bar .bl em{font-style:normal;font-size:11px;font-weight:400;color:var(--mute)}
+.bar .bt{height:10px;background:rgba(255,255,255,.06);border-radius:var(--r-full);overflow:hidden}
+.bar .bt i{display:block;height:100%;background:rgba(255,255,255,.22);border-radius:var(--r-full)}
+.bar .bv{font-size:14px;text-align:right;font-weight:400}
+@media(max-width:560px){.bar{grid-template-columns:104px 1fr 56px;gap:10px}}

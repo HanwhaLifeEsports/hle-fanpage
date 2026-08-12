@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { dismissToast, useDemo, useToasts } from '@/lib/useDemoState';
-import { teamOf, type Match } from '@/lib/lck2026';
-
 import { fmtDate, pad } from '@/lib/format';
+import { sidesOf } from '@/lib/pick';
+import type { MatchRow } from '@/lib/lolesports';
 
 /* ---------------- 카운트다운 ---------------- */
 
@@ -19,7 +19,12 @@ export function Countdown({ target }: { target: string }) {
 
   const cells: [string, string][] =
     left === null
-      ? [['--', 'Days'], ['--', 'Hours'], ['--', 'Min'], ['--', 'Sec']]
+      ? [
+          ['--', 'Days'],
+          ['--', 'Hours'],
+          ['--', 'Min'],
+          ['--', 'Sec'],
+        ]
       : [
           [pad(Math.floor(left / 86400)), 'Days'],
           [pad(Math.floor((left % 86400) / 3600)), 'Hours'],
@@ -41,27 +46,29 @@ export function Countdown({ target }: { target: string }) {
 
 /* ---------------- 경기 카드 ---------------- */
 
-export function MatchCard({ m }: { m: Match }) {
-  const { prefs, revealed, reveal } = useDemo();
-  const opp = teamOf(m.opponent);
-  const d = new Date(m.kickoff);
 
-  if (m.status === 'upcoming') {
+
+export function MatchCard({ m }: { m: MatchRow }) {
+  const { prefs, revealed, reveal } = useDemo();
+  const { us, them, mine } = sidesOf(m);
+  const d = new Date(m.startTime);
+
+  if (m.state !== 'completed') {
     return (
       <div className="match">
         <div className="top">
-          <span className="badge b-soon">예정</span>
-          <span className="when">{fmtDate(m.kickoff)}</span>
+          <span className="badge b-soon">{m.blockName || '예정'}</span>
+          <span className="when">{fmtDate(m.startTime)}</span>
         </div>
         <div className="sc" style={{ fontSize: 22, fontWeight: 600, letterSpacing: 0 }}>
           BO{m.bo}
         </div>
-        <div className="opp">vs {opp?.name ?? m.opponent}</div>
+        <div className="opp">{mine ? `vs ${them.name}` : `${m.a.code} vs ${m.b.code}`}</div>
       </div>
     );
   }
 
-  const win = (m.us ?? 0) > (m.them ?? 0);
+  const win = us.win === true;
   const hide = prefs.spoiler && !revealed[m.id];
 
   return (
@@ -77,11 +84,11 @@ export function MatchCard({ m }: { m: Match }) {
         </span>
       </div>
       <div className="sc">
-        <span className={win ? 'w' : 'lo'}>{m.us}</span>
+        <span className={win ? 'w' : 'lo'}>{us.games}</span>
         <span className="lo">:</span>
-        <span className={win ? 'lo' : 'l'}>{m.them}</span>
+        <span className={win ? 'lo' : 'l'}>{them.games}</span>
       </div>
-      <div className="opp">vs {opp?.name ?? m.opponent}</div>
+      <div className="opp">{mine ? `vs ${them.name}` : `${m.a.code} vs ${m.b.code}`}</div>
     </div>
   );
 }
