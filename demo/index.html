@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#08090A" />
+<title>HLE FAN — 한화생명e스포츠 팬페이지 (데모)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+<style>
+/* ===== Freesentation — 한글/라틴 공용 UI 서체 (눈누 CDN)
+   프로덕션에서는 서브셋(한글 2350자 + 라틴)으로 줄여서 셀프호스팅할 것.
+   원본은 웨이트당 약 250KB. ===== */
+@font-face{font-family:'Freesentation';font-weight:300;font-style:normal;font-display:swap;
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-3Light.woff2') format('woff2')}
+@font-face{font-family:'Freesentation';font-weight:400;font-style:normal;font-display:swap;
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-4Regular.woff2') format('woff2')}
+@font-face{font-family:'Freesentation';font-weight:500;font-style:normal;font-display:swap;
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-5Medium.woff2') format('woff2')}
+@font-face{font-family:'Freesentation';font-weight:600;font-style:normal;font-display:swap;
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-6SemiBold.woff2') format('woff2')}
+@font-face{font-family:'Freesentation';font-weight:700;font-style:normal;font-display:swap;
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-7Bold.woff2') format('woff2')}
+@font-face{font-family:'Freesentation';font-weight:900;font-style:normal;font-display:swap;
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-9Black.woff2') format('woff2')}
+
+/* ===== tokens (design/concept.html 과 동일) ===== */
+:root{
+  --canvas:#08090A; --surface:#121315; --surface-card:#17181B; --surface-light:#fff;
+  --flame:#FF6A13; --flame-deep:#D8500A; --flame-soft:rgba(255,106,19,.13);
+  --ink:#fff; --ink-dark:#0B0B0C;
+  --body:rgba(255,255,255,.72); --mute:rgba(255,255,255,.44); --faint:rgba(255,255,255,.26);
+  --hairline:rgba(255,255,255,.10); --hairline-lt:rgba(0,0,0,.10);
+  /* 승리 = LoL VICTORY 화면의 바이올렛. 오렌지 액센트와 보색으로 붙어 검은 캔버스에서 가장 잘 선다 */
+  --win:#A98CFF; --win-soft:rgba(169,140,255,.16);
+  --loss:#E5484D; --live:#FF3B30;
+  --r-card:8px; --r-lg:16px; --r-full:9999px;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:72px;
+  --display:'Anton','Bebas Neue',Impact,sans-serif;
+  --display-ko:'Freesentation','Pretendard','Apple SD Gothic Neo',sans-serif;
+  --sans:'Freesentation',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--canvas);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;padding-bottom:0}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+::selection{background:var(--flame);color:#fff}
+
+.display{font-family:var(--display);text-transform:uppercase;line-height:.9}
+.ko{font-family:var(--display-ko);font-weight:900;letter-spacing:-.035em;text-transform:none;line-height:1.1}
+.num{font-variant-numeric:tabular-nums;font-weight:300;letter-spacing:-.02em}
+/* 키커 — 아이콘 + 짧은 라벨. letter-spacing을 .2em → .12em 으로 줄이고 아이콘을 붙여
+   "대문자 넓은자간 라벨"만 반복되는 인상을 없앤다 */
+.kicker,.kicker-mute{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;line-height:1}
+.kicker{color:var(--flame)}
+.kicker-mute{color:var(--faint)}
+.ki{width:14px;height:14px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.kicker .ki{opacity:.95}
+.kicker-mute .ki{opacity:.8}
+.cap{font-size:13px;color:var(--mute)}
+.bodytx{font-size:15px;color:var(--body)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 var(--s5)}
+
+/* ===== buttons ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 26px;border:0;border-radius:var(--r-full);
+     font-size:14px;font-weight:600;cursor:pointer;transition:transform .12s,background .15s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--flame);color:#fff}.btn-primary:hover{background:var(--flame-deep)}
+.btn-ghost{background:rgba(255,255,255,.09);color:var(--ink)}.btn-ghost:hover{background:rgba(255,255,255,.16)}
+.btn-light{background:#fff;color:var(--ink-dark)}
+.btn-sm{height:36px;padding:0 16px;font-size:13px}
+.btn-block{width:100%}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+
+.chip{display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:var(--r-full);
+      border:1px solid var(--hairline);background:transparent;color:var(--body);font-size:12px;font-weight:600;cursor:pointer}
+.chip.on{background:var(--ink);color:var(--ink-dark);border-color:var(--ink)}
+
+.badge{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:var(--r-full);
+       font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.b-live{background:var(--live);color:#fff}
+.b-win{background:var(--win-soft);color:var(--win);box-shadow:inset 0 0 0 1px rgba(169,140,255,.28)}
+.b-loss{background:rgba(229,72,77,.15);color:var(--loss)}
+.b-flame{background:var(--flame-soft);color:var(--flame)}
+.b-soon{background:rgba(255,255,255,.08);color:var(--body)}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+
+.card{background:var(--surface-card);border:1px solid var(--hairline);border-radius:var(--r-card);padding:var(--s5)}
+
+/* ===== header / nav ===== */
+header{position:sticky;top:0;z-index:60;background:rgba(8,9,10,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--hairline)}
+.hbar{max-width:1080px;margin:0 auto;padding:0 var(--s5);height:60px;display:flex;align-items:center;justify-content:space-between;gap:var(--s4)}
+.brand{display:flex;align-items:center;gap:9px;cursor:pointer}
+.mark{width:24px;height:24px;position:relative;flex:none}
+.mark i{position:absolute;bottom:0;width:4px;background:var(--flame);border-radius:1px}
+.mark i:nth-child(1){left:0;height:38%}.mark i:nth-child(2){left:6.5px;height:72%}
+.mark i:nth-child(3){left:13px;height:100%}.mark i:nth-child(4){left:19.5px;height:56%}
+.wordmark{font-family:var(--display);font-size:18px;letter-spacing:.04em}
+.topnav{display:flex;gap:var(--s5)}
+.topnav button{background:0;border:0;color:var(--body);font-size:14px;font-weight:500;cursor:pointer;padding:19px 0;border-bottom:2px solid transparent}
+.topnav button.on{color:var(--ink);border-bottom-color:var(--flame)}
+@media(max-width:820px){.topnav{display:none}}
+
+/* ===== bottom tabs (mobile) ===== */
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:60;height:58px;display:none;grid-template-columns:repeat(5,1fr);
+      background:rgba(11,12,14,.96);backdrop-filter:blur(14px);border-top:1px solid var(--hairline);padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{background:0;border:0;color:var(--faint);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:600;cursor:pointer}
+.tabs button.on{color:var(--flame)}
+.tabs svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9}
+@media(max-width:820px){.tabs{display:grid}body{padding-bottom:64px}}
+
+/* ===== views ===== */
+.view{display:none;animation:fade .22s ease}
+.view.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec{padding:var(--s7) 0}
+.shead{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s4);margin-bottom:var(--s5)}
+.shead h2{font-size:clamp(24px,3.6vw,34px)}
+
+/* ===== hero ===== */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--hairline);
+  background:radial-gradient(120% 95% at 80% 10%,rgba(255,106,19,.30) 0%,rgba(255,106,19,0) 60%),linear-gradient(180deg,#141416,#0A0A0B)}
+.hero::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.02) 0 2px,transparent 2px 9px);pointer-events:none}
+.hero-in{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:var(--s7) var(--s5) var(--s6)}
+.hero h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(52px,10.5vw,110px);line-height:.86;margin:10px 0 0}
+.hero h1 em{font-style:normal;color:var(--flame)}
+.cd{display:flex;gap:var(--s5);margin:var(--s5) 0}
+.cd>div{min-width:64px}
+.cd b{display:block;font-size:clamp(34px,7vw,50px);line-height:1;font-weight:300;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.cd span{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
+.hero-cta{display:flex;gap:var(--s3);flex-wrap:wrap}
+
+/* ===== versus ===== */
+.vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:var(--s4);padding:var(--s5) var(--s5);background:var(--surface);border-bottom:1px solid var(--hairline)}
+.vs .t{display:flex;align-items:center;gap:12px;min-width:0}
+.vs .t.r{justify-content:flex-end;text-align:right}
+.vs .t b{font-size:15px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crest{width:42px;height:42px;border-radius:var(--r-card);display:grid;place-items:center;font-family:var(--display);font-size:14px;flex:none}
+.crest.us{background:var(--flame);color:#fff}.crest.them{background:rgba(255,255,255,.08);color:var(--body)}
+.vs .m{text-align:center}
+.vs .m b{font-family:var(--display);font-size:24px;letter-spacing:.05em;display:block}
+@media(max-width:600px){.vs .t b{font-size:13px}.crest{width:36px;height:36px;font-size:12px}}
+
+/* ===== match card ===== */
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3)}
+@media(max-width:820px){.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.g3{grid-template-columns:1fr}}
+.match{background:var(--surface-card);border:1px solid var(--hairline);border-radius:var(--r-card);padding:var(--s4);display:flex;flex-direction:column;gap:10px}
+.match .top{display:flex;justify-content:space-between;align-items:center}
+.match .sc{display:flex;align-items:baseline;gap:9px;font-size:34px;font-weight:300;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.match .sc .lo{color:var(--faint)}
+.match .sc .w{color:var(--win)}   /* 이긴 쪽 숫자에 VICTORY 바이올렛 */
+.match .sc .l{color:var(--loss)}
+.match .opp{font-size:14px;font-weight:600}
+.match .when{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+/* 스포일러 */
+.spoil{position:relative;cursor:pointer;user-select:none}
+.spoil.hid .sc,.spoil.hid .b-win,.spoil.hid .b-loss{filter:blur(9px);opacity:.5}
+.spoil.hid::after{content:'탭해서 결과 보기';position:absolute;inset:0;display:grid;place-items:center;
+  font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--flame);background:rgba(23,24,27,.35);border-radius:var(--r-card)}
+
+/* ===== roster ===== */
+.rail{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--s2)}
+@media(max-width:900px){.rail{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.rail{grid-template-columns:repeat(2,1fr)}}
+.pcard{background:var(--surface-card);cursor:pointer;border:0;padding:0;text-align:left;color:inherit;display:block}
+.pcard .ph{aspect-ratio:4/5;position:relative;background:linear-gradient(165deg,#202126,#0E0F11);overflow:hidden}
+.pcard .ph::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.78))}
+.pcard .no{position:absolute;right:-6px;bottom:-16px;font-family:var(--display);font-size:88px;line-height:1;color:rgba(255,255,255,.06)}
+.pcard .pos{position:absolute;top:11px;left:11px;font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--flame)}
+.pcard .fav{position:absolute;top:9px;right:9px;z-index:3}
+.pcard .nm{position:absolute;left:11px;bottom:9px;font-family:var(--display);font-size:23px;letter-spacing:.02em;z-index:2}
+.pcard .mt{padding:9px 11px;display:flex;justify-content:space-between;align-items:center;border-top:2px solid transparent;transition:border-color .15s}
+.pcard:hover .mt{border-top-color:var(--flame)}
+.pcard .kda{font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
+
+/* ===== list rows ===== */
+.plist{border-top:1px solid var(--hairline)}
+.prow{display:flex;align-items:center;gap:var(--s4);padding:15px 0;border-bottom:1px solid var(--hairline);cursor:pointer;background:0;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;color:inherit}
+.prow:hover .ti{color:var(--flame)}
+.prow .bd{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--flame);width:72px;flex:none;text-transform:uppercase}
+.prow .ti{flex:1;font-size:15px;font-weight:500;transition:color .15s;min-width:0}
+.prow .st{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums;display:flex;gap:12px;flex:none}
+@media(max-width:600px){.prow{align-items:flex-start;flex-direction:column;gap:6px}.prow .bd{width:auto}}
+
+/* ===== table ===== */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);text-align:left;padding:10px 8px;border-bottom:1px solid var(--hairline)}
+td{padding:12px 8px;border-bottom:1px solid var(--hairline);font-variant-numeric:tabular-nums}
+tr.me td{background:var(--flame-soft)}
+tr.me td:first-child{box-shadow:inset 3px 0 0 var(--flame)}
+
+/* ===== toggle ===== */
+.nrow{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:14px 0;border-bottom:1px solid var(--hairline)}
+.nrow:last-child{border-bottom:0}
+.nrow .l b{display:block;font-size:14px;font-weight:600}
+.nrow .l span{font-size:12px;color:var(--mute)}
+.tg{width:46px;height:27px;border-radius:var(--r-full);background:rgba(255,255,255,.14);position:relative;flex:none;cursor:pointer;border:0;transition:background .18s}
+.tg::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:transform .18s}
+.tg.on{background:var(--flame)}.tg.on::after{transform:translateX(19px)}
+
+/* ===== chat ===== */
+.chat{height:320px;overflow-y:auto;padding:var(--s4);background:var(--surface-card);border:1px solid var(--hairline);border-radius:var(--r-card) var(--r-card) 0 0;display:flex;flex-direction:column;gap:9px}
+.msg{font-size:14px;line-height:1.45}
+.msg b{color:var(--flame);font-weight:600;font-size:13px;margin-right:6px}
+.msg.sys{color:var(--faint);font-size:12px;text-align:center;padding:4px 0}
+.msg.mine b{color:#fff}
+.chatbar{display:flex;gap:8px;padding:10px;background:var(--surface);border:1px solid var(--hairline);border-top:0;border-radius:0 0 var(--r-card) var(--r-card)}
+.chatbar input{flex:1;background:rgba(255,255,255,.06);border:1px solid var(--hairline);border-radius:var(--r-full);
+  padding:0 16px;height:40px;color:#fff;font-family:inherit;font-size:14px;outline:0}
+.chatbar input:focus{border-color:var(--flame)}
+
+/* ===== forms ===== */
+input[type=text],textarea,select{background:rgba(255,255,255,.06);border:1px solid var(--hairline);border-radius:var(--r-card);
+  padding:12px 14px;color:#fff;font-family:inherit;font-size:14px;width:100%;outline:0;resize:vertical}
+input:focus,textarea:focus{border-color:var(--flame)}
+label.fl{display:block;font-size:12px;font-weight:600;color:var(--mute);margin:0 0 6px}
+
+/* ===== prediction ===== */
+.picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;margin:var(--s4) 0}
+.pick{background:var(--surface-card);border:1px solid var(--hairline);border-radius:var(--r-card);padding:16px 10px;cursor:pointer;text-align:center;transition:.15s}
+.pick:hover{border-color:rgba(255,255,255,.28)}
+.pick.on{border-color:var(--flame);background:var(--flame-soft)}
+.pick b{display:block;font-size:24px;font-weight:300;font-variant-numeric:tabular-nums}
+.pick span{font-size:11px;color:var(--mute)}
+
+/* ===== modal ===== */
+.ov{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:var(--s4)}
+.ov.on{display:flex}
+.modal{background:var(--surface);border:1px solid var(--hairline);border-radius:var(--r-lg);max-width:520px;width:100%;max-height:86vh;overflow-y:auto}
+.modal-h{display:flex;justify-content:space-between;align-items:center;padding:var(--s5) var(--s5) var(--s3);gap:var(--s4)}
+.modal-b{padding:0 var(--s5) var(--s5)}
+.x{background:rgba(255,255,255,.08);border:0;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;flex:none}
+
+/* ===== toast / push ===== */
+.toasts{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:200;width:min(400px,calc(100vw - 24px));display:flex;flex-direction:column;gap:9px}
+.toast{display:flex;gap:11px;padding:13px;background:rgba(38,39,43,.98);border:1px solid rgba(255,255,255,.11);border-radius:15px;
+  box-shadow:0 12px 40px rgba(0,0,0,.5);animation:drop .3s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes drop{from{opacity:0;transform:translateY(-22px)}to{opacity:1;transform:none}}
+.toast .ic{width:32px;height:32px;border-radius:8px;background:var(--flame);display:grid;place-items:center;flex:none;font-family:var(--display);font-size:13px}
+.toast b{display:block;font-size:13px;font-weight:600;line-height:1.35}
+.toast p{font-size:12px;color:var(--body);line-height:1.4;margin-top:2px}
+.toast em{font-style:normal;font-size:10px;color:var(--faint);display:block;margin-top:4px}
+
+/* ===== misc ===== */
+.banner{background:var(--flame-soft);border:1px solid rgba(255,106,19,.3);border-radius:var(--r-card);padding:14px;display:flex;gap:12px;align-items:flex-start}
+.banner b{font-size:13px;color:var(--flame);display:block}
+.banner span{font-size:12.5px;color:var(--body);line-height:1.5}
+.demo-note{background:rgba(255,255,255,.04);border:1px dashed var(--hairline);border-radius:var(--r-card);padding:11px 14px;font-size:12px;color:var(--mute);margin-top:var(--s4)}
+.flamestrip{background:var(--flame);color:#fff;padding:var(--s6) var(--s5);display:flex;align-items:center;justify-content:space-between;gap:var(--s5);flex-wrap:wrap;border-radius:var(--r-card)}
+footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);color:var(--faint);font-size:12px;margin-top:var(--s7)}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,#2A2B31,#141519);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--body);flex:none}
+</style>
+</head>
+<body>
+
+<!-- 아이콘 스프라이트 — 키커 라벨에 붙는다 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/><path d="M12 8v4.5l3 1.8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 20v-1.6a3.4 3.4 0 0 0-3.4-3.4H6.4A3.4 3.4 0 0 0 3 18.4V20"/><circle cx="9.5" cy="8" r="3.4"/><path d="M21 20v-1.6a3.4 3.4 0 0 0-2.6-3.3"/><path d="M15.5 4.8a3.4 3.4 0 0 1 0 6.4"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.6a7.6 7.6 0 0 1-11 6.8L4 20l1.7-5.7A7.6 7.6 0 1 1 21 11.6z"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 21h8M12 17.5V21M7 4h10v5.5a5 5 0 0 1-10 0z"/><path d="M7 6.5H4.5V8a3 3 0 0 0 2.8 3"/><path d="M17 6.5h2.5V8a3 3 0 0 1-2.8 3"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8.6a6 6 0 1 0-12 0c0 6.4-2.6 7.4-2.6 7.4h17.2S18 15 18 8.6z"/><path d="M13.7 19.5a2 2 0 0 1-3.4 0"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-6M4 11V3M12 21v-9M12 8V3M20 21v-4M20 13V3M1.5 15h5M9.5 8h5M17.5 17h5"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3s5 4.2 5 9a5 5 0 0 1-10 0c0-2 1-3.4 1-3.4S9 11 10.4 11C11.8 11 12 8.6 12 3z"/><path d="M8.5 15.5a3.5 3.5 0 0 0 7 0"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8.5 21h7M12 17v4"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.5h3"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 1 9-9c0 2.2-1.8 3-3.2 3H16a2 2 0 0 0-1.5 3.3A2 2 0 0 1 12 21z"/><circle cx="7.5" cy="12" r="1"/><circle cx="9.8" cy="8" r="1"/><circle cx="14.4" cy="7.6" r="1"/></symbol>
+  <symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7V4.5h16V7M9.5 20h5M12 4.5V20"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></symbol>
+</defs></svg>
+
+<div class="toasts" id="toasts"></div>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="hbar">
+    <div class="brand" onclick="go('home')">
+      <div class="mark"><i></i><i></i><i></i><i></i></div>
+      <div class="wordmark">HLE FAN</div>
+    </div>
+    <nav class="topnav" id="topnav">
+      <button data-nav="home" class="on">홈</button>
+      <button data-nav="schedule">일정</button>
+      <button data-nav="roster">선수</button>
+      <button data-nav="board">커뮤니티</button>
+      <button data-nav="predict">예측</button>
+      <button data-nav="me">MY</button>
+    </nav>
+    <button class="btn btn-ghost btn-sm" id="notifyBtn" onclick="askNotify()">알림 켜기</button>
+  </div>
+</header>
+
+<!-- ================= HOME ================= -->
+<section class="view on" id="v-home">
+  <div class="hero">
+    <div class="hero-in">
+      <div class="kicker" id="heroKicker"><svg class="ki"><use href="#i-bolt"/></svg>Next Match · LCK 2026 Spring</div>
+      <h1>MATCH<br><em>DAY</em></h1>
+      <div class="cd">
+        <div><b id="cd-d">--</b><span>Days</span></div>
+        <div><b id="cd-h">--</b><span>Hours</span></div>
+        <div><b id="cd-m">--</b><span>Min</span></div>
+        <div><b id="cd-s">--</b><span>Sec</span></div>
+      </div>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="askNotify()">경기 알림 받기</button>
+        <button class="btn btn-ghost" onclick="downloadIcs()">캘린더에 추가</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="vs">
+    <div class="t"><div class="crest us">HLE</div><div><b>한화생명e스포츠</b><span class="cap" id="ourRec"></span></div></div>
+    <div class="m"><b>VS</b><span class="cap" id="nextWhen"></span></div>
+    <div class="t r"><div><b id="oppName"></b><span class="cap" id="oppRec"></span></div><div class="crest them" id="oppCrest"></div></div>
+  </div>
+
+  <div class="wrap sec">
+    <div class="shead">
+      <div><div class="kicker-mute"><svg class="ki"><use href="#i-history"/></svg>Recent</div><h2 class="ko" style="margin-top:6px">최근 경기</h2></div>
+      <button class="btn btn-ghost btn-sm" onclick="go('schedule')">전체 결과</button>
+    </div>
+    <div class="g3" id="recentWrap"></div>
+
+    <div class="shead" style="margin-top:var(--s7)">
+      <div><div class="kicker-mute"><svg class="ki"><use href="#i-users"/></svg>Roster</div><h2 class="ko" style="margin-top:6px">선수단</h2></div>
+      <button class="btn btn-ghost btn-sm" onclick="go('roster')">전체 프로필</button>
+    </div>
+    <div class="rail" id="railWrap"></div>
+
+    <div class="shead" style="margin-top:var(--s7)">
+      <div><div class="kicker-mute"><svg class="ki"><use href="#i-chat"/></svg>Community</div><h2 class="ko" style="margin-top:6px">지금 뜨는 글</h2></div>
+      <button class="btn btn-ghost btn-sm" onclick="go('board')">커뮤니티</button>
+    </div>
+    <div class="plist" id="hotWrap"></div>
+
+    <div class="flamestrip" style="margin-top:var(--s7)">
+      <div>
+        <div class="kicker" style="color:#fff;opacity:.85"><svg class="ki"><use href="#i-target"/></svg>Prediction</div>
+        <div class="display ko" style="font-size:clamp(24px,4vw,34px);margin-top:8px">이번 판, 스코어 맞혀볼래?</div>
+        <p style="opacity:.88;font-size:14px;margin-top:6px">적중하면 포인트 · 주간 랭킹 반영</p>
+      </div>
+      <button class="btn" style="background:#0B0B0C;color:#fff" onclick="go('predict')">예측 참여</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCHEDULE ================= -->
+<section class="view" id="v-schedule">
+  <div class="wrap sec">
+    <div class="kicker-mute"><svg class="ki"><use href="#i-calendar"/></svg>Schedule</div>
+    <h2 class="ko" style="font-size:clamp(26px,4vw,36px);margin:8px 0 var(--s5)">일정 &amp; 결과</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--s5)" id="schFilters">
+      <button class="chip on" data-f="all">전체</button>
+      <button class="chip" data-f="upcoming">예정</button>
+      <button class="chip" data-f="done">종료</button>
+    </div>
+    <div class="g3" id="schWrap"></div>
+
+    <div class="shead" style="margin-top:var(--s7)">
+      <div><div class="kicker-mute"><svg class="ki"><use href="#i-trophy"/></svg>Standings</div><h2 class="ko" style="margin-top:6px">순위표</h2></div>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="standTable">
+        <thead><tr><th>#</th><th>팀</th><th>승-패</th><th>세트득실</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="demo-note">순위·전적은 데모용 샘플 데이터입니다. 실제 서비스에서는 Leaguepedia 수집 + 관리자 오버라이드로 채웁니다.</div>
+  </div>
+</section>
+
+<!-- ================= ROSTER ================= -->
+<section class="view" id="v-roster">
+  <div class="wrap sec">
+    <div class="kicker-mute"><svg class="ki"><use href="#i-users"/></svg>Roster</div>
+    <h2 class="ko" style="font-size:clamp(26px,4vw,36px);margin:8px 0 4px">선수단</h2>
+    <p class="bodytx" style="margin-bottom:var(--s5)">카드를 누르면 프로필이 열립니다. 최애 선수로 지정하면 그 선수 알림만 따로 받을 수 있어요.</p>
+    <div class="rail" id="rosterWrap"></div>
+    <div class="demo-note">사진 슬롯은 4:5 풀블리드. 실제 선수 이미지는 공식 SNS 임베드 또는 허가받은 촬영분으로 교체합니다.</div>
+  </div>
+</section>
+
+<!-- ================= BOARD ================= -->
+<section class="view" id="v-board">
+  <div class="wrap sec">
+    <div class="shead">
+      <div>
+        <div class="kicker-mute"><svg class="ki"><use href="#i-chat"/></svg>Community</div>
+        <h2 class="ko" style="margin-top:6px;font-size:clamp(26px,4vw,36px)">커뮤니티</h2>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openWrite()">글쓰기</button>
+    </div>
+
+    <div id="liveChatBox" style="margin-bottom:var(--s6)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="badge b-live"><i class="dot"></i>LIVE</span>
+          <b style="font-size:15px">실시간 응원 채팅</b>
+        </div>
+        <span class="cap" id="chatWindow"></span>
+      </div>
+      <div class="chat" id="chat"></div>
+      <form class="chatbar" onsubmit="sendChat(event)">
+        <input id="chatInput" placeholder="응원 메시지를 남겨보세요" maxlength="80" autocomplete="off" />
+        <button class="btn btn-primary btn-sm" type="submit">전송</button>
+      </form>
+      <div class="demo-note">채팅방은 <b style="color:#fff">경기 30분 전 ~ 종료 30분 후</b>에만 자동 개방됩니다. 상시 개방하면 대부분의 시간에 빈 방이 되어 "죽은 사이트" 인상을 줍니다.</div>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--s4)" id="boardFilters">
+      <button class="chip on" data-b="all">전체</button>
+      <button class="chip" data-b="경기후기">경기후기</button>
+      <button class="chip" data-b="자유">자유</button>
+      <button class="chip" data-b="짤">짤</button>
+      <button class="chip" data-b="직관모임">직관모임</button>
+    </div>
+    <div class="plist" id="boardWrap"></div>
+  </div>
+</section>
+
+<!-- ================= PREDICT ================= -->
+<section class="view" id="v-predict">
+  <div class="wrap sec">
+    <div class="kicker-mute"><svg class="ki"><use href="#i-target"/></svg>Prediction</div>
+    <h2 class="ko" style="font-size:clamp(26px,4vw,36px);margin:8px 0 4px">승부예측</h2>
+    <p class="bodytx" id="predSub"></p>
+
+    <div class="card" style="margin-top:var(--s5)">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:var(--s3)">
+        <b style="font-size:16px" id="predMatch"></b>
+        <span class="cap" id="predDeadline"></span>
+      </div>
+      <div class="picks" id="picks"></div>
+      <button class="btn btn-primary btn-block" id="predSubmit" onclick="submitPred()" disabled>예측 제출</button>
+      <div id="predDone" style="display:none;margin-top:var(--s4)" class="banner">
+        <div><b>예측 완료</b><span id="predDoneTx"></span></div>
+      </div>
+    </div>
+
+    <div class="shead" style="margin-top:var(--s7)">
+      <div><div class="kicker-mute"><svg class="ki"><use href="#i-trophy"/></svg>Weekly</div><h2 class="ko" style="margin-top:6px">주간 랭킹</h2></div>
+    </div>
+    <div style="overflow-x:auto"><table id="rankTable"><thead><tr><th>#</th><th>닉네임</th><th>적중</th><th>포인트</th></tr></thead><tbody></tbody></table></div>
+    <div class="demo-note">포인트는 사이트 내 뱃지·프로필 테마로만 소진됩니다. 현금성 보상은 두지 않습니다(사행성 이슈 회피).</div>
+  </div>
+</section>
+
+<!-- ================= ME ================= -->
+<section class="view" id="v-me">
+  <div class="wrap sec">
+    <div class="kicker-mute"><svg class="ki"><use href="#i-bell"/></svg>My</div>
+    <h2 class="ko" style="font-size:clamp(26px,4vw,36px);margin:8px 0 var(--s5)">알림 설정</h2>
+
+    <div class="banner" id="iosBanner" style="margin-bottom:var(--s5)">
+      <div>
+        <b>아이폰은 홈 화면에 추가해야 알림이 옵니다</b>
+        <span>공유 <b style="color:#fff;display:inline">↑</b> → 홈 화면에 추가 → 앱 아이콘으로 실행. iOS는 PWA 설치 상태에서만 웹 푸시를 허용합니다.</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:var(--s5)">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+        <div>
+          <b style="font-size:15px">브라우저 알림 권한</b>
+          <div class="cap" id="permState">확인 중…</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="askNotify()">권한 요청</button>
+          <button class="btn btn-primary btn-sm" onclick="previewPush()">알림 미리보기</button>
+        </div>
+      </div>
+      <div class="demo-note">권한 요청은 사용자가 <b style="color:#fff">버튼을 누른 뒤에만</b> 띄웁니다. 진입 즉시 요청하면 거절률이 크게 오르고, 한 번 거절당하면 되돌리기 어렵습니다.</div>
+    </div>
+
+    <div class="card" style="margin-bottom:var(--s5)">
+      <div class="kicker-mute" style="margin-bottom:6px"><svg class="ki"><use href="#i-calendar"/></svg>경기</div>
+      <div id="prefsMatch"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:var(--s5)">
+      <div class="kicker-mute" style="margin-bottom:6px"><svg class="ki"><use href="#i-sliders"/></svg>기타</div>
+      <div id="prefsEtc"></div>
+    </div>
+
+    <div class="card">
+      <div class="kicker-mute" style="margin-bottom:12px"><svg class="ki"><use href="#i-users"/></svg>내 정보</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:var(--s4)">
+        <div class="avatar">나</div>
+        <div><b style="font-size:15px">데모유저</b><div class="cap" id="favLine">최애 선수 미지정</div></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="go('roster')">최애 선수 고르기</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetDemo()">데모 초기화</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap">
+    <span>HLE FAN — 데모 · 디자인 컨셉 v0.1 (nike × playstation)</span>
+    <span>본 페이지는 팬이 운영하는 비공식 사이트를 전제로 한 데모이며, 선수명·전적·순위는 모두 샘플 데이터입니다.</span>
+  </div>
+</footer>
+
+<!-- ================= BOTTOM TABS ================= -->
+<nav class="tabs" id="tabs">
+  <button data-nav="home" class="on"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>홈</button>
+  <button data-nav="schedule"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>일정</button>
+  <button data-nav="board"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg>커뮤니티</button>
+  <button data-nav="predict"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>예측</button>
+  <button data-nav="me"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>MY</button>
+</nav>
+
+<!-- ================= MODALS ================= -->
+<div class="ov" id="ovPlayer" onclick="if(event.target===this)closeOv('ovPlayer')">
+  <div class="modal">
+    <div class="modal-h"><b style="font-size:18px" id="pmName"></b><button class="x" onclick="closeOv('ovPlayer')">✕</button></div>
+    <div class="modal-b" id="pmBody"></div>
+  </div>
+</div>
+
+<div class="ov" id="ovPost" onclick="if(event.target===this)closeOv('ovPost')">
+  <div class="modal">
+    <div class="modal-h"><b style="font-size:17px;line-height:1.35" id="postTitle"></b><button class="x" onclick="closeOv('ovPost')">✕</button></div>
+    <div class="modal-b" id="postBody"></div>
+  </div>
+</div>
+
+<div class="ov" id="ovWrite" onclick="if(event.target===this)closeOv('ovWrite')">
+  <div class="modal">
+    <div class="modal-h"><b style="font-size:17px">글쓰기</b><button class="x" onclick="closeOv('ovWrite')">✕</button></div>
+    <div class="modal-b">
+      <label class="fl">게시판</label>
+      <select id="wBoard" style="margin-bottom:14px">
+        <option>경기후기</option><option>자유</option><option>짤</option><option>직관모임</option>
+      </select>
+      <label class="fl">제목</label>
+      <input type="text" id="wTitle" placeholder="제목을 입력하세요" style="margin-bottom:14px" />
+      <label class="fl">내용</label>
+      <textarea id="wBody" rows="5" placeholder="내용을 입력하세요" style="margin-bottom:16px"></textarea>
+      <button class="btn btn-primary btn-block" onclick="submitPost()">등록</button>
+      <div class="demo-note">데모라 브라우저 메모리에만 저장됩니다. 실제로는 신고·금칙어 필터·신규계정 레이트리밋이 함께 붙습니다.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DATA (샘플)
+   ========================================================= */
+const TEAM = 'HLE';
+const nextKickoff = new Date(Date.now() + (2*86400 + 14*3600 + 23*60 + 7) * 1000);
+
+const matches = [
+  {id:'m1', opp:'T1',    crest:'T1',  when:nextKickoff, bo:3, status:'upcoming'},
+  {id:'m2', opp:'BFX',   crest:'BFX', when:new Date(Date.now()+7*86400e3), bo:3, status:'upcoming'},
+  {id:'m3', opp:'DNF',   crest:'DNF', when:new Date(Date.now()+11*86400e3), bo:3, status:'upcoming'},
+  {id:'m4', opp:'Gen.G', crest:'GEN', when:new Date(Date.now()-3*86400e3), bo:3, status:'done', us:2, them:0},
+  {id:'m5', opp:'DK',    crest:'DK',  when:new Date(Date.now()-6*86400e3), bo:3, status:'done', us:2, them:1},
+  {id:'m6', opp:'KT',    crest:'KT',  when:new Date(Date.now()-10*86400e3),bo:3, status:'done', us:1, them:2},
+  {id:'m7', opp:'NS',    crest:'NS',  when:new Date(Date.now()-14*86400e3),bo:3, status:'done', us:2, them:0},
+];
+
+const players = [
+  {id:'zeus',    nm:'Zeus',    ko:'최우제', pos:'TOP', no:'01', kda:4.2, dpm:512, games:18, champs:['잭스','그웬','케넨']},
+  {id:'peanut',  nm:'Peanut',  ko:'한왕호', pos:'JGL', no:'02', kda:5.1, dpm:328, games:18, champs:['마오카이','세주아니','바이']},
+  {id:'zeka',    nm:'Zeka',    ko:'김건우', pos:'MID', no:'03', kda:6.0, dpm:604, games:18, champs:['아지르','오리아나','실라스']},
+  {id:'viper',   nm:'Viper',   ko:'박도현', pos:'BOT', no:'04', kda:7.3, dpm:658, games:18, champs:['징크스','제리','애쉬']},
+  {id:'delight', nm:'Delight', ko:'유환중', pos:'SUP', no:'05', kda:4.8, dpm:184, games:18, champs:['노틸러스','레나타','알리스타']},
+];
+
+const standings = [
+  {t:'T1', w:8, l:1, d:'+14'}, {t:'한화생명e스포츠', w:7, l:2, d:'+11', us:true},
+  {t:'Gen.G', w:6, l:3, d:'+7'}, {t:'DK', w:5, l:4, d:'+2'},
+  {t:'KT', w:4, l:5, d:'-1'}, {t:'BFX', w:3, l:6, d:'-6'},
+  {t:'DNF', w:2, l:7, d:'-12'}, {t:'NS', w:1, l:8, d:'-15'},
+];
+
+let posts = [
+  {id:1, bd:'경기후기', ti:'오늘 3세트 바론 스틸 다시 봐도 미쳤다', by:'불꽃징크스', ago:'12분 전', likes:342, cmts:88, body:'스맥 타이밍이 진짜 0.2초 차이였음. 다시 돌려봐도 어떻게 저걸 봤는지 모르겠다.'},
+  {id:2, bd:'자유',     ti:'직관 처음 가는데 뭐 챙겨가면 좋음?', by:'상암주민', ago:'38분 전', likes:121, cmts:47, body:'응원봉은 현장에서 파나요? 자리는 몇 시쯤 가면 되는지도 궁금합니다.'},
+  {id:3, bd:'짤',       ti:'우승 확정 순간 벤치 리액션 모음.gif', by:'짤장인', ago:'1시간 전', likes:508, cmts:63, body:'특히 코치님 표정 보세요 ㅋㅋㅋㅋ'},
+  {id:4, bd:'직관모임', ti:'2/14 T1전 같이 보실 분 (롤파크 앞)', by:'같이가요', ago:'2시간 전', likes:76, cmts:29, body:'4시쯤 롤파크 앞에서 모여서 같이 들어가요. 현재 3명입니다.'},
+  {id:5, bd:'경기후기', ti:'미드 라인전 체급 차이 확실히 났다', by:'분석충', ago:'3시간 전', likes:203, cmts:55, body:'CS 격차가 10분에 18개였음. 이건 그냥 체급.'},
+];
+
+let ranks = [
+  {n:'예측머신', hit:11, pt:1420}, {n:'불꽃징크스', hit:9, pt:1180},
+  {n:'상암주민', hit:8, pt:1010}, {n:'짤장인', hit:6, pt:770}, {n:'분석충', hit:5, pt:640},
+];
+
+const PREFS = [
+  {k:'d1',      g:'match', t:'내일 경기 있음',  d:'전일 저녁 8시',      def:false},
+  {k:'h1',      g:'match', t:'1시간 전',        d:'경기 시작 60분 전',  def:true},
+  {k:'m10',     g:'match', t:'곧 시작',         d:'경기 시작 10분 전',  def:true},
+  {k:'set',     g:'match', t:'세트 결과',       d:'세트마다 스코어 속보',def:false},
+  {k:'result',  g:'match', t:'경기 결과',       d:'경기 종료 직후',      def:true},
+  {k:'spoiler', g:'etc',   t:'스포일러 차단',   d:'결과를 가린 채 알림 · 앱에서도 스코어를 가립니다', def:true},
+  {k:'player',  g:'etc',   t:'최애 선수 소식',  d:'지정한 선수 관련 알림',def:true},
+  {k:'reply',   g:'etc',   t:'내 글 댓글',      d:'댓글·멘션',           def:true},
+  {k:'goods',   g:'etc',   t:'굿즈·티켓 오픈',  d:'판매 시작 시',        def:false},
+];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const LS = 'hle-demo-v1';
+let state = {prefs:{}, fav:null, pred:null, revealed:{}};
+try{ Object.assign(state, JSON.parse(localStorage.getItem(LS)||'{}')); }catch(e){}
+PREFS.forEach(p=>{ if(state.prefs[p.k]===undefined) state.prefs[p.k]=p.def; });
+const save = ()=>localStorage.setItem(LS, JSON.stringify(state));
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $  = s => document.querySelector(s);
+const pad = n => String(n).padStart(2,'0');
+const fmtDate = d => `${d.getMonth()+1}.${pad(d.getDate())} (${'일월화수목금토'[d.getDay()]}) ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+/* =========================================================
+   ROUTER
+   ========================================================= */
+function go(v){
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on', s.id==='v-'+v));
+  document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('on', b.dataset.nav===v));
+  window.scrollTo({top:0, behavior:'instant'});
+}
+document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>go(b.dataset.nav));
+
+/* =========================================================
+   TOAST (푸시 시뮬레이션 + 실제 Notification API)
+   ========================================================= */
+function toast(title, body, meta){
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `<div class="ic">H</div><div><b>${esc(title)}</b><p>${esc(body)}</p><em>${esc(meta||'지금')}</em></div>`;
+  el.onclick = ()=>el.remove();
+  $('#toasts').appendChild(el);
+  setTimeout(()=>{ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 5200);
+
+  if('Notification' in window && Notification.permission==='granted'){
+    try{ new Notification(title, {body, tag:'hle-demo'}); }catch(e){}
+  }
+}
+function askNotify(){
+  if(!('Notification' in window)) return toast('알림 미지원','이 브라우저는 웹 알림을 지원하지 않습니다.');
+  if(Notification.permission==='granted'){ renderPerm(); return toast('이미 켜져 있어요','경기 알림을 받을 준비가 됐습니다.'); }
+  if(Notification.permission==='denied'){ renderPerm(); return toast('알림이 차단됨','브라우저 주소창의 자물쇠 아이콘에서 알림을 허용해 주세요.'); }
+  Notification.requestPermission().then(p=>{
+    renderPerm();
+    if(p==='granted') toast('알림을 켰습니다 🔥','경기 1시간 전·10분 전·결과 알림을 보내드려요.');
+    else toast('알림을 켜지 않았어요','MY 탭에서 언제든 다시 켤 수 있습니다.');
+  });
+}
+function renderPerm(){
+  const has = 'Notification' in window;
+  const p = has ? Notification.permission : 'unsupported';
+  const map = {granted:'허용됨 — 푸시를 받을 수 있습니다', denied:'차단됨 — 브라우저 설정에서 해제해야 합니다',
+               default:'아직 요청하지 않음', unsupported:'이 브라우저는 웹 알림을 지원하지 않습니다'};
+  $('#permState').textContent = map[p];
+  $('#notifyBtn').textContent = p==='granted' ? '알림 켜짐' : '알림 켜기';
+}
+function previewPush(){
+  const spoiler = state.prefs.spoiler;
+  const seq = [
+    ['곧 경기 시작 🔥', `HLE vs ${matches[0].opp} · 10분 뒤 시작합니다`, '지금'],
+    spoiler ? ['경기 종료','결과를 확인하려면 탭하세요','스포일러 차단 켜짐']
+            : ['경기 종료 · 승리 🎉','HLE 2 : 0 승리! MVP는 Viper','방금'],
+  ];
+  if(state.fav){
+    const f = players.find(p=>p.id===state.fav);
+    seq.push([`${f.nm} 소식`, '주간 MVP에 선정되었습니다', '최애 선수 알림']);
+  }
+  seq.forEach((s,i)=>setTimeout(()=>toast(...s), i*900));
+}
+
+/* =========================================================
+   HOME
+   ========================================================= */
+function tickCountdown(){
+  let t = Math.max(0, Math.floor((nextKickoff - Date.now())/1000));
+  $('#cd-d').textContent = pad(Math.floor(t/86400));
+  $('#cd-h').textContent = pad(Math.floor(t%86400/3600));
+  $('#cd-m').textContent = pad(Math.floor(t%3600/60));
+  $('#cd-s').textContent = pad(t%60);
+}
+
+function matchCard(m){
+  if(m.status==='upcoming'){
+    return `<div class="match">
+      <div class="top"><span class="badge b-soon">예정</span><span class="when">${fmtDate(m.when)}</span></div>
+      <div class="sc" style="font-size:22px;font-weight:600;letter-spacing:0">BO${m.bo}</div>
+      <div class="opp">vs ${esc(m.opp)}</div>
+    </div>`;
+  }
+  const win = m.us > m.them;
+  const hide = state.prefs.spoiler && !state.revealed[m.id];
+  return `<div class="match spoil ${hide?'hid':''}" data-mid="${m.id}">
+    <div class="top"><span class="badge ${win?'b-win':'b-loss'}">${win?'WIN':'LOSS'}</span><span class="when">${m.when.getMonth()+1}.${pad(m.when.getDate())}</span></div>
+    <div class="sc"><span class="${win?'w':'lo'}">${m.us}</span><span class="lo">:</span><span class="${win?'lo':'l'}">${m.them}</span></div>
+    <div class="opp">vs ${esc(m.opp)}</div>
+  </div>`;
+}
+function bindSpoilers(){
+  document.querySelectorAll('.spoil.hid').forEach(el=>{
+    el.onclick = ()=>{ state.revealed[el.dataset.mid]=true; save(); renderAll(); };
+  });
+}
+
+function renderHome(){
+  const next = matches.find(m=>m.status==='upcoming');
+  const rec = standings.find(s=>s.us);
+  $('#ourRec').textContent = `${rec.w}승 ${rec.l}패 · ${standings.indexOf(rec)+1}위`;
+  $('#oppName').textContent = next.opp;
+  $('#oppCrest').textContent = next.crest;
+  const or = standings.find(s=>s.t===next.opp);
+  $('#oppRec').textContent = or ? `${or.w}승 ${or.l}패 · ${standings.indexOf(or)+1}위` : '';
+  $('#nextWhen').textContent = `${fmtDate(next.when)} · BO${next.bo}`;
+  $('#recentWrap').innerHTML = matches.filter(m=>m.status==='done').slice(0,3).map(matchCard).join('');
+  $('#railWrap').innerHTML = players.map(playerCard).join('');
+  $('#hotWrap').innerHTML = [...posts].sort((a,b)=>b.likes-a.likes).slice(0,4).map(postRow).join('');
+}
+
+/* =========================================================
+   ROSTER
+   ========================================================= */
+function playerCard(p){
+  const fav = state.fav===p.id;
+  return `<button class="pcard" data-pid="${p.id}">
+    <div class="ph">
+      <span class="pos">${p.pos}</span>
+      ${fav?'<span class="badge b-flame fav">최애</span>':''}
+      <span class="no">${p.no}</span>
+      <span class="nm">${p.nm}</span>
+    </div>
+    <div class="mt"><span class="cap">${p.ko}</span><span class="kda">KDA ${p.kda}</span></div>
+  </button>`;
+}
+function bindPlayers(){
+  document.querySelectorAll('[data-pid]').forEach(b=>b.onclick=()=>openPlayer(b.dataset.pid));
+}
+function openPlayer(id){
+  const p = players.find(x=>x.id===id);
+  const fav = state.fav===p.id;
+  $('#pmName').innerHTML = `${p.nm} <span style="color:var(--mute);font-weight:400;font-size:14px">${p.ko}</span>`;
+  $('#pmBody').innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:16px"><span class="badge b-flame">${p.pos}</span><span class="badge b-soon">#${p.no}</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
+      ${[['KDA',p.kda],['분당 딜량',p.dpm],['출전',p.games+'경기']].map(([k,v])=>
+        `<div class="card" style="padding:14px"><div class="kicker-mute" style="font-size:9px">${k}</div>
+         <div class="num" style="font-size:24px;margin-top:4px">${v}</div></div>`).join('')}
+    </div>
+    <div class="kicker-mute" style="margin-bottom:8px"><svg class="ki"><use href="#i-star"/></svg>시그니처 챔피언</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">${p.champs.map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div>
+    <button class="btn ${fav?'btn-ghost':'btn-primary'} btn-block" onclick="toggleFav('${p.id}')">
+      ${fav?'최애 선수 해제':'최애 선수로 지정'}
+    </button>
+    <div class="demo-note">최애로 지정하면 이 선수 관련 알림(<b style="color:#fff">player.${p.id}</b>)만 따로 켜집니다.</div>`;
+  openOv('ovPlayer');
+}
+function toggleFav(id){
+  state.fav = state.fav===id ? null : id;
+  save(); renderAll(); closeOv('ovPlayer');
+  const p = players.find(x=>x.id===id);
+  toast(state.fav?'최애 선수 지정':'최애 선수 해제', state.fav?`${p.nm} 관련 알림을 받습니다.`:'선수 알림을 끕니다.');
+}
+
+/* =========================================================
+   SCHEDULE
+   ========================================================= */
+let schFilter='all';
+document.querySelectorAll('#schFilters .chip').forEach(c=>c.onclick=()=>{
+  schFilter=c.dataset.f;
+  document.querySelectorAll('#schFilters .chip').forEach(x=>x.classList.toggle('on',x===c));
+  renderSchedule();
+});
+function renderSchedule(){
+  const list = matches.filter(m=>schFilter==='all'||m.status===schFilter)
+    .sort((a,b)=>a.status===b.status ? b.when-a.when : (a.status==='upcoming'?-1:1));
+  $('#schWrap').innerHTML = list.map(matchCard).join('');
+  $('#standTable tbody').innerHTML = standings.map((s,i)=>
+    `<tr class="${s.us?'me':''}"><td>${i+1}</td><td>${esc(s.t)}</td><td>${s.w}-${s.l}</td><td>${s.d}</td></tr>`).join('');
+  bindSpoilers();
+}
+
+/* =========================================================
+   BOARD
+   ========================================================= */
+let boardFilter='all';
+document.querySelectorAll('#boardFilters .chip').forEach(c=>c.onclick=()=>{
+  boardFilter=c.dataset.b;
+  document.querySelectorAll('#boardFilters .chip').forEach(x=>x.classList.toggle('on',x===c));
+  renderBoard();
+});
+function postRow(p){
+  return `<button class="prow" data-post="${p.id}">
+    <span class="bd">${esc(p.bd)}</span>
+    <span class="ti">${esc(p.ti)}</span>
+    <span class="st"><span>♥ ${p.likes}</span><span>💬 ${p.cmts}</span></span>
+  </button>`;
+}
+function renderBoard(){
+  const list = posts.filter(p=>boardFilter==='all'||p.bd===boardFilter);
+  $('#boardWrap').innerHTML = list.length ? list.map(postRow).join('')
+    : '<div class="demo-note" style="margin:0">이 게시판에 글이 아직 없습니다.</div>';
+  bindPosts();
+}
+function bindPosts(){
+  document.querySelectorAll('[data-post]').forEach(b=>b.onclick=()=>openPost(+b.dataset.post));
+}
+function openPost(id){
+  const p = posts.find(x=>x.id===id);
+  $('#postTitle').textContent = p.ti;
+  $('#postBody').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <div class="avatar">${esc(p.by[0])}</div>
+      <div><b style="font-size:14px">${esc(p.by)}</b><div class="cap">${esc(p.bd)} · ${esc(p.ago)}</div></div>
+    </div>
+    <p class="bodytx" style="margin-bottom:20px;white-space:pre-wrap">${esc(p.body)}</p>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="likePost(${p.id})">♥ 추천 <span id="lk">${p.likes}</span></button>
+      <button class="btn btn-ghost btn-sm" onclick="toast('신고 접수','관리자 검토 큐에 등록되었습니다.')">신고</button>
+    </div>
+    <div class="demo-note">댓글 ${p.cmts}개 — 데모에서는 생략했습니다.</div>`;
+  openOv('ovPost');
+}
+function likePost(id){
+  const p = posts.find(x=>x.id===id); p.likes++;
+  document.getElementById('lk').textContent = p.likes;
+  renderBoard(); renderHome();
+}
+function openWrite(){ openOv('ovWrite'); }
+function submitPost(){
+  const ti = $('#wTitle').value.trim(), bd = $('#wBoard').value, body = $('#wBody').value.trim();
+  if(!ti) return toast('제목을 입력해 주세요','');
+  posts.unshift({id:Date.now(), bd, ti, by:'데모유저', ago:'방금', likes:0, cmts:0, body:body||'(내용 없음)'});
+  $('#wTitle').value=''; $('#wBody').value='';
+  closeOv('ovWrite'); renderBoard(); renderHome(); go('board');
+  toast('글이 등록되었습니다', ti);
+}
+
+/* ---- live chat ---- */
+const chatNames = ['불꽃징크스','상암주민','짤장인','분석충','이글아이','오렌지맛','응원단장'];
+const chatLines = ['가자 한화!!','오늘 밴픽 좋다','미드 갱각 나온다','와 이거 각인데?','드래곤 스택 챙기자',
+  '바텀 라인전 이겼다','한타 각 보인다','제발 스틸만 하지마라 ㅠㅠ','오늘 승률 좋다','응원합니다 🔥'];
+function addMsg(name, text, mine){
+  const el = document.createElement('div');
+  el.className = 'msg' + (mine?' mine':'');
+  el.innerHTML = `<b>${esc(name)}</b>${esc(text)}`;
+  const c = $('#chat'); c.appendChild(el); c.scrollTop = c.scrollHeight;
+}
+function sendChat(e){
+  e.preventDefault();
+  const i = $('#chatInput'), v = i.value.trim();
+  if(!v) return;
+  addMsg('데모유저', v, true); i.value='';
+}
+function initChat(){
+  const c = $('#chat');
+  c.innerHTML = '<div class="msg sys">— 경기 30분 전, 응원 채팅방이 열렸습니다 —</div>';
+  for(let i=0;i<6;i++) addMsg(chatNames[i%chatNames.length], chatLines[i%chatLines.length]);
+  $('#chatWindow').textContent = `개방 중 · 오늘 ${pad(nextKickoff.getHours())}:${pad(nextKickoff.getMinutes())} 경기`;
+  setInterval(()=>{
+    if(!$('#v-board').classList.contains('on')) return;
+    addMsg(chatNames[Math.floor(Math.random()*chatNames.length)], chatLines[Math.floor(Math.random()*chatLines.length)]);
+  }, 4200);
+}
+
+/* =========================================================
+   PREDICT
+   ========================================================= */
+const PICKS = [['2','0'],['2','1'],['1','2'],['0','2']];
+function renderPredict(){
+  const next = matches.find(m=>m.status==='upcoming');
+  $('#predMatch').textContent = `HLE vs ${next.opp}`;
+  $('#predSub').textContent = `세트 스코어를 맞히면 포인트가 적립되고 주간 랭킹에 반영됩니다.`;
+  $('#predDeadline').textContent = `마감 ${fmtDate(next.when)}`;
+  $('#picks').innerHTML = PICKS.map(([a,b],i)=>{
+    const on = state.pred===i;
+    return `<button class="pick ${on?'on':''}" data-pick="${i}"><b>${a} : ${b}</b><span>${a>b?'승리':'패배'}</span></button>`;
+  }).join('');
+  document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{
+    state.pred = +b.dataset.pick; save(); renderPredict();
+  });
+  $('#predSubmit').disabled = state.pred===null || state.pred===undefined;
+  const done = state.predSubmitted;
+  $('#predDone').style.display = done ? 'flex' : 'none';
+  if(done) $('#predDoneTx').textContent = `${PICKS[state.pred][0]} : ${PICKS[state.pred][1]} 로 예측했습니다. 경기 종료 후 결과가 반영됩니다.`;
+  $('#rankTable tbody').innerHTML = ranks.map((r,i)=>
+    `<tr class="${r.me?'me':''}"><td>${i+1}</td><td>${esc(r.n)}</td><td>${r.hit}회</td><td>${r.pt.toLocaleString()}</td></tr>`).join('');
+}
+function submitPred(){
+  if(state.pred===null||state.pred===undefined) return;
+  state.predSubmitted = true; save();
+  if(!ranks.some(r=>r.me)){ ranks.push({n:'데모유저', hit:0, pt:0, me:true}); }
+  renderPredict();
+  toast('예측이 접수됐어요', `${PICKS[state.pred][0]} : ${PICKS[state.pred][1]} · 경기 종료 후 자동 채점됩니다.`);
+}
+
+/* =========================================================
+   ME / PREFS
+   ========================================================= */
+function renderPrefs(){
+  const row = p => `<div class="nrow"><div class="l"><b>${p.t}</b><span>${p.d}</span></div>
+    <button class="tg ${state.prefs[p.k]?'on':''}" data-pref="${p.k}"></button></div>`;
+  $('#prefsMatch').innerHTML = PREFS.filter(p=>p.g==='match').map(row).join('');
+  $('#prefsEtc').innerHTML   = PREFS.filter(p=>p.g==='etc').map(row).join('');
+  document.querySelectorAll('[data-pref]').forEach(b=>b.onclick=()=>{
+    const k = b.dataset.pref;
+    state.prefs[k] = !state.prefs[k];
+    if(k==='spoiler' && !state.prefs[k]) state.revealed = {};
+    save(); renderAll();
+    if(k==='spoiler') toast(state.prefs[k]?'스포일러 차단 켜짐':'스포일러 차단 꺼짐',
+      state.prefs[k]?'경기 결과가 가려집니다. 탭하면 볼 수 있어요.':'경기 결과가 바로 표시됩니다.');
+  });
+  const f = state.fav ? players.find(p=>p.id===state.fav) : null;
+  $('#favLine').textContent = f ? `최애 선수 · ${f.nm} (${f.ko})` : '최애 선수 미지정';
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  $('#iosBanner').style.display = (isIOS && !standalone) ? 'flex' : 'none';
+}
+
+function resetDemo(){
+  localStorage.removeItem(LS);
+  state = {prefs:{}, fav:null, pred:null, revealed:{}};
+  PREFS.forEach(p=>state.prefs[p.k]=p.def);
+  renderAll(); toast('데모를 초기화했습니다','설정·예측·최애 선수가 기본값으로 돌아갔습니다.');
+}
+
+/* =========================================================
+   MISC
+   ========================================================= */
+function openOv(id){ $('#'+id).classList.add('on'); document.body.style.overflow='hidden'; }
+function closeOv(id){ $('#'+id).classList.remove('on'); document.body.style.overflow=''; }
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.querySelectorAll('.ov.on').forEach(o=>closeOv(o.id)); });
+
+function downloadIcs(){
+  const m = matches.find(x=>x.status==='upcoming');
+  const z = d => d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//HLE FAN//demo//KO','BEGIN:VEVENT',
+    `UID:${m.id}@hle-fan.demo`, `DTSTART:${z(m.when)}`, `DTEND:${z(new Date(+m.when+3*3600e3))}`,
+    `SUMMARY:HLE vs ${m.opp} (BO${m.bo})`, 'DESCRIPTION:한화생명e스포츠 경기', 'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([ics], {type:'text/calendar'}));
+  a.download = `hle-vs-${m.opp}.ics`; a.click();
+  toast('캘린더 파일을 내려받았어요', `HLE vs ${m.opp} · ${fmtDate(m.when)}`);
+}
+
+function renderAll(){
+  renderHome(); renderSchedule(); renderBoard(); renderPredict(); renderPrefs(); renderPerm();
+  $('#rosterWrap').innerHTML = players.map(playerCard).join('');
+  bindPlayers(); bindSpoilers(); bindPosts();
+}
+
+renderAll();
+initChat();
+tickCountdown();
+setInterval(tickCountdown, 1000);
+
+/* 데모 진입 40초 뒤 "경기 임박" 푸시를 한 번 흘려서 알림 흐름을 보여준다 */
+setTimeout(()=>{ if(state.prefs.m10) toast('곧 경기 시작 🔥', `HLE vs ${matches[0].opp} · 잠시 후 시작합니다`, '경기 알림 데모'); }, 40000);
+</script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Ki } from '@/components/IconSprite';
+import { PLAYERS } from '@/lib/lck2026';
+import { PREFS, patchState, resetState, toast, useDemo, useNotify } from '@/lib/useDemoState';
+
+export default function MePage() {
+  const { prefs, fav, forceLive, setPref } = useDemo();
+  const { permission, ask } = useNotify();
+  const [iosHint, setIosHint] = useState(false);
+
+  useEffect(() => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const standalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (navigator as Navigator & { standalone?: boolean }).standalone === true;
+    setIosHint(isIOS && !standalone);
+  }, []);
+
+  const favPlayer = fav ? PLAYERS.find((p) => p.id === fav) : null;
+
+  const permText: Record<string, string> = {
+    granted: '허용됨 — 푸시를 받을 수 있습니다',
+    denied: '차단됨 — 브라우저 설정에서 해제해야 합니다',
+    default: '아직 요청하지 않음',
+    unsupported: '이 브라우저는 웹 알림을 지원하지 않습니다',
+  };
+
+  const previewPush = () => {
+    const seq: [string, string, string][] = [
+      ['곧 경기 시작 🔥', 'HLE vs T1 · 10분 뒤 시작합니다', '지금'],
+      prefs.spoiler
+        ? ['경기 종료', '결과를 확인하려면 탭하세요', '스포일러 차단 켜짐']
+        : ['경기 종료 · 승리 🎉', 'HLE 2 : 0 승리! MVP는 Zeka', '방금'],
+    ];
+    if (favPlayer) seq.push([`${favPlayer.nm} 소식`, '주간 MVP에 선정되었습니다', '최애 선수 알림']);
+    seq.forEach((s, i) => setTimeout(() => toast(...s), i * 900));
+  };
+
+  const Row = ({ k, t, d }: { k: string; t: string; d: string }) => (
+    <div className="nrow">
+      <div className="l">
+        <b>{t}</b>
+        <span>{d}</span>
+      </div>
+      <button
+        className={`tg${prefs[k] ? ' on' : ''}`}
+        aria-label={t}
+        onClick={() => {
+          setPref(k, !prefs[k]);
+          if (k === 'spoiler')
+            toast(
+              !prefs[k] ? '스포일러 차단 켜짐' : '스포일러 차단 꺼짐',
+              !prefs[k] ? '경기 결과가 가려집니다. 탭하면 볼 수 있어요.' : '경기 결과가 바로 표시됩니다.',
+            );
+        }}
+      />
+    </div>
+  );
+
+  return (
+    <div className="wrap sec">
+      <div className="kicker-mute">
+        <Ki n="bell" />
+        My
+      </div>
+      <h2 className="ko ptitle" style={{ margin: '8px 0 var(--s5)' }}>
+        알림 설정
+      </h2>
+
+      {iosHint && (
+        <div className="banner" style={{ marginBottom: 'var(--s5)' }}>
+          <div>
+            <b>아이폰은 홈 화면에 추가해야 알림이 옵니다</b>
+            <span>
+              공유 ↑ → 홈 화면에 추가 → 앱 아이콘으로 실행. iOS는 PWA 설치 상태에서만 웹 푸시를 허용합니다.
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div className="card" style={{ marginBottom: 'var(--s5)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
+          <div>
+            <b style={{ fontSize: 15 }}>브라우저 알림 권한</b>
+            <div className="cap">{permText[permission] ?? permission}</div>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-ghost btn-sm" onClick={ask}>
+              권한 요청
+            </button>
+            <button className="btn btn-primary btn-sm" onClick={previewPush}>
+              알림 미리보기
+            </button>
+          </div>
+        </div>
+        <div className="note">
+          권한 요청은 사용자가 <b>버튼을 누른 뒤에만</b> 띄웁니다. 진입 즉시 요청하면 거절률이 크게 오르고, 한 번
+          거절당하면 되돌리기 어렵습니다.
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 'var(--s5)' }}>
+        <div className="kicker-mute" style={{ marginBottom: 6 }}>
+          <Ki n="calendar" />
+          경기
+        </div>
+        {PREFS.filter((p) => p.g === 'match').map((p) => (
+          <Row key={p.k} k={p.k} t={p.t} d={p.d} />
+        ))}
+      </div>
+
+      <div className="card" style={{ marginBottom: 'var(--s5)' }}>
+        <div className="kicker-mute" style={{ marginBottom: 6 }}>
+          <Ki n="sliders" />
+          기타
+        </div>
+        {PREFS.filter((p) => p.g === 'etc').map((p) => (
+          <Row key={p.k} k={p.k} t={p.t} d={p.d} />
+        ))}
+      </div>
+
+      <div className="card" style={{ marginBottom: 'var(--s5)' }}>
+        <div className="kicker-mute" style={{ marginBottom: 12 }}>
+          <Ki n="cast" />
+          개발용
+        </div>
+        <div className="nrow">
+          <div className="l">
+            <b>강제 LIVE</b>
+            <span>방송이 없는 시간대에도 라이브 UI를 확인하려는 스위치. 실제 판정을 무시하고 켭니다.</span>
+          </div>
+          <button
+            className={`tg${forceLive ? ' on' : ''}`}
+            aria-label="강제 LIVE"
+            onClick={() => {
+              patchState({ forceLive: !forceLive });
+              toast(
+                !forceLive ? '강제 LIVE 켜짐' : '강제 LIVE 꺼짐',
+                !forceLive ? '홈의 중계 영역이 라이브 상태로 표시됩니다.' : '실제 방송 상태로 돌아갑니다.',
+              );
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="kicker-mute" style={{ marginBottom: 12 }}>
+          <Ki n="users" />내 정보
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 'var(--s4)' }}>
+          <div className="avatar">나</div>
+          <div>
+            <b style={{ fontSize: 15 }}>데모유저</b>
+            <div className="cap">
+              {favPlayer ? `최애 선수 · ${favPlayer.nm} (${favPlayer.ko})` : '최애 선수 미지정'}
+            </div>
+          </div>
+        </div>
+        <button
+          className="btn btn-ghost btn-sm"
+          onClick={() => {
+            resetState();
+            toast('초기화했습니다', '설정·예측·최애 선수가 기본값으로 돌아갔습니다.');
+          }}
+        >
+          데모 초기화
+        </button>
+      </div>
+    </div>
+  );
+}
