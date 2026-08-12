@@ -61,8 +61,22 @@ const NOTIFY_VIEW: Record<string, { Icon: typeof Bell; label: string; on: boolea
 
 function NotifyButton({ permission, onAsk }: { permission: string; onAsk: () => void }) {
   const { Icon, label, on } = NOTIFY_VIEW[permission] ?? NOTIFY_VIEW.default;
+  const cls = `btn btn-ghost btn-sm${on ? ' on' : ''}`;
+
+  // 브라우저는 한 번 허용한 알림 권한을 사이트가 되돌리는 수단을 주지 않는다
+  // (requestPermission 만 있고 해제가 없다). 그래서 켜진 뒤에는 스위치가 아니라,
+  // 항목별로 끌 수 있는 알림 설정으로 가는 입구가 된다. aria-pressed 를 붙이면
+  // 스크린리더에 토글이라고 알리게 되므로 쓰지 않는다.
+  if (on) {
+    return (
+      <Link className={cls} href="/me" title="받을 알림 항목은 알림 설정에서 고를 수 있습니다">
+        <Icon size={15} />
+        {label}
+      </Link>
+    );
+  }
   return (
-    <button className={`btn btn-ghost btn-sm${on ? ' on' : ''}`} onClick={onAsk} aria-pressed={on}>
+    <button className={cls} onClick={onAsk}>
       <Icon size={15} />
       {label}
     </button>
