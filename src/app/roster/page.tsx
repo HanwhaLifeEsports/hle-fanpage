@@ -1,5 +1,11 @@
 import RosterRail from '@/components/Roster';
 import { PLAYERS, STAFF } from '@/lib/lck2026';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '선수단',
+  description: '2026 시즌 한화생명e스포츠 로스터와 코칭스태프.',
+};
 
 export default function RosterPage() {
   const joined = PLAYERS.filter((p) => p.joined2026);
@@ -40,8 +46,7 @@ export default function RosterPage() {
       </div>
 
       <div className="note">
-        <b>로스터·코칭스태프는 실제 2026 시즌 기준</b>입니다. 개인 스탯(KDA·분당 딜량·출전)은 샘플이며, 사진
-        슬롯은 4:5 풀블리드로 비워뒀습니다 — 실제 이미지는 공식 SNS 임베드 또는 허가받은 촬영분으로 교체합니다.
+        선수 사진은 초상권 확인이 끝난 것만 싣습니다. 지금은 자리를 비워두고 포지션과 등번호로 구분합니다.
       </div>
     </div>
   );

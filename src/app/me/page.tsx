@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { PLAYERS } from '@/lib/lck2026';
-import { PREFS, patchState, resetState, toast, useDemo, useNotify } from '@/lib/useDemoState';
+import { PREFS, patchState, resetState, toast, useApp, useNotify } from '@/lib/useAppState';
 
 export default function MePage() {
-  const { prefs, fav, forceLive, setPref } = useDemo();
+  const { prefs, fav, setPref } = useApp();
   const { permission, ask } = useNotify();
   const [iosHint, setIosHint] = useState(false);
 
@@ -28,12 +28,12 @@ export default function MePage() {
 
   const previewPush = () => {
     const seq: [string, string, string][] = [
-      ['곧 경기 시작', 'HLE vs T1 · 10분 뒤 시작합니다', '지금'],
+      ['곧 경기 시작', '경기 시작 10분 전에 이렇게 알려드립니다', '미리보기'],
       prefs.spoiler
-        ? ['경기 종료', '결과를 확인하려면 탭하세요', '스포일러 차단 켜짐']
-        : ['경기 종료 · 승리', 'HLE 2 : 0 승리. MVP는 Zeka', '방금'],
+        ? ['경기 종료', '결과를 확인하려면 탭하세요', '스포일러 차단이 켜져 있을 때']
+        : ['경기 종료', '세트 스코어가 제목에 그대로 표시됩니다', '스포일러 차단이 꺼져 있을 때'],
     ];
-    if (favPlayer) seq.push([`${favPlayer.nm} 소식`, '주간 MVP에 선정되었습니다', '최애 선수 알림']);
+    if (favPlayer) seq.push([`${favPlayer.nm} 소식`, '지정한 선수 관련 소식만 따로 받습니다', '최애 선수 알림']);
     seq.forEach((s, i) => setTimeout(() => toast(...s), i * 900));
   };
 
@@ -110,46 +110,22 @@ export default function MePage() {
         ))}
       </div>
 
-      <div className="card" style={{ marginBottom: 'var(--s5)' }}>
-        <h3 className="grouphead">개발용</h3>
-        <div className="nrow">
-          <div className="l">
-            <b>강제 LIVE</b>
-            <span>방송이 없는 시간대에도 라이브 UI를 확인하려는 스위치. 실제 판정을 무시하고 켭니다.</span>
-          </div>
-          <button
-            className={`tg${forceLive ? ' on' : ''}`}
-            aria-label="강제 LIVE"
-            onClick={() => {
-              patchState({ forceLive: !forceLive });
-              toast(
-                !forceLive ? '강제 LIVE 켜짐' : '강제 LIVE 꺼짐',
-                !forceLive ? '홈의 중계 영역이 라이브 상태로 표시됩니다.' : '실제 방송 상태로 돌아갑니다.',
-              );
-            }}
-          />
-        </div>
-      </div>
-
       <div className="card">
         <h3 className="grouphead">내 정보</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 'var(--s4)' }}>
-          <div className="avatar">나</div>
-          <div>
-            <b style={{ fontSize: 15 }}>데모유저</b>
-            <div className="cap">
-              {favPlayer ? `최애 선수 · ${favPlayer.nm} (${favPlayer.ko})` : '최애 선수 미지정'}
-            </div>
-          </div>
-        </div>
+        <p className="cap" style={{ marginBottom: 'var(--s4)' }}>
+          {favPlayer ? `최애 선수 · ${favPlayer.nm} (${favPlayer.ko})` : '최애 선수를 지정하지 않았습니다.'}
+          <br />
+          알림 설정 · 최애 선수 · 승부예측은 <b style={{ color: '#fff' }}>이 브라우저에만</b> 저장되며 서버로
+          전송되지 않습니다.
+        </p>
         <button
           className="btn btn-ghost btn-sm"
           onClick={() => {
             resetState();
-            toast('초기화했습니다', '설정·예측·최애 선수가 기본값으로 돌아갔습니다.');
+            toast('설정을 초기화했습니다', '알림 설정 · 최애 선수 · 예측 기록이 모두 지워졌습니다.');
           }}
         >
-          데모 초기화
+          저장된 설정 지우기
         </button>
       </div>
     </div>

@@ -9,8 +9,7 @@
  *  - 중계권: 2026~2030 네이버(치지직) + SOOP 국내 독점.
  *    유튜브는 국내 정규시즌 생중계 없음(국제 대회만), 디즈니+는 비시즌 컵 대회.
  *
- * [샘플 데이터] — 실서비스에서는 수집기 + 관리자 입력으로 대체할 것
- *  - 경기 일정/결과, 순위표 승패, 선수 개인 스탯
+ * 순위·일정·전적은 LoL Esports API 에서 실시간으로 가져온다 (src/lib/lolesports.ts).
  */
 
 export type PlatformId = 'chzzk' | 'soop' | 'youtube' | 'disney';
@@ -135,21 +134,18 @@ export interface Player {
   ko: string;
   pos: 'TOP' | 'JGL' | 'MID' | 'BOT' | 'SUP';
   no: string;
-  /** 아래 스탯은 샘플 */
-  kda: number;
-  dpm: number;
-  games: number;
+  /** 대표 챔피언 — 2026 시즌 경기에서 반복해 고른 픽 */
   champs: string[];
   /** 2026 시즌 합류 여부 */
   joined2026?: boolean;
 }
 
 export const PLAYERS: Player[] = [
-  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '01', kda: 4.4, dpm: 528, games: 26, champs: ['잭스', '그웬', '케넨'] },
-  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '02', kda: 5.3, dpm: 341, games: 26, champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
-  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '03', kda: 6.2, dpm: 617, games: 26, champs: ['아지르', '오리아나', '실라스'] },
-  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '04', kda: 7.1, dpm: 645, games: 26, champs: ['징크스', '제리', '칼리스타'], joined2026: true },
-  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '05', kda: 4.9, dpm: 191, games: 26, champs: ['노틸러스', '레나타', '알리스타'] },
+  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '01', champs: ['잭스', '그웬', '케넨'] },
+  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '02', champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
+  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '03', champs: ['아지르', '오리아나', '실라스'] },
+  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '04', champs: ['징크스', '제리', '칼리스타'], joined2026: true },
+  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '05', champs: ['노틸러스', '레나타', '알리스타'] },
 ];
 
 export const STAFF = [

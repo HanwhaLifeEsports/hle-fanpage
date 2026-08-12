@@ -4,7 +4,6 @@ import { sidesOf } from '@/lib/pick';
 import { fmtDate } from '@/lib/format';
 import LiveNow from '@/components/LiveNow';
 import RosterRail from '@/components/Roster';
-import { HotPosts } from '@/components/Board';
 import { getSeason } from '@/lib/season';
 import { OUR_TAG, SEASON } from '@/lib/lck2026';
 import { LEGEND_OUTCOME, RISE_OUTCOME } from '@/lib/scenarios';
@@ -27,6 +26,10 @@ export default async function Home() {
   }
 
   const { season, us, next, recent, ourGroup, scenarios } = bundle;
+  const upcoming = season.matches
+    .filter((m) => m.stage === 'regular' && m.state !== 'completed')
+    .filter((m) => m.a.code === OUR_TAG || m.b.code === OUR_TAG)
+    .slice(0, 3);
   const group = ourGroup === 'legend' ? season.legend : season.rise;
   const outcome = ourGroup === 'legend' ? LEGEND_OUTCOME : RISE_OUTCOME;
   const opp = next ? sidesOf(next).them : null;
@@ -146,12 +149,16 @@ export default async function Home() {
         <RosterRail />
 
         <div className="shead">
-          <h2 className="ko">지금 뜨는 글</h2>
-          <Link className="btn btn-ghost btn-sm" href="/board">
-            커뮤니티
+          <h2 className="ko">다가오는 일정</h2>
+          <Link className="btn btn-ghost btn-sm" href="/schedule">
+            전체 일정
           </Link>
         </div>
-        <HotPosts />
+        <div className="g3">
+          {upcoming.map((m) => (
+            <MatchCard key={m.id} m={m} />
+          ))}
+        </div>
 
         <div className="flamestrip" style={{ marginTop: 'var(--s8)' }}>
           <div>

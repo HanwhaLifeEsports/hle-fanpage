@@ -3,6 +3,12 @@ import Standings from '@/components/Standings';
 import { getSeason } from '@/lib/season';
 import { OUR_TAG, SEASON } from '@/lib/lck2026';
 import { fmtDate } from '@/lib/format';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '일정 & 순위',
+  description: '2026 LCK 레전드·라이즈 그룹 통합 순위와 전체 일정. 세트 득실 포함.',
+};
 
 export const dynamic = 'force-dynamic';
 

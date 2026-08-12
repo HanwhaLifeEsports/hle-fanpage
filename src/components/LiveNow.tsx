@@ -4,28 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import type { LiveResponse, LiveSource } from '@/lib/live-types';
 import { fmtClock } from '@/lib/format';
 import { Ki } from './IconSprite';
-import { toast, useDemo } from '@/lib/useDemoState';
+import { toast, useApp } from '@/lib/useAppState';
 
 const POLL_MS = 30_000;
 
 /** 임베드 가능한 소스만 플레이어로. 치지직·디즈니+는 여기 오지 않는다. */
 function Player({ s }: { s: LiveSource }) {
   const yt = s.platform === 'youtube';
-  // 강제 LIVE 로만 켜진 경우 실제 송출이 없어 빈 흰 화면이 뜬다 → 자리표시자로 대체
-  if (s.forcedOnly) {
-    return (
-      <div className="pframe">
-        <span className="lbl" style={{ color: s.color }}>
-          <i className="dot" style={{ background: s.color }} />
-          {s.name}
-        </span>
-        <div className="pholder">
-          실제 송출이 없어 플레이어를 비워둡니다
-          <span>방송이 시작되면 이 자리에 {s.name} 플레이어가 들어갑니다</span>
-        </div>
-      </div>
-    );
-  }
   return (
     <div className="pframe">
       <span className="lbl" style={{ color: s.color }}>
@@ -83,7 +68,7 @@ function LinkCard({ s }: { s: LiveSource }) {
 }
 
 export default function LiveNow() {
-  const { prefs, forceLive } = useDemo();
+  const { prefs } = useApp();
   const [data, setData] = useState<LiveResponse | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
@@ -93,7 +78,7 @@ export default function LiveNow() {
     let alive = true;
     const load = async () => {
       try {
-        const res = await fetch(`/api/live${forceLive ? '?force=1' : ''}`, { cache: 'no-store' });
+        const res = await fetch('/api/live', { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const d: LiveResponse = await res.json();
         if (!alive) return;
@@ -114,7 +99,7 @@ export default function LiveNow() {
       alive = false;
       clearInterval(t);
     };
-  }, [forceLive, prefs.onair]);
+  }, [prefs.onair]);
 
   if (!data && !err) {
     return (
@@ -154,7 +139,6 @@ export default function LiveNow() {
             </span>
           )}
           <b style={{ fontSize: 15 }}>{isLive ? (headline ?? 'LCK 중계 진행 중') : '지금은 방송 중이 아닙니다'}</b>
-          {data?.forced && <span className="badge b-flame">강제 LIVE</span>}
         </div>
         <span className="cap">
           {err ? `확인 실패 · ${err}` : data ? `${fmtClock(data.checkedAt)} 확인 · 30초마다 갱신` : ''}

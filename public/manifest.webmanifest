@@ -1,0 +1,22 @@
+{
+  "name": "HLE FAN — 한화생명e스포츠 팬페이지",
+  "short_name": "HLE FAN",
+  "description": "2026 LCK 한화생명e스포츠 비공식 팬페이지. 경기 알림 · 중계 · 순위 · 플레이오프 경우의 수.",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#08090A",
+  "theme_color": "#08090A",
+  "categories": ["sports", "entertainment"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "일정 & 순위", "url": "/schedule" },
+    { "name": "경우의 수", "url": "/scenarios" }
+  ]
+}

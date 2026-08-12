@@ -5,14 +5,17 @@
    상세 스펙: design/concept.html
    ========================================================================== */
 
-/* Freesentation — 한글/라틴 공용 UI 서체 (눈누 CDN)
-   프로덕션은 한글 2350자 서브셋으로 줄여 셀프호스팅할 것 (웨이트당 약 250KB) */
-@font-face{font-family:'Freesentation';font-weight:300;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-3Light.woff2') format('woff2')}
-@font-face{font-family:'Freesentation';font-weight:400;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-4Regular.woff2') format('woff2')}
-@font-face{font-family:'Freesentation';font-weight:500;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-5Medium.woff2') format('woff2')}
-@font-face{font-family:'Freesentation';font-weight:600;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-6SemiBold.woff2') format('woff2')}
-@font-face{font-family:'Freesentation';font-weight:700;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-7Bold.woff2') format('woff2')}
-@font-face{font-family:'Freesentation';font-weight:900;font-display:swap;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-9Black.woff2') format('woff2')}
+/* Freesentation — 한글/라틴 공용 UI 서체. KS X 1001 2350자 + 라틴으로 서브셋해 셀프호스팅한다.
+   원본 CDN 은 웨이트당 약 250KB(6종 1.46MB). 500·600 은 인접 굵기로 대체되므로 4종만 싣는다.
+   300 은 스코어·카운트다운 숫자 전용이라 숫자 글리프만 남겼다. */
+@font-face{font-family:'Freesentation';font-weight:300;font-style:normal;font-display:swap;
+  src:url('/fonts/freesentation-300.woff2') format('woff2');unicode-range:U+0030-0039,U+002B,U+002D,U+002E,U+002C,U+003A,U+0025,U+0028-0029,U+002F,U+0020}
+@font-face{font-family:'Freesentation';font-weight:400;font-style:normal;font-display:swap;
+  src:url('/fonts/freesentation-400.woff2') format('woff2')}
+@font-face{font-family:'Freesentation';font-weight:700;font-style:normal;font-display:swap;
+  src:url('/fonts/freesentation-700.woff2') format('woff2')}
+@font-face{font-family:'Freesentation';font-weight:900;font-style:normal;font-display:swap;
+  src:url('/fonts/freesentation-900.woff2') format('woff2')}
 
 :root{
   --canvas:#08090A; --surface:#121315; --surface-card:#17181B; --surface-light:#fff;
@@ -53,7 +56,6 @@ button{font-family:inherit}
 .livestat{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--mute)}
 .cap{font-size:13px;color:var(--mute)}
 .cap-xs{font-size:12px;color:var(--mute)}
-.bodytx{font-size:15px;color:var(--body)}
 .wrap{max-width:1080px;margin:0 auto;padding:0 var(--s5)}
 
 /* ---------- buttons ---------- */
@@ -183,10 +185,6 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
   height:26px;padding:0 11px;border-radius:var(--r-full);background:rgba(0,0,0,.72);backdrop-filter:blur(6px);
   font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .pframe iframe{display:block;width:100%;aspect-ratio:16/9;border:0;background:#0B0B0C}
-.pholder{aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-  background:repeating-linear-gradient(135deg,rgba(255,255,255,.03) 0 8px,transparent 8px 16px),#0B0B0C;
-  font-size:13px;font-weight:600;color:var(--mute);text-align:center;padding:16px}
-.pholder span{font-size:12px;font-weight:400;color:var(--mute)}
 .noembed{display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding:var(--s5);
   background:var(--surface-card);border:1px dashed var(--hairline);border-radius:var(--r-card)}
 
@@ -242,16 +240,6 @@ input[type=text],textarea,select{background:rgba(255,255,255,.06);border:1px sol
 input:focus,textarea:focus{border-color:var(--flame)}
 label.fl{display:block;font-size:12px;font-weight:600;color:var(--mute);margin:0 0 6px}
 
-/* ---------- chat ---------- */
-.chat{height:320px;overflow-y:auto;padding:var(--s4);background:var(--surface-card);border:1px solid var(--hairline);
-  border-radius:var(--r-card) var(--r-card) 0 0;display:flex;flex-direction:column;gap:9px}
-.msg{font-size:14px;line-height:1.45}
-.msg b{color:var(--flame);font-weight:600;font-size:13px;margin-right:6px}
-.msg.sys{color:var(--faint);font-size:12px;text-align:center;padding:4px 0}
-.msg.mine b{color:#fff}
-.chatbar{display:flex;gap:8px;padding:10px;background:var(--surface);border:1px solid var(--hairline);border-top:0;border-radius:0 0 var(--r-card) var(--r-card)}
-.chatbar input{flex:1;border-radius:var(--r-full);height:40px;padding:0 16px}
-
 /* ---------- prediction ---------- */
 .picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;margin:var(--s4) 0}
 .pick{background:var(--surface-card);border:1px solid var(--hairline);border-radius:var(--r-card);padding:16px 10px;cursor:pointer;text-align:center;transition:.15s}
@@ -284,9 +272,40 @@ label.fl{display:block;font-size:12px;font-weight:600;color:var(--mute);margin:0
 .note{border-left:1px solid var(--hairline);padding:2px 0 2px 14px;font-size:13px;color:var(--mute);margin-top:var(--s4);line-height:1.6}
 .note b{color:#fff}
 .flamestrip{background:var(--flame);color:var(--ink-dark);padding:var(--s6) var(--s5);display:flex;align-items:center;justify-content:space-between;gap:var(--s5);flex-wrap:wrap;border-radius:var(--r-card)}
-footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);color:var(--faint);font-size:12px;margin-top:var(--s7)}
-.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,#2A2B31,#141519);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--body);flex:none}
+footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin-top:var(--s7)}
+.foot{display:flex;justify-content:space-between;gap:var(--s6);flex-wrap:wrap}
+.foot>div{display:flex;flex-direction:column;gap:6px;max-width:56ch}
+.foot b{font-family:var(--display);font-size:16px;letter-spacing:.04em}
+.foot span{font-size:12.5px;color:var(--mute);line-height:1.6}
+.foot nav{display:flex;flex-direction:column;gap:8px}
+.foot nav a{font-size:13px;color:var(--body)}
+.foot nav a:hover{color:var(--flame-text)}
+
+/* ---------- 본문형 문서 (개인정보 처리방침 등) ---------- */
+.prose{max-width:68ch}
+.prose h3{font-size:16px;font-weight:700;margin:var(--s6) 0 8px;letter-spacing:-.01em}
+.prose h3:first-child{margin-top:0}
+.prose p{font-size:14.5px;color:var(--body);line-height:1.75;margin-bottom:10px}
+.prose ul{margin:0 0 10px 18px;display:flex;flex-direction:column;gap:6px}
+.prose li{font-size:14.5px;color:var(--body);line-height:1.7}
+.prose b{color:var(--ink)}
+
+/* ---------- 로딩 스켈레톤 ---------- */
+@keyframes shimmer{0%{opacity:.5}50%{opacity:.9}100%{opacity:.5}}
+.skel-title,.skel-line,.skel-card{background:rgba(255,255,255,.06);border-radius:var(--r-card);animation:shimmer 1.6s ease-in-out infinite}
+.skel-title{height:38px;width:min(340px,70%);margin-bottom:14px}
+.skel-line{height:15px;margin-bottom:8px}
+.skel-card{height:132px}
 .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+
+.empty{border:1px dashed var(--hairline);border-radius:var(--r-card);padding:var(--s6) var(--s5);
+  display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.empty b{font-size:16px}
+.empty span{font-size:14px;color:var(--body);line-height:1.6;max-width:58ch}
+.linkcard{display:flex;flex-direction:column;gap:6px;transition:border-color .15s}
+.linkcard:hover{border-color:rgba(255,255,255,.28)}
+.linkcard b{font-size:15px}
+.linkcard span{font-size:13px;color:var(--mute);line-height:1.55}
 
 /* ---------- 경우의 수 ---------- */
 .oddsrow{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s5);flex-wrap:wrap}

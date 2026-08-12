@@ -2,9 +2,12 @@
 
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 
-/* ------------------------------------------------------------------ */
-/* 알림 설정 항목                                                       */
-/* ------------------------------------------------------------------ */
+/**
+ * 브라우저 로컬 상태.
+ *
+ * 계정 서버가 붙기 전까지 알림 설정 · 최애 선수 · 승부예측은 이 기기에만 저장된다.
+ * 서버로 나가는 개인정보가 없다는 뜻이기도 하다 (개인정보처리방침 참고).
+ */
 
 export const PREFS = [
   { k: 'd1', g: 'match', t: '내일 경기 있음', d: '전일 저녁 8시', def: false },
@@ -15,32 +18,32 @@ export const PREFS = [
   { k: 'result', g: 'match', t: '경기 결과', d: '경기 종료 직후', def: true },
   { k: 'spoiler', g: 'etc', t: '스포일러 차단', d: '결과를 가린 채 알림 · 앱에서도 스코어를 가립니다', def: true },
   { k: 'player', g: 'etc', t: '최애 선수 소식', d: '지정한 선수 관련 알림', def: true },
-  { k: 'reply', g: 'etc', t: '내 글 댓글', d: '댓글·멘션', def: true },
-  { k: 'goods', g: 'etc', t: '굿즈·티켓 오픈', d: '판매 시작 시', def: false },
 ] as const;
 
-export interface DemoState {
+/** 경기별 예측: [우리 세트, 상대 세트] */
+export type Pick = [number, number];
+
+export interface AppState {
   prefs: Record<string, boolean>;
   fav: string | null;
-  pred: number | null;
-  predSubmitted: boolean;
+  /** matchId → 예측. 경기가 끝나면 실제 결과와 대조해 자동 채점된다. */
+  picks: Record<string, Pick>;
   revealed: Record<string, boolean>;
-  /** 개발용 강제 LIVE — 방송 없는 시간대에 라이브 UI를 확인하려는 스위치 */
-  forceLive: boolean;
+  /** 알림 권한을 요청한 적이 있는지 — 배너 노출 판단용 */
+  askedNotify: boolean;
 }
 
-const KEY = 'hle-app-v1';
+const KEY = 'hle-fan-v1';
 
-const DEFAULT: DemoState = Object.freeze({
+const DEFAULT: AppState = Object.freeze({
   prefs: Object.fromEntries(PREFS.map((p) => [p.k, p.def])),
   fav: null,
-  pred: null,
-  predSubmitted: false,
+  picks: {},
   revealed: {},
-  forceLive: false,
-}) as DemoState;
+  askedNotify: false,
+}) as AppState;
 
-let state: DemoState = DEFAULT;
+let state: AppState = DEFAULT;
 let hydrated = false;
 const subs = new Set<() => void>();
 
@@ -58,19 +61,19 @@ function persist() {
   }
 }
 
-export function patchState(p: Partial<DemoState>) {
+export function patchState(p: Partial<AppState>) {
   state = { ...state, ...p };
   persist();
   emit();
 }
 
 export function resetState() {
-  state = { ...DEFAULT, prefs: { ...DEFAULT.prefs }, revealed: {} };
+  state = { ...DEFAULT, prefs: { ...DEFAULT.prefs }, picks: {}, revealed: {} };
   persist();
   emit();
 }
 
-export function useDemo() {
+export function useApp() {
   const s = useSyncExternalStore(
     subscribe,
     () => state,
@@ -83,11 +86,12 @@ export function useDemo() {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) {
-        const saved = JSON.parse(raw) as Partial<DemoState>;
+        const saved = JSON.parse(raw) as Partial<AppState>;
         state = {
           ...DEFAULT,
           ...saved,
           prefs: { ...DEFAULT.prefs, ...(saved.prefs ?? {}) },
+          picks: saved.picks ?? {},
           revealed: saved.revealed ?? {},
         };
         emit();
@@ -108,11 +112,15 @@ export function useDemo() {
     patchState({ revealed: { ...state.revealed, [id]: true } });
   }, []);
 
-  return { ...s, setPref, reveal };
+  const setPick = useCallback((matchId: string, pick: Pick) => {
+    patchState({ picks: { ...state.picks, [matchId]: pick } });
+  }, []);
+
+  return { ...s, setPref, reveal, setPick };
 }
 
 /* ------------------------------------------------------------------ */
-/* 토스트 (푸시 시뮬레이션 + 실제 Notification API)                     */
+/* 알림                                                                 */
 /* ------------------------------------------------------------------ */
 
 export interface Toast {
@@ -125,6 +133,7 @@ export interface Toast {
 let toasts: Toast[] = [];
 const tsubs = new Set<() => void>();
 let seq = 0;
+const EMPTY: Toast[] = [];
 
 const temit = () => tsubs.forEach((f) => f());
 const tsubscribe = (f: () => void) => {
@@ -139,11 +148,16 @@ export function toast(title: string, body: string, meta?: string) {
   setTimeout(() => dismissToast(t.id), 5600);
 
   if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-    try {
-      new Notification(title, { body, tag: 'hle' });
-    } catch {
-      /* 일부 브라우저는 SW 없이 Notification 생성이 막혀 있다 — 토스트로만 보여준다 */
-    }
+    // 서비스워커가 있으면 그쪽으로 — 탭이 백그라운드여도 뜬다
+    void navigator.serviceWorker?.ready
+      .then((reg) => reg.showNotification(title, { body, icon: '/icon-192.png', badge: '/badge.png', tag: 'hle' }))
+      .catch(() => {
+        try {
+          new Notification(title, { body, tag: 'hle' });
+        } catch {
+          /* 알림 생성이 막힌 브라우저 — 토스트로만 보여준다 */
+        }
+      });
   }
 }
 
@@ -159,7 +173,6 @@ export function useToasts() {
     () => EMPTY,
   );
 }
-const EMPTY: Toast[] = [];
 
 /* ------------------------------------------------------------------ */
 /* 브라우저 알림 권한                                                    */
@@ -171,6 +184,7 @@ const psubscribe = (f: () => void) => {
   psubs.add(f);
   return () => void psubs.delete(f);
 };
+const pemit = () => psubs.forEach((f) => f());
 
 export function useNotify() {
   const perm = useSyncExternalStore(
@@ -183,7 +197,7 @@ export function useNotify() {
     const next = 'Notification' in window ? Notification.permission : ('unsupported' as const);
     if (next !== permission) {
       permission = next;
-      psubs.forEach((f) => f());
+      pemit();
     }
   }, []);
 
@@ -193,19 +207,20 @@ export function useNotify() {
       return;
     }
     if (Notification.permission === 'granted') {
-      toast('이미 켜져 있어요', '경기 알림을 받을 준비가 됐습니다.');
+      toast('이미 켜져 있습니다', '경기 알림을 받을 준비가 됐습니다.');
       return;
     }
     if (Notification.permission === 'denied') {
-      toast('알림이 차단됨', '주소창의 자물쇠 아이콘에서 알림을 허용해 주세요.');
+      toast('알림이 차단되어 있습니다', '주소창의 자물쇠 아이콘에서 알림을 허용해 주세요.');
       return;
     }
     // 권한 요청은 반드시 사용자 제스처 뒤에만. 진입 즉시 띄우면 거절률이 크게 오른다.
     void Notification.requestPermission().then((p) => {
       permission = p;
-      psubs.forEach((f) => f());
+      patchState({ askedNotify: true });
+      pemit();
       if (p === 'granted') toast('알림을 켰습니다', '경기 알림과 방송 시작 알림을 보내드립니다.');
-      else toast('알림을 켜지 않았어요', 'MY 탭에서 언제든 다시 켤 수 있습니다.');
+      else toast('알림을 켜지 않았습니다', 'MY 탭에서 언제든 다시 켤 수 있습니다.');
     });
   }, []);
 

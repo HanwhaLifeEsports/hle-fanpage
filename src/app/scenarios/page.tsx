@@ -2,6 +2,12 @@ import { getSeason } from '@/lib/season';
 import { OUR_TAG, SEASON } from '@/lib/lck2026';
 import { LEGEND_OUTCOME, RISE_OUTCOME } from '@/lib/scenarios';
 import { fmtDate } from '@/lib/format';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '플레이오프 경우의 수',
+  description: '한화생명e스포츠의 남은 경기를 전부 전개해 계산한 순위 확률과 경기별 영향력.',
+};
 
 export const dynamic = 'force-dynamic';
 
