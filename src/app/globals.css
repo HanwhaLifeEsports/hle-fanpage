@@ -67,6 +67,9 @@ button{font-family:inherit}
 .btn-primary:hover{background:#FF7D2E}
 .btn-ghost{background:rgba(255,255,255,.09);color:var(--ink)}
 .btn-ghost:hover{background:rgba(255,255,255,.16)}
+/* 켜져 있는 토글형 버튼. .tg.on / .plat.on / .chip.on 과 같은 규칙을 따른다 */
+.btn-ghost.on{background:var(--flame-soft);color:var(--flame-text);box-shadow:inset 0 0 0 1px rgba(255,106,19,.45)}
+.btn-ghost.on:hover{background:rgba(255,106,19,.2)}
 .btn-light{background:#fff;color:var(--ink-dark)}
 .btn-sm{height:36px;padding:0 16px;font-size:13px}
 .btn-block{width:100%}

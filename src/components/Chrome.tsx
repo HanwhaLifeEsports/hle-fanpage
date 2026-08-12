@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell, BellRing, CalendarDays, ChartColumn, House, MessageSquare, UserRound } from 'lucide-react';
+import { Bell, BellOff, BellRing, CalendarDays, ChartColumn, House, MessageSquare, UserRound } from 'lucide-react';
 import { useNotify } from '@/lib/useDemoState';
 
 const NAV = [
@@ -44,12 +44,28 @@ export function AppBar() {
             </Link>
           ))}
         </nav>
-        <button className="btn btn-ghost btn-sm" onClick={ask}>
-          {permission === 'granted' ? <BellRing size={15} /> : <Bell size={15} />}
-          {permission === 'granted' ? '알림 켜짐' : '알림 켜기'}
-        </button>
+        <NotifyButton permission={permission} onAsk={ask} />
       </div>
     </header>
+  );
+}
+
+/** 네 가지 상태를 각각 다르게 보여준다. granted 가 아니라고 전부 "켜기"로 두면,
+ *  차단·미지원처럼 눌러도 켤 수 없는 상태를 켤 수 있는 것처럼 말하게 된다. */
+const NOTIFY_VIEW: Record<string, { Icon: typeof Bell; label: string; on: boolean }> = {
+  granted: { Icon: BellRing, label: '알림 켜짐', on: true },
+  denied: { Icon: BellOff, label: '알림 차단됨', on: false },
+  unsupported: { Icon: BellOff, label: '알림 미지원', on: false },
+  default: { Icon: Bell, label: '알림 켜기', on: false },
+};
+
+function NotifyButton({ permission, onAsk }: { permission: string; onAsk: () => void }) {
+  const { Icon, label, on } = NOTIFY_VIEW[permission] ?? NOTIFY_VIEW.default;
+  return (
+    <button className={`btn btn-ghost btn-sm${on ? ' on' : ''}`} onClick={onAsk} aria-pressed={on}>
+      <Icon size={15} />
+      {label}
+    </button>
   );
 }
 
