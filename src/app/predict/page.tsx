@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Ki } from '@/components/IconSprite';
 import { fmtDate } from '@/lib/format';
 import { nextMatch, teamOf } from '@/lib/lck2026';
 import { patchState, toast, useDemo } from '@/lib/useDemoState';
@@ -34,14 +33,10 @@ export default function PredictPage() {
 
   return (
     <div className="wrap sec">
-      <div className="kicker-mute">
-        <Ki n="target" />
-        Prediction
-      </div>
-      <h2 className="ko ptitle" style={{ margin: '8px 0 4px' }}>
-        승부예측
-      </h2>
-      <p className="bodytx">세트 스코어를 맞히면 포인트가 적립되고 주간 랭킹에 반영됩니다.</p>
+      <h2 className="ko ptitle">승부예측</h2>
+      <p className="lede" style={{ marginTop: 10 }}>
+        세트 스코어를 맞히면 포인트가 적립되고 주간 랭킹에 반영됩니다.
+      </p>
 
       <div className="card" style={{ marginTop: 'var(--s5)' }}>
         <div
@@ -97,15 +92,7 @@ export default function PredictPage() {
       </div>
 
       <div className="shead" style={{ marginTop: 'var(--s7)' }}>
-        <div>
-          <div className="kicker-mute">
-            <Ki n="trophy" />
-            Weekly
-          </div>
-          <h2 className="ko" style={{ marginTop: 6 }}>
-            주간 랭킹
-          </h2>
-        </div>
+        <h2 className="ko">주간 랭킹</h2>
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table>

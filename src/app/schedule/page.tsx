@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Ki } from '@/components/IconSprite';
 import { MatchCard } from '@/components/Shared';
 import { LEGEND_GROUP_SIZE, MATCHES, OUR_TAG, SEASON, TEAMS } from '@/lib/lck2026';
 
@@ -28,14 +27,8 @@ export default function SchedulePage() {
 
   return (
     <div className="wrap sec">
-      <div className="kicker-mute">
-        <Ki n="calendar" />
-        Schedule
-      </div>
-      <h2 className="ko ptitle" style={{ margin: '8px 0 4px' }}>
-        일정 &amp; 결과
-      </h2>
-      <p className="bodytx" style={{ marginBottom: 'var(--s5)' }}>
+      <h2 className="ko ptitle">일정 &amp; 결과</h2>
+      <p className="lede" style={{ margin: '10px 0 var(--s5)' }}>
         {SEASON.year} 시즌 · {SEASON.format}
       </p>
 
@@ -54,20 +47,11 @@ export default function SchedulePage() {
       </div>
 
       <div className="shead" style={{ marginTop: 'var(--s7)' }}>
-        <div>
-          <div className="kicker-mute">
-            <Ki n="trophy" />
-            Standings
-          </div>
-          <h2 className="ko" style={{ marginTop: 6 }}>
-            순위표
-          </h2>
-        </div>
+        <h2 className="ko">순위표</h2>
       </div>
 
       <div className="grouplabel">
-        <Ki n="star" />
-        레전드 그룹 · 1~2라운드 상위 {LEGEND_GROUP_SIZE}팀 · 플레이오프 직행
+        <b>레전드 그룹</b>1~2라운드 상위 {LEGEND_GROUP_SIZE}팀 · 플레이오프 직행
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table>
@@ -94,9 +78,8 @@ export default function SchedulePage() {
         </table>
       </div>
 
-      <div className="grouplabel" style={{ color: 'var(--flame)' }}>
-        <Ki n="flame" />
-        라이즈 그룹 · 하위 5팀 · 6~10위는 플레이-인으로 PO 6번 시드 경쟁
+      <div className="grouplabel">
+        <b>라이즈 그룹</b>하위 5팀 · 6~10위는 플레이-인으로 PO 6번 시드 경쟁
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table>

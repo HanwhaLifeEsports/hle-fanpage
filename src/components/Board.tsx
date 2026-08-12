@@ -52,8 +52,14 @@ function Row({ p, onOpen }: { p: Post; onOpen: () => void }) {
       <span className="bd">{p.bd}</span>
       <span className="ti">{p.ti}</span>
       <span className="st">
-        <span>♥ {p.likes}</span>
-        <span>💬 {p.cmts}</span>
+        <span>
+          <Ki n="heart" />
+          {p.likes}
+        </span>
+        <span>
+          <Ki n="comment" />
+          {p.cmts}
+        </span>
       </span>
     </button>
   );
@@ -83,8 +89,8 @@ function PostModal({ p, onClose }: { p: Post; onClose: () => void }) {
       <div className="modal">
         <div className="modal-h">
           <b style={{ fontSize: 17, lineHeight: 1.35 }}>{cur.ti}</b>
-          <button className="x" onClick={onClose}>
-            ✕
+          <button className="x" onClick={onClose} aria-label="닫기">
+            <Ki n="close" size={15} />
           </button>
         </div>
         <div className="modal-b">
@@ -102,7 +108,8 @@ function PostModal({ p, onClose }: { p: Post; onClose: () => void }) {
           </p>
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn btn-ghost btn-sm" onClick={() => like(cur.id)}>
-              ♥ 추천 {cur.likes}
+              <Ki n="heart" size={14} />
+              추천 {cur.likes}
             </button>
             <button
               className="btn btn-ghost btn-sm"
@@ -207,15 +214,7 @@ export default function BoardView() {
   return (
     <div className="wrap sec">
       <div className="shead">
-        <div>
-          <div className="kicker-mute">
-            <Ki n="chat" />
-            Community
-          </div>
-          <h2 className="ko ptitle" style={{ marginTop: 6 }}>
-            커뮤니티
-          </h2>
-        </div>
+        <h2 className="ko ptitle">커뮤니티</h2>
         <button className="btn btn-primary btn-sm" onClick={() => setWriting(true)}>
           글쓰기
         </button>
@@ -248,8 +247,8 @@ export default function BoardView() {
           <div className="modal">
             <div className="modal-h">
               <b style={{ fontSize: 17 }}>글쓰기</b>
-              <button className="x" onClick={() => setWriting(false)}>
-                ✕
+              <button className="x" onClick={() => setWriting(false)} aria-label="닫기">
+                <Ki n="close" size={15} />
               </button>
             </div>
             <div className="modal-b">

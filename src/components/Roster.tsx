@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { PLAYERS, type Player } from '@/lib/lck2026';
+import { Ki } from './IconSprite';
 import { patchState, toast, useDemo } from '@/lib/useDemoState';
 
 function Card({ p, onOpen, fav }: { p: Player; onOpen: () => void; fav: boolean }) {
@@ -55,8 +56,8 @@ export default function RosterRail() {
                 {open.nm}{' '}
                 <span style={{ color: 'var(--mute)', fontWeight: 400, fontSize: 14 }}>{open.ko}</span>
               </b>
-              <button className="x" onClick={() => setOpen(null)}>
-                ✕
+              <button className="x" onClick={() => setOpen(null)} aria-label="닫기">
+                <Ki n="close" size={15} />
               </button>
             </div>
             <div className="modal-b">
@@ -74,18 +75,14 @@ export default function RosterRail() {
                   ] as const
                 ).map(([k, v]) => (
                   <div className="card" style={{ padding: 14 }} key={k}>
-                    <div className="kicker-mute" style={{ fontSize: 9 }}>
-                      {k}
-                    </div>
-                    <div className="num" style={{ fontSize: 24, marginTop: 4 }}>
+                    <div className="cap-xs">{k}</div>
+                    <div className="num" style={{ fontSize: 26, marginTop: 4 }}>
                       {v}
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="kicker-mute" style={{ marginBottom: 8 }}>
-                시그니처 챔피언
-              </div>
+              <h3 className="grouphead">시그니처 챔피언</h3>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
                 {open.champs.map((c) => (
                   <span className="chip" key={c}>

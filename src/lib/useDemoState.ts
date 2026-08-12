@@ -204,7 +204,7 @@ export function useNotify() {
     void Notification.requestPermission().then((p) => {
       permission = p;
       psubs.forEach((f) => f());
-      if (p === 'granted') toast('알림을 켰습니다 🔥', '경기 알림·방송 시작 알림을 보내드려요.');
+      if (p === 'granted') toast('알림을 켰습니다', '경기 알림과 방송 시작 알림을 보내드립니다.');
       else toast('알림을 켜지 않았어요', 'MY 탭에서 언제든 다시 켤 수 있습니다.');
     });
   }, []);

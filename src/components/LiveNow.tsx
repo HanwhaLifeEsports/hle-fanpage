@@ -69,8 +69,14 @@ function LinkCard({ s }: { s: LiveSource }) {
           {s.live && s.viewers ? ` · 시청 ${s.viewers.toLocaleString()}명` : ''}
         </div>
       </div>
-      <a className={`btn btn-sm ${s.live ? 'btn-primary' : 'btn-ghost'}`} href={s.channelUrl} target="_blank" rel="noopener noreferrer">
-        {s.name}에서 보기 ↗
+      <a
+        className={`btn btn-sm ${s.live ? 'btn-primary' : 'btn-ghost'}`}
+        href={s.channelUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {s.name}에서 보기
+        <Ki n="external" size={14} />
       </a>
     </div>
   );
@@ -95,7 +101,7 @@ export default function LiveNow() {
         setErr(null);
         // 꺼짐 → 켜짐 전환 순간에만 알림. 폴링마다 울리면 안 된다.
         if (d.isLive && !wasLive.current && prefs.onair) {
-          toast('방송이 시작됐어요 🔴', d.sources.find((s) => s.live)?.title ?? 'LCK 중계', '방송 시작 알림');
+          toast('방송이 시작됐습니다', d.sources.find((s) => s.live)?.title ?? 'LCK 중계', '방송 시작 알림');
         }
         wasLive.current = d.isLive;
       } catch (e) {
@@ -114,7 +120,7 @@ export default function LiveNow() {
     return (
       <div className="livebar off">
         <div className="live-head">
-          <span className="kicker-mute">
+          <span className="livestat">
             <Ki n="cast" />
             중계 상태 확인 중…
           </span>
@@ -142,7 +148,7 @@ export default function LiveNow() {
               LIVE
             </span>
           ) : (
-            <span className="kicker-mute">
+            <span className="livestat">
               <Ki n="cast" />
               중계 대기
             </span>
@@ -185,7 +191,7 @@ export default function LiveNow() {
               {s.live && s.viewers ? (
                 <span style={{ color: 'var(--mute)', fontWeight: 400 }}>{s.viewers.toLocaleString()}</span>
               ) : null}
-              {!canToggle && <span style={{ color: 'var(--mute)', fontWeight: 400 }}>↗</span>}
+              {!canToggle && <Ki n="external" size={13} />}
             </button>
           );
         })}

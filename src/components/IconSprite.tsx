@@ -15,14 +15,18 @@ export default function IconSprite() {
         <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3s5 4.2 5 9a5 5 0 0 1-10 0c0-2 1-3.4 1-3.4S9 11 10.4 11C11.8 11 12 8.6 12 3z" /><path d="M8.5 15.5a3.5 3.5 0 0 0 7 0" /></symbol>
         <symbol id="i-cast" viewBox="0 0 24 24"><path d="M3 17.5a3.5 3.5 0 0 1 3.5 3.5M3 13a8 8 0 0 1 8 8M3 8.5A12.5 12.5 0 0 1 15.5 21" /><path d="M3 7.5V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3.5" /></symbol>
         <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z" /></symbol>
+        <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5S3.5 15.3 3.5 9.6A4.6 4.6 0 0 1 12 7.1a4.6 4.6 0 0 1 8.5 2.5c0 5.7-8.5 10.9-8.5 10.9z" /></symbol>
+        <symbol id="i-comment" viewBox="0 0 24 24"><path d="M20.5 11.4a7.4 7.4 0 0 1-10.7 6.6L4 19.5l1.6-5.4A7.4 7.4 0 1 1 20.5 11.4z" /></symbol>
+        <symbol id="i-external" viewBox="0 0 24 24"><path d="M9 5h10v10M19 5 8 16M15 19H5V9" /></symbol>
+        <symbol id="i-close" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" /></symbol>
       </defs>
     </svg>
   );
 }
 
-export function Ki({ n }: { n: string }) {
+export function Ki({ n, size }: { n: string; size?: number }) {
   return (
-    <svg className="ki">
+    <svg className="ki" style={size ? { width: size, height: size } : undefined} aria-hidden>
       <use href={`#i-${n}`} />
     </svg>
   );

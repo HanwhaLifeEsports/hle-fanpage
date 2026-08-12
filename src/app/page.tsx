@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Ki } from '@/components/IconSprite';
 import { Countdown, MatchCard } from '@/components/Shared';
 import { fmtDate } from '@/lib/format';
 import LiveNow from '@/components/LiveNow';
@@ -19,10 +18,6 @@ export default function Home() {
     <>
       <div className="hero">
         <div className="hero-in">
-          <div className="kicker">
-            <Ki n="bolt" />
-            Next Match · LCK {new Date().getFullYear()}
-          </div>
           <h1>
             MATCH
             <br />
@@ -72,28 +67,12 @@ export default function Home() {
       <div className="wrap sec">
         {/* 라이브 중계 — 서버가 치지직·SOOP 를 실제로 폴링해서 판정 */}
         <div className="shead">
-          <div>
-            <div className="kicker-mute">
-              <Ki n="cast" />
-              Live
-            </div>
-            <h2 className="ko" style={{ marginTop: 6 }}>
-              중계 보기
-            </h2>
-          </div>
+          <h2 className="ko">중계 보기</h2>
         </div>
         <LiveNow />
 
         <div className="shead" style={{ marginTop: 'var(--s7)' }}>
-          <div>
-            <div className="kicker-mute">
-              <Ki n="history" />
-              Recent
-            </div>
-            <h2 className="ko" style={{ marginTop: 6 }}>
-              최근 경기
-            </h2>
-          </div>
+          <h2 className="ko">최근 경기</h2>
           <Link className="btn btn-ghost btn-sm" href="/schedule">
             전체 결과
           </Link>
@@ -105,15 +84,7 @@ export default function Home() {
         </div>
 
         <div className="shead" style={{ marginTop: 'var(--s7)' }}>
-          <div>
-            <div className="kicker-mute">
-              <Ki n="users" />
-              Roster
-            </div>
-            <h2 className="ko" style={{ marginTop: 6 }}>
-              선수단
-            </h2>
-          </div>
+          <h2 className="ko">선수단</h2>
           <Link className="btn btn-ghost btn-sm" href="/roster">
             전체 프로필
           </Link>
@@ -121,15 +92,7 @@ export default function Home() {
         <RosterRail />
 
         <div className="shead" style={{ marginTop: 'var(--s7)' }}>
-          <div>
-            <div className="kicker-mute">
-              <Ki n="chat" />
-              Community
-            </div>
-            <h2 className="ko" style={{ marginTop: 6 }}>
-              지금 뜨는 글
-            </h2>
-          </div>
+          <h2 className="ko">지금 뜨는 글</h2>
           <Link className="btn btn-ghost btn-sm" href="/board">
             커뮤니티
           </Link>
@@ -138,16 +101,12 @@ export default function Home() {
 
         <div className="flamestrip" style={{ marginTop: 'var(--s7)' }}>
           <div>
-            <div className="kicker" style={{ color: '#fff', opacity: 0.85 }}>
-              <Ki n="target" />
-              Prediction
-            </div>
-            <div className="display ko" style={{ fontSize: 'clamp(24px,4vw,34px)', marginTop: 8 }}>
-              이번 판, 스코어 맞혀볼래?
-            </div>
-            <p style={{ opacity: 0.88, fontSize: 14, marginTop: 6 }}>적중하면 포인트 · 주간 랭킹 반영</p>
+            <div className="ko" style={{ fontSize: 'clamp(24px,4vw,34px)' }}>이번 판, 스코어 맞혀볼래?</div>
+            <p style={{ color: '#4A1D00', fontSize: 14, fontWeight: 500, marginTop: 8 }}>
+              적중하면 포인트 · 주간 랭킹 반영
+            </p>
           </div>
-          <Link className="btn" style={{ background: '#0B0B0C', color: '#fff' }} href="/predict">
+          <Link className="btn btn-light" href="/predict">
             예측 참여
           </Link>
         </div>

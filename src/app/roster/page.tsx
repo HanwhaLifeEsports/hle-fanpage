@@ -1,4 +1,3 @@
-import { Ki } from '@/components/IconSprite';
 import RosterRail from '@/components/Roster';
 import { PLAYERS, STAFF } from '@/lib/lck2026';
 
@@ -7,14 +6,8 @@ export default function RosterPage() {
 
   return (
     <div className="wrap sec">
-      <div className="kicker-mute">
-        <Ki n="users" />
-        Roster 2026
-      </div>
-      <h2 className="ko ptitle" style={{ margin: '8px 0 4px' }}>
-        선수단
-      </h2>
-      <p className="bodytx" style={{ marginBottom: 'var(--s5)' }}>
+      <h2 className="ko ptitle">선수단 2026</h2>
+      <p className="lede" style={{ margin: '10px 0 var(--s5)' }}>
         카드를 누르면 프로필이 열립니다. 최애 선수로 지정하면 그 선수 알림만 따로 받을 수 있어요.
       </p>
 
@@ -33,24 +26,15 @@ export default function RosterPage() {
       <RosterRail />
 
       <div className="shead" style={{ marginTop: 'var(--s7)' }}>
-        <div>
-          <div className="kicker-mute">
-            <Ki n="star" />
-            Staff
-          </div>
-          <h2 className="ko" style={{ marginTop: 6 }}>
-            코칭스태프
-          </h2>
-        </div>
+        <h2 className="ko">코칭스태프</h2>
       </div>
       <div className="statgrid">
         {STAFF.map((s) => (
           <div className="card" key={s.nm}>
-            <div className="kicker-mute" style={{ fontSize: 9 }}>
-              {s.role}
+            <div style={{ fontSize: 18, fontWeight: 600 }}>{s.nm}</div>
+            <div className="cap" style={{ marginTop: 2 }}>
+              {s.ko} · {s.role}
             </div>
-            <div style={{ fontSize: 18, fontWeight: 600, marginTop: 6 }}>{s.nm}</div>
-            <div className="cap">{s.ko}</div>
           </div>
         ))}
       </div>

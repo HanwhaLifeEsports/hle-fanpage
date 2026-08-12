@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# impeccable — 벤더링된 스킬(3.2MB). npx impeccable install 로 재설치
+/.claude/skills/
+/.claude/settings.local.json

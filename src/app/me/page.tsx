@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Ki } from '@/components/IconSprite';
 import { PLAYERS } from '@/lib/lck2026';
 import { PREFS, patchState, resetState, toast, useDemo, useNotify } from '@/lib/useDemoState';
 
@@ -29,10 +28,10 @@ export default function MePage() {
 
   const previewPush = () => {
     const seq: [string, string, string][] = [
-      ['곧 경기 시작 🔥', 'HLE vs T1 · 10분 뒤 시작합니다', '지금'],
+      ['곧 경기 시작', 'HLE vs T1 · 10분 뒤 시작합니다', '지금'],
       prefs.spoiler
         ? ['경기 종료', '결과를 확인하려면 탭하세요', '스포일러 차단 켜짐']
-        : ['경기 종료 · 승리 🎉', 'HLE 2 : 0 승리! MVP는 Zeka', '방금'],
+        : ['경기 종료 · 승리', 'HLE 2 : 0 승리. MVP는 Zeka', '방금'],
     ];
     if (favPlayer) seq.push([`${favPlayer.nm} 소식`, '주간 MVP에 선정되었습니다', '최애 선수 알림']);
     seq.forEach((s, i) => setTimeout(() => toast(...s), i * 900));
@@ -61,11 +60,7 @@ export default function MePage() {
 
   return (
     <div className="wrap sec">
-      <div className="kicker-mute">
-        <Ki n="bell" />
-        My
-      </div>
-      <h2 className="ko ptitle" style={{ margin: '8px 0 var(--s5)' }}>
+      <h2 className="ko ptitle" style={{ marginBottom: 'var(--s5)' }}>
         알림 설정
       </h2>
 
@@ -102,30 +97,21 @@ export default function MePage() {
       </div>
 
       <div className="card" style={{ marginBottom: 'var(--s5)' }}>
-        <div className="kicker-mute" style={{ marginBottom: 6 }}>
-          <Ki n="calendar" />
-          경기
-        </div>
+        <h3 className="grouphead">경기</h3>
         {PREFS.filter((p) => p.g === 'match').map((p) => (
           <Row key={p.k} k={p.k} t={p.t} d={p.d} />
         ))}
       </div>
 
       <div className="card" style={{ marginBottom: 'var(--s5)' }}>
-        <div className="kicker-mute" style={{ marginBottom: 6 }}>
-          <Ki n="sliders" />
-          기타
-        </div>
+        <h3 className="grouphead">기타</h3>
         {PREFS.filter((p) => p.g === 'etc').map((p) => (
           <Row key={p.k} k={p.k} t={p.t} d={p.d} />
         ))}
       </div>
 
       <div className="card" style={{ marginBottom: 'var(--s5)' }}>
-        <div className="kicker-mute" style={{ marginBottom: 12 }}>
-          <Ki n="cast" />
-          개발용
-        </div>
+        <h3 className="grouphead">개발용</h3>
         <div className="nrow">
           <div className="l">
             <b>강제 LIVE</b>
@@ -146,9 +132,7 @@ export default function MePage() {
       </div>
 
       <div className="card">
-        <div className="kicker-mute" style={{ marginBottom: 12 }}>
-          <Ki n="users" />내 정보
-        </div>
+        <h3 className="grouphead">내 정보</h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 'var(--s4)' }}>
           <div className="avatar">나</div>
           <div>
