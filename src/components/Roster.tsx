@@ -2,15 +2,26 @@
 
 import { useState } from 'react';
 import { PLAYERS, type Player } from '@/lib/lck2026';
-import { Ki } from './IconSprite';
+import { Star, X } from 'lucide-react';
 import { patchState, toast, useDemo } from '@/lib/useDemoState';
 
-function Card({ p, onOpen, fav }: { p: Player; onOpen: () => void; fav: boolean }) {
+function Card({
+  p,
+  onOpen,
+  fav,
+  pomToday,
+}: {
+  p: Player;
+  onOpen: () => void;
+  fav: boolean;
+  pomToday: boolean;
+}) {
   return (
-    <button className="pcard" onClick={onOpen}>
+    <button className={`pcard${pomToday ? ' pomhit' : ''}`} onClick={onOpen}>
       <div className="ph">
         <span className="pos">{p.pos}</span>
         <div className="tags">
+          {pomToday && <span className="badge b-flame">오늘의 POM</span>}
           {fav && <span className="badge b-flame">최애</span>}
           {p.joined2026 && <span className="badge b-new">NEW</span>}
         </div>
@@ -19,13 +30,16 @@ function Card({ p, onOpen, fav }: { p: Player; onOpen: () => void; fav: boolean 
       </div>
       <div className="mt">
         <span className="cap">{p.ko}</span>
-        <span className="kda">KDA {p.kda}</span>
+        <span className="figs">
+          <span>KDA {p.kda}</span>
+          <span className="pom">POM {p.pom}</span>
+        </span>
       </div>
     </button>
   );
 }
 
-export default function RosterRail() {
+export default function RosterRail({ pomPlayerId = null }: { pomPlayerId?: string | null }) {
   const { fav } = useDemo();
   const [open, setOpen] = useState<Player | null>(null);
 
@@ -44,7 +58,13 @@ export default function RosterRail() {
     <>
       <div className="rail">
         {PLAYERS.map((p) => (
-          <Card key={p.id} p={p} fav={fav === p.id} onOpen={() => setOpen(p)} />
+          <Card
+            key={p.id}
+            p={p}
+            fav={fav === p.id}
+            pomToday={pomPlayerId === p.id}
+            onOpen={() => setOpen(p)}
+          />
         ))}
       </div>
 
@@ -57,7 +77,7 @@ export default function RosterRail() {
                 <span style={{ color: 'var(--mute)', fontWeight: 400, fontSize: 14 }}>{open.ko}</span>
               </b>
               <button className="x" onClick={() => setOpen(null)} aria-label="닫기">
-                <Ki n="close" size={15} />
+                <X size={15} />
               </button>
             </div>
             <div className="modal-b">
@@ -66,12 +86,13 @@ export default function RosterRail() {
                 <span className="badge b-soon">#{open.no}</span>
                 {open.joined2026 && <span className="badge b-new">2026 합류</span>}
               </div>
-              <div className="statgrid" style={{ marginBottom: 18 }}>
+              <div className="statgrid" style={{ marginBottom: 18, gridTemplateColumns: 'repeat(2,1fr)' }}>
                 {(
                   [
                     ['KDA', open.kda],
                     ['분당 딜량', open.dpm],
                     ['출전', `${open.games}경기`],
+                    ['POM 포인트', open.pom],
                   ] as const
                 ).map(([k, v]) => (
                   <div className="card" style={{ padding: 14 }} key={k}>
@@ -94,6 +115,7 @@ export default function RosterRail() {
                 className={`btn ${fav === open.id ? 'btn-ghost' : 'btn-primary'} btn-block`}
                 onClick={() => toggleFav(open.id)}
               >
+                <Star size={16} fill={fav === open.id ? 'currentColor' : 'none'} />
                 {fav === open.id ? '최애 선수 해제' : '최애 선수로 지정'}
               </button>
               <div className="note">

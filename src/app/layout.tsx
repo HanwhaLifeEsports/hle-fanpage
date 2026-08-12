@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Anton } from 'next/font/google';
 import './globals.css';
-import IconSprite from '@/components/IconSprite';
 import { AppBar, BottomTabs } from '@/components/Chrome';
 import { Toasts } from '@/components/Shared';
 
@@ -23,7 +22,6 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="ko" className={anton.variable}>
       <body>
-        <IconSprite />
         <Toasts />
         <AppBar />
         {children}

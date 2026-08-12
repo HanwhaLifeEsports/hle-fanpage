@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { Ki } from './IconSprite';
+import { Check, Flag, Heart, MessageCircle, Send, SquarePen, X } from 'lucide-react';
 import { toast } from '@/lib/useDemoState';
 
 /* ---------------- 글 저장소 (데모: 메모리) ---------------- */
@@ -52,11 +52,11 @@ function Row({ p, onOpen }: { p: Post; onOpen: () => void }) {
       <span className="ti">{p.ti}</span>
       <span className="st">
         <span>
-          <Ki n="heart" />
+          <Heart size={13} />
           {p.likes}
         </span>
         <span>
-          <Ki n="comment" />
+          <MessageCircle size={13} />
           {p.cmts}
         </span>
       </span>
@@ -89,7 +89,7 @@ function PostModal({ p, onClose }: { p: Post; onClose: () => void }) {
         <div className="modal-h">
           <b style={{ fontSize: 17, lineHeight: 1.35 }}>{cur.ti}</b>
           <button className="x" onClick={onClose} aria-label="닫기">
-            <Ki n="close" size={15} />
+            <X size={15} />
           </button>
         </div>
         <div className="modal-b">
@@ -107,13 +107,14 @@ function PostModal({ p, onClose }: { p: Post; onClose: () => void }) {
           </p>
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn btn-ghost btn-sm" onClick={() => like(cur.id)}>
-              <Ki n="heart" size={14} />
+              <Heart size={14} />
               추천 {cur.likes}
             </button>
             <button
               className="btn btn-ghost btn-sm"
               onClick={() => toast('신고 접수', '관리자 검토 큐에 등록되었습니다.')}
             >
+              <Flag size={14} />
               신고
             </button>
           </div>
@@ -190,6 +191,7 @@ function LiveChat({ open, nextKickoff }: { open: boolean; nextKickoff: string | 
       >
         <input value={v} onChange={(e) => setV(e.target.value)} placeholder="응원 메시지를 남겨보세요" maxLength={80} />
         <button className="btn btn-primary btn-sm" type="submit">
+          <Send size={14} />
           전송
         </button>
       </form>
@@ -213,6 +215,7 @@ export default function BoardView({ chatOpen, nextKickoff }: { chatOpen: boolean
       <div className="shead">
         <h2 className="ko ptitle">커뮤니티</h2>
         <button className="btn btn-primary btn-sm" onClick={() => setWriting(true)}>
+          <SquarePen size={14} />
           글쓰기
         </button>
       </div>
@@ -245,7 +248,7 @@ export default function BoardView({ chatOpen, nextKickoff }: { chatOpen: boolean
             <div className="modal-h">
               <b style={{ fontSize: 17 }}>글쓰기</b>
               <button className="x" onClick={() => setWriting(false)} aria-label="닫기">
-                <Ki n="close" size={15} />
+                <X size={15} />
               </button>
             </div>
             <div className="modal-b">
@@ -294,6 +297,7 @@ export default function BoardView({ chatOpen, nextKickoff }: { chatOpen: boolean
                   toast('글이 등록되었습니다', form.ti.trim());
                 }}
               >
+                <Check size={16} />
                 등록
               </button>
               <div className="note">

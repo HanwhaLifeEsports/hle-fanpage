@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { LiveResponse, LiveSource } from '@/lib/live-types';
 import { fmtClock } from '@/lib/format';
-import { Ki } from './IconSprite';
+import { ExternalLink, Radio } from 'lucide-react';
 import { toast, useDemo } from '@/lib/useDemoState';
 
 const POLL_MS = 30_000;
@@ -76,7 +76,7 @@ function LinkCard({ s }: { s: LiveSource }) {
         rel="noopener noreferrer"
       >
         {s.name}에서 보기
-        <Ki n="external" size={14} />
+        <ExternalLink size={14} />
       </a>
     </div>
   );
@@ -121,7 +121,7 @@ export default function LiveNow() {
       <div className="livebar off">
         <div className="live-head">
           <span className="livestat">
-            <Ki n="cast" />
+            <Radio size={15} />
             중계 상태 확인 중…
           </span>
         </div>
@@ -149,7 +149,7 @@ export default function LiveNow() {
             </span>
           ) : (
             <span className="livestat">
-              <Ki n="cast" />
+              <Radio size={15} />
               중계 대기
             </span>
           )}
@@ -191,7 +191,7 @@ export default function LiveNow() {
               {s.live && s.viewers ? (
                 <span style={{ color: 'var(--mute)', fontWeight: 400 }}>{s.viewers.toLocaleString()}</span>
               ) : null}
-              {!canToggle && <Ki n="external" size={13} />}
+              {!canToggle && <ExternalLink size={13} />}
             </button>
           );
         })}
@@ -211,12 +211,6 @@ export default function LiveNow() {
         <LinkCard key={s.platform} s={s} />
       ))}
 
-      <div className="note" style={{ marginTop: 0 }}>
-        2026~2030 LCK 국내 중계권은 <b>네이버(치지직)·SOOP</b> 독점입니다. 라이브 판정은 서버가 두 곳의 API를
-        30초마다 폴링해 내립니다 — 브라우저에서 직접 호출하면 CORS로 막히기 때문입니다. 다만{' '}
-        <b>치지직은 클립만 iframe 임베드를 지원</b>해서 라이브는 딥링크로만 연결되고, 플레이어를 페이지 안에 띄울
-        수 있는 건 SOOP(그리고 국제 대회의 유튜브)뿐입니다.
-      </div>
     </div>
   );
 }

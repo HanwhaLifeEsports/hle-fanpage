@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Bell, CalendarDays, ListOrdered, MessageSquare, Target, Users, Waypoints } from 'lucide-react';
 import { Countdown, MatchCard } from '@/components/Shared';
 import { sidesOf } from '@/lib/pick';
 import { fmtDate } from '@/lib/format';
@@ -6,7 +7,7 @@ import LiveNow from '@/components/LiveNow';
 import RosterRail from '@/components/Roster';
 import { HotPosts } from '@/components/Board';
 import { getSeason } from '@/lib/season';
-import { OUR_TAG, SEASON } from '@/lib/lck2026';
+import { OUR_TAG, SEASON, todayPom } from '@/lib/lck2026';
 import { LEGEND_OUTCOME, RISE_OUTCOME } from '@/lib/scenarios';
 
 export const dynamic = 'force-dynamic';
@@ -31,6 +32,7 @@ export default async function Home() {
   const outcome = ourGroup === 'legend' ? LEGEND_OUTCOME : RISE_OUTCOME;
   const opp = next ? sidesOf(next).them : null;
   const oppRow = opp ? group.find((t) => t.code === opp.code) : undefined;
+  const pom = todayPom(season.matches);
   // rank[] 는 경우의 수 '개수'라 백분율로 환산해야 한다
   const topProb =
     (scenarios.rank.slice(0, scenarios.seedCut).reduce((a, b) => a + b, 0) / scenarios.total) * 100;
@@ -47,9 +49,11 @@ export default async function Home() {
           {next && <Countdown target={next.startTime} />}
           <div className="hero-cta">
             <Link className="btn btn-primary" href="/me">
+              <Bell size={17} />
               경기 알림 받기
             </Link>
             <Link className="btn btn-ghost" href="/schedule">
+              <CalendarDays size={17} />
               전체 일정
             </Link>
           </div>
@@ -58,30 +62,32 @@ export default async function Home() {
 
       {next && us && opp && (
         <div className="vs">
-          <div className="t">
-            <div className="crest us">{OUR_TAG}</div>
-            <div>
-              <b>한화생명e스포츠</b>
+          <div className="wrap vsrow">
+            <div className="t">
+              <div className="crest us">{OUR_TAG}</div>
+              <div>
+                <b>한화생명e스포츠</b>
+                <span className="cap">
+                  {us.w}승 {us.l}패 · {SEASON[ourGroup].label} {us.rank}위 ({us.diff >= 0 ? '+' : ''}
+                  {us.diff})
+                </span>
+              </div>
+            </div>
+            <div className="m">
+              <b>VS</b>
               <span className="cap">
-                {us.w}승 {us.l}패 · {SEASON[ourGroup].label} {us.rank}위 ({us.diff >= 0 ? '+' : ''}
-                {us.diff})
+                {fmtDate(next.startTime)} · BO{next.bo}
               </span>
             </div>
-          </div>
-          <div className="m">
-            <b>VS</b>
-            <span className="cap">
-              {fmtDate(next.startTime)} · BO{next.bo}
-            </span>
-          </div>
-          <div className="t r">
-            <div>
-              <b>{opp.name}</b>
-              <span className="cap">
-                {oppRow ? `${oppRow.w}승 ${oppRow.l}패 · ${oppRow.rank}위` : next.blockName}
-              </span>
+            <div className="t r">
+              <div>
+                <b>{opp.name}</b>
+                <span className="cap">
+                  {oppRow ? `${oppRow.w}승 ${oppRow.l}패 · ${oppRow.rank}위` : next.blockName}
+                </span>
+              </div>
+              <div className="crest them">{opp.code}</div>
             </div>
-            <div className="crest them">{opp.code}</div>
           </div>
         </div>
       )}
@@ -97,6 +103,7 @@ export default async function Home() {
             <div className="shead">
               <h2 className="ko">플레이오프 가는 길</h2>
               <Link className="btn btn-ghost btn-sm" href="/scenarios">
+                <Waypoints size={14} />
                 경우의 수
               </Link>
             </div>
@@ -128,6 +135,7 @@ export default async function Home() {
         <div className="shead">
           <h2 className="ko">최근 경기</h2>
           <Link className="btn btn-ghost btn-sm" href="/schedule">
+            <ListOrdered size={14} />
             전체 결과
           </Link>
         </div>
@@ -140,14 +148,16 @@ export default async function Home() {
         <div className="shead">
           <h2 className="ko">선수단</h2>
           <Link className="btn btn-ghost btn-sm" href="/roster">
+            <Users size={14} />
             전체 프로필
           </Link>
         </div>
-        <RosterRail />
+        <RosterRail pomPlayerId={pom?.playerId ?? null} />
 
         <div className="shead">
           <h2 className="ko">지금 뜨는 글</h2>
           <Link className="btn btn-ghost btn-sm" href="/board">
+            <MessageSquare size={14} />
             커뮤니티
           </Link>
         </div>
@@ -161,6 +171,7 @@ export default async function Home() {
             </p>
           </div>
           <Link className="btn btn-light" href="/predict">
+            <Target size={17} />
             예측 참여
           </Link>
         </div>

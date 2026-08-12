@@ -45,7 +45,9 @@ button{font-family:inherit}
 .num{font-variant-numeric:tabular-nums;font-weight:300;letter-spacing:-.02em}
 /* 제목 위 eyebrow/kicker 라벨은 두지 않는다. 제목이 스스로 무게를 갖는다.
    아이콘은 라벨 장식이 아니라 상태·행동을 가리킬 때만 쓴다. */
-.ki{width:15px;height:15px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+/* lucide-react 가 svg 에 .lucide 를 붙인다. 굵기만 프로젝트 값(1.9)으로 낮추고
+   크기는 각 사용처에서 size 프로퍼티로 지정한다. */
+.lucide{flex:none;stroke-width:1.9}
 .lede{font-size:15px;color:var(--body);max-width:62ch}
 /* 카드 안 그룹 제목 — 마이크로 대문자 라벨 대신 읽히는 소제목 */
 .grouphead{font-size:14px;font-weight:600;color:var(--ink);margin:0 0 10px;letter-spacing:-.01em}
@@ -136,10 +138,11 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .hero-cta{display:flex;gap:var(--s3);flex-wrap:wrap}
 
 /* ---------- versus ---------- */
-.vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:clamp(var(--s4),3vw,44px);padding:var(--s5);background:var(--surface);border-bottom:1px solid var(--hairline)}
-/* 양 팀을 바깥 끝이 아니라 VS 쪽으로 붙인다. 넓은 화면에서 좌우로 벌어지는 것 방지 */
-.vs .t{display:flex;align-items:center;gap:12px;min-width:0;justify-content:flex-end}
-.vs .t.r{justify-content:flex-start;text-align:right}
+/* 배경 띠는 전체 폭, 내용은 .wrap 폭. 위아래 섹션과 좌우 여백이 맞는다 */
+.vs{padding:var(--s5) 0;background:var(--surface);border-bottom:1px solid var(--hairline)}
+.vsrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:var(--s4)}
+.vs .t{display:flex;align-items:center;gap:12px;min-width:0}
+.vs .t.r{justify-content:flex-end;text-align:right}
 .vs .t b{font-size:15px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crest{width:42px;height:42px;border-radius:var(--r-card);display:grid;place-items:center;font-family:var(--display);font-size:14px;flex:none}
 .crest.us{background:var(--flame);color:var(--ink-dark)}
@@ -154,7 +157,9 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 @media(max-width:520px){.g3{grid-template-columns:1fr}}
 .match{background:var(--surface-card);border:1px solid var(--hairline);border-radius:var(--r-card);padding:var(--s4);display:flex;flex-direction:column;gap:10px}
 .match .top{display:flex;justify-content:space-between;align-items:center}
-.match .sc{display:flex;align-items:baseline;gap:9px;font-size:34px;font-weight:300;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+/* 스코어는 선수 카드 이름(.pcard .nm)과 같은 디스플레이 서체를 쓴다.
+   Anton 은 400 한 종뿐이라 font-weight 는 지정하지 않는다. */
+.match .sc{display:flex;align-items:baseline;gap:7px;font-family:var(--display);font-size:38px;font-variant-numeric:tabular-nums;letter-spacing:.01em}
 .match .sc .lo{color:var(--faint)}
 .match .sc .w{color:var(--win)}
 .match .sc .l{color:var(--loss)}
@@ -202,9 +207,15 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .pcard .pos{position:absolute;top:11px;left:11px;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--flame-text)}
 .pcard .tags{position:absolute;top:9px;right:9px;z-index:3;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
 .pcard .nm{position:absolute;left:11px;bottom:9px;font-family:var(--display);font-size:23px;letter-spacing:.02em;z-index:2}
-.pcard .mt{padding:9px 11px;display:flex;justify-content:space-between;align-items:center;border-top:2px solid transparent;transition:border-color .15s}
+.pcard .mt{padding:9px 11px;display:flex;justify-content:space-between;align-items:center;gap:4px 8px;flex-wrap:wrap;border-top:2px solid transparent;transition:border-color .15s}
 .pcard:hover .mt{border-top-color:var(--flame)}
-.pcard .kda{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.pcard .figs{display:flex;gap:8px;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.pcard .figs .pom{color:var(--flame-text)}
+/* 당일 경기 POM — 카드 테두리 + 하단 발광 */
+.pcard.pomhit{outline:2px solid var(--flame);outline-offset:-2px}
+.pcard.pomhit .mt{border-top-color:var(--flame)}
+.pcard.pomhit .ph::after{content:'';position:absolute;inset:0;z-index:1;
+  background:radial-gradient(115% 70% at 50% 100%,rgba(255,106,19,.42),transparent 68%)}
 
 /* ---------- lists ---------- */
 .plist{border-top:1px solid var(--hairline)}
@@ -215,7 +226,7 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .prow .ti{flex:1;font-size:15px;font-weight:500;transition:color .15s;min-width:0}
 .prow .st{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums;display:flex;gap:14px;flex:none;align-items:center}
 .prow .st span{display:inline-flex;align-items:center;gap:5px}
-.prow .st .ki{width:13px;height:13px;opacity:.8}
+.prow .st .lucide{opacity:.8}
 @media(max-width:600px){.prow{align-items:flex-start;flex-direction:column;gap:6px}.prow .bd{width:auto}}
 
 /* ---------- table ---------- */

@@ -139,18 +139,56 @@ export interface Player {
   kda: number;
   dpm: number;
   games: number;
+  /** 시즌 누적 POM 포인트. LCK 는 경기 MVP 에게 100pt 를 준다 */
+  pom: number;
   champs: string[];
   /** 2026 시즌 합류 여부 */
   joined2026?: boolean;
 }
 
 export const PLAYERS: Player[] = [
-  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '01', kda: 4.4, dpm: 528, games: 26, champs: ['잭스', '그웬', '케넨'] },
-  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '02', kda: 5.3, dpm: 341, games: 26, champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
-  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '03', kda: 6.2, dpm: 617, games: 26, champs: ['아지르', '오리아나', '실라스'] },
-  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '04', kda: 7.1, dpm: 645, games: 26, champs: ['징크스', '제리', '칼리스타'], joined2026: true },
-  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '05', kda: 4.9, dpm: 191, games: 26, champs: ['노틸러스', '레나타', '알리스타'] },
+  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '01', kda: 4.4, dpm: 528, games: 26, pom: 400, champs: ['잭스', '그웬', '케넨'] },
+  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '02', kda: 5.3, dpm: 341, games: 26, pom: 300, champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
+  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '03', kda: 6.2, dpm: 617, games: 26, pom: 700, champs: ['아지르', '오리아나', '실라스'] },
+  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '04', kda: 7.1, dpm: 645, games: 26, pom: 600, champs: ['징크스', '제리', '칼리스타'], joined2026: true },
+  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '05', kda: 4.9, dpm: 191, games: 26, pom: 200, champs: ['노틸러스', '레나타', '알리스타'] },
 ];
+
+/**
+ * [샘플] 경기별 POM 배정.
+ *
+ * 실제 POM 은 LoL Esports API 가 내려주지 않는다. 중계 중에만 발표되므로
+ * 실서비스에서는 관리자 입력(기능 정의서 G1)으로 채워야 하는 값이다.
+ * 여기서는 경기 id 로 고정 배정해서, 새로고침해도 값이 바뀌지 않게만 해 둔다.
+ */
+export function pomOf(matchId: string): string {
+  let h = 0;
+  for (const c of matchId) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return PLAYERS[h % PLAYERS.length].id;
+}
+
+type PomMatch = { id: string; startTime: string; state: string; a: { code: string }; b: { code: string } };
+
+const kstDay = (iso: string | number) =>
+  new Date(iso).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' });
+
+/**
+ * 오늘(KST) 이미 끝난 우리 팀 경기 중 가장 최근 것의 POM.
+ * 오늘 경기가 없거나 아직 안 끝났으면 null — 하이라이트를 켜지 않는다.
+ */
+export function todayPom(matches: PomMatch[]): { matchId: string; playerId: string } | null {
+  const today = kstDay(Date.now());
+  const done = matches
+    .filter(
+      (m) =>
+        m.state === 'completed' &&
+        (m.a.code === OUR_TAG || m.b.code === OUR_TAG) &&
+        kstDay(m.startTime) === today,
+    )
+    .sort((x, y) => y.startTime.localeCompare(x.startTime));
+  const last = done[0];
+  return last ? { matchId: last.id, playerId: pomOf(last.id) } : null;
+}
 
 export const STAFF = [
   { role: '감독', nm: 'Homme', ko: '윤성영' },

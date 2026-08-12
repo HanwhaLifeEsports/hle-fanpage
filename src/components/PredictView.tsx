@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Check } from 'lucide-react';
 import { fmtDate } from '@/lib/format';
 import { patchState, toast, useDemo } from '@/lib/useDemoState';
 
@@ -79,6 +80,7 @@ export default function PredictView({
             );
           }}
         >
+          <Check size={16} />
           예측 제출
         </button>
 
