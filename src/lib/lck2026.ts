@@ -134,6 +134,7 @@ export interface Player {
   nm: string;
   ko: string;
   pos: 'TOP' | 'JGL' | 'MID' | 'BOT' | 'SUP';
+  /** 실제 등번호 */
   no: string;
   /** 아래 스탯은 샘플 */
   kda: number;
@@ -147,11 +148,11 @@ export interface Player {
 }
 
 export const PLAYERS: Player[] = [
-  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '01', kda: 4.4, dpm: 528, games: 26, pom: 400, champs: ['잭스', '그웬', '케넨'] },
-  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '02', kda: 5.3, dpm: 341, games: 26, pom: 300, champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
-  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '03', kda: 6.2, dpm: 617, games: 26, pom: 700, champs: ['아지르', '오리아나', '실라스'] },
-  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '04', kda: 7.1, dpm: 645, games: 26, pom: 600, champs: ['징크스', '제리', '칼리스타'], joined2026: true },
-  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '05', kda: 4.9, dpm: 191, games: 26, pom: 200, champs: ['노틸러스', '레나타', '알리스타'] },
+  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', kda: 4.4, dpm: 528, games: 26, pom: 400, champs: ['잭스', '그웬', '케넨'] },
+  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', kda: 5.3, dpm: 341, games: 26, pom: 300, champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
+  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', kda: 6.2, dpm: 617, games: 26, pom: 700, champs: ['아지르', '오리아나', '실라스'] },
+  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', kda: 7.1, dpm: 645, games: 26, pom: 600, champs: ['징크스', '제리', '칼리스타'], joined2026: true },
+  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', kda: 4.9, dpm: 191, games: 26, pom: 200, champs: ['노틸러스', '레나타', '알리스타'] },
 ];
 
 /**

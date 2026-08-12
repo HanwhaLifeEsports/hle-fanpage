@@ -298,8 +298,11 @@ label.fl{display:block;font-size:12px;font-weight:600;color:var(--mute);margin:0
 .flamestrip{background:var(--flame);color:var(--ink-dark);padding:var(--s6) var(--s5);display:flex;align-items:center;justify-content:space-between;gap:var(--s5);flex-wrap:wrap;border-radius:var(--r-card)}
 footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);color:var(--faint);font-size:12px;margin-top:var(--s7)}
 footer .frow{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-footer .legal{margin-top:var(--s5);padding-top:var(--s5);border-top:1px solid var(--hairline);display:flex;flex-direction:column;gap:6px;max-width:76ch}
-footer .legal p{margin:0;font-size:11px;line-height:1.65}
+/* 구분선은 footer 자체의 border-top 하나로 충분하다. 여기에 또 그으면
+   가로줄이 두 개 겹치고, max-width 를 같이 걸면 선이 중간에서 끊긴다.
+   글줄 길이 제한은 선이 아니라 p 에 건다. */
+footer .legal{margin-top:var(--s5);display:flex;flex-direction:column;gap:7px}
+footer .legal p{margin:0;max-width:74ch;font-size:11px;line-height:1.7;color:var(--mute)}
 .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,#2A2B31,#141519);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--body);flex:none}
 .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 
