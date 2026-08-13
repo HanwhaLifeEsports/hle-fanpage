@@ -10,22 +10,54 @@ import type { MatchRow, TeamRow } from './lolesports';
  * 동률 처리는 LCK 방식대로 승-패 → 승자승 → 세트 득실 순.
  */
 
-/** 레전드 그룹 진출 규정 (2026 스플릿 3) */
-export const LEGEND_OUTCOME: Record<number, string> = {
-  1: '플레이오프 2라운드 직행',
-  2: '플레이오프 2라운드 직행',
-  3: '플레이오프 1라운드',
-  4: '플레이오프 1라운드',
-  5: '플레이-인',
-};
+/**
+ * 월즈 진출 여부.
+ *
+ * HLE 는 2026 MSI 우승팀이라 **플레이오프에 오르기만 하면 월즈 진출이 확정**된다.
+ * 플레이-인은 통과해야 플레이오프로 올라가므로 확정이 아니라 가능이다.
+ */
+export type WorldsStatus = 'confirmed' | 'possible' | 'none';
 
-export const RISE_OUTCOME: Record<number, string> = {
-  1: '플레이-인',
-  2: '플레이-인',
-  3: '플레이-인',
-  4: '시즌 종료',
-  5: '시즌 종료',
-};
+/**
+ * 순위 → 결과 구간.
+ *
+ * 순위를 하나씩 문자열로 매핑하면 "3~4위" 같은 실제 판정 단위가 코드에서 사라진다.
+ * 확률을 구간별로 합산해야 하는 곳이 여럿이라 구간을 1급 개념으로 둔다.
+ */
+export interface OutcomeBand {
+  label: string;
+  /** 이 구간에 해당하는 순위들 (1부터) */
+  ranks: number[];
+  worlds: WorldsStatus;
+}
+
+/** 레전드 그룹 진출 규정 (2026 스플릿 3) */
+export const LEGEND_BANDS: OutcomeBand[] = [
+  { label: '플레이오프 2라운드 직행', ranks: [1, 2], worlds: 'confirmed' },
+  { label: '플레이오프 1라운드', ranks: [3, 4], worlds: 'confirmed' },
+  { label: '플레이-인', ranks: [5], worlds: 'possible' },
+];
+
+export const RISE_BANDS: OutcomeBand[] = [
+  { label: '플레이-인', ranks: [1, 2, 3], worlds: 'possible' },
+  { label: '시즌 종료', ranks: [4, 5], worlds: 'none' },
+];
+
+const toMap = (bands: OutcomeBand[]): Record<number, string> =>
+  Object.fromEntries(bands.flatMap((b) => b.ranks.map((r) => [r, b.label])));
+
+export const LEGEND_OUTCOME = toMap(LEGEND_BANDS);
+export const RISE_OUTCOME = toMap(RISE_BANDS);
+
+/** 순위별 경우의 수 배열에서 구간 합을 낸다. rank[0] 이 1위다. */
+export function countIn(rank: number[], ranks: number[]): number {
+  return ranks.reduce((sum, r) => sum + (rank[r - 1] ?? 0), 0);
+}
+
+/** 월즈 진출이 확정되는 순위들 */
+export function worldsRanks(bands: OutcomeBand[]): number[] {
+  return bands.filter((b) => b.worlds === 'confirmed').flatMap((b) => b.ranks);
+}
 
 export interface RemainingMatch {
   id: string;
@@ -115,6 +147,17 @@ export function computeScenarios(
   const bi = rem.map((m) => idx.get(m.b)!);
   const myMatches = rem.map((_, k) => ai[k] === me || bi[k] === me);
 
+  // 시즌 종료 시점의 팀별 총 경기 수. 팀마다 다를 수 있어서 패수를 승수로 유추할 수 없다.
+  // 전개마다 승수만 바뀌므로 패수 = 총경기 - 승수로 구한다.
+  const totalGames = new Int32Array(T);
+  group.forEach((t, i) => {
+    totalGames[i] = t.w + t.l;
+  });
+  for (let k = 0; k < n; k++) {
+    totalGames[ai[k]]++;
+    totalGames[bi[k]]++;
+  }
+
   // 4^n 이 너무 크면 표본으로 내려간다 (현재 LCK 규모에선 발생하지 않는다)
   const exhaustive = n <= 11;
   const total = exhaustive ? 4 ** n : 400_000;
@@ -164,13 +207,15 @@ export function computeScenarios(
     }
 
     for (let i = 0; i < T; i++) order[i] = i;
-    // 승수 → 승자승(동률 묶음 안) → 세트 득실
+    // 승-패 → 승자승(전적이 완전히 같은 묶음 안) → 세트 득실.
+    // 승수만 같고 패수가 다르면 동률이 아니므로 승자승을 적용하지 않는다.
+    const loss = (t: number) => totalGames[t] - w[t];
     const arr = Array.from(order);
-    arr.sort((x, y) => w[y] - w[x] || diff[y] - diff[x]);
+    arr.sort((x, y) => w[y] - w[x] || loss(x) - loss(y) || diff[y] - diff[x]);
     let s = 0;
     while (s < T) {
       let e = s;
-      while (e + 1 < T && w[arr[e + 1]] === w[arr[s]]) e++;
+      while (e + 1 < T && w[arr[e + 1]] === w[arr[s]] && loss(arr[e + 1]) === loss(arr[s])) e++;
       if (e > s) {
         const blockIds = arr.slice(s, e + 1);
         const h2hIn = (t: number) => blockIds.reduce((acc, o) => (o === t ? acc : acc + h[t * T + o]), 0);

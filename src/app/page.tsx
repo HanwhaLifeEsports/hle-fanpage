@@ -7,7 +7,7 @@ import LiveNow from '@/components/LiveNow';
 import RosterRail from '@/components/Roster';
 import { getSeason } from '@/lib/season';
 import { OUR_TAG, SEASON } from '@/lib/lck2026';
-import { LEGEND_OUTCOME, RISE_OUTCOME } from '@/lib/scenarios';
+import { LEGEND_BANDS, RISE_BANDS, countIn, worldsRanks } from '@/lib/scenarios';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,12 +30,15 @@ export default async function Home() {
     .filter((m) => m.a.code === OUR_TAG || m.b.code === OUR_TAG)
     .slice(0, 3);
   const group = ourGroup === 'legend' ? season.legend : season.rise;
-  const outcome = ourGroup === 'legend' ? LEGEND_OUTCOME : RISE_OUTCOME;
+  const bands = ourGroup === 'legend' ? LEGEND_BANDS : RISE_BANDS;
+  const bandOf = (r: number) => bands.find((b) => b.ranks.includes(r));
   const opp = next ? sidesOf(next).them : null;
   const oppRow = opp ? group.find((t) => t.code === opp.code) : undefined;
+  // MSI 우승으로 플레이오프 진출 = 월즈 확정. 팬이 가장 궁금해하는 단일 지표라 이걸 앞세운다.
   // rank[] 는 경우의 수 '개수'라 백분율로 환산해야 한다
-  const topProb =
-    (scenarios.rank.slice(0, scenarios.seedCut).reduce((a, b) => a + b, 0) / scenarios.total) * 100;
+  const wRanks = worldsRanks(bands);
+  const worldsCut = wRanks.length ? Math.max(...wRanks) : 0;
+  const topProb = (countIn(scenarios.rank, wRanks) / scenarios.total) * 100;
 
   return (
     <>
@@ -115,12 +118,12 @@ export default async function Home() {
                     <span style={{ fontSize: 20, color: 'var(--mute)' }}>%</span>
                   </div>
                   <div className="cap" style={{ marginTop: 2 }}>
-                    {ourGroup === 'legend' ? '플레이오프 2라운드 직행' : '플레이-인 진출'} 확률
+                    월즈 진출 확정 확률 · {worldsCut}위 안
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <b style={{ fontSize: 15 }}>
-                    현재 {us.rank}위 — {outcome[us.rank]}
+                    현재 {us.rank}위 — {bandOf(us.rank)?.label ?? '-'}
                   </b>
                   <div className="cap" style={{ marginTop: 2 }}>
                     남은 경기 {scenarios.remaining.filter((r) => r.a === OUR_TAG || r.b === OUR_TAG).length}경기
