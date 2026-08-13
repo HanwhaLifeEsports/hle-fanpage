@@ -60,7 +60,10 @@ button{font-family:inherit}
 /* lucide-react 가 svg 에 .lucide 를 붙인다. 굵기만 프로젝트 값(1.9)으로 낮추고
    크기는 각 사용처에서 size 프로퍼티로 지정한다. */
 .lucide{flex:none;stroke-width:1.9}
-.lede{font-size:15px;color:var(--body);max-width:62ch}
+/* 한 줄 길이 제한. ch 는 숫자 '0' 폭 기준이라 한글에서는 62ch 가 31자밖에 안 된다
+   (한글은 전각, 숫자는 반각). 영문 조판의 62자 기준을 그대로 쓰면 절반으로 줄어든다.
+   한글 한 글자가 대략 1em 이므로 em 으로 잡아 '약 46자'를 의도한 값으로 쓴다. */
+.lede{font-size:15px;color:var(--body);max-width:46em}
 /* 카드 안 그룹 제목 — 마이크로 대문자 라벨 대신 읽히는 소제목 */
 .grouphead{font-size:14px;font-weight:600;color:var(--ink);margin:0 0 10px;letter-spacing:-.01em}
 /* 라이브 상태 — 제목이 아니라 상태 표시라 아이콘이 정보를 나른다 */
