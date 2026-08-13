@@ -34,9 +34,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#08090A',
+  // 주소창 색은 테마를 따라간다. 다크 캔버스(#08090A)와 라이트 캔버스(#F7F7F8).
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#08090A' },
+    { media: '(prefers-color-scheme: light)', color: '#F7F7F8' },
+  ],
   viewportFit: 'cover',
-  colorScheme: 'dark',
+  colorScheme: 'dark light',
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
@@ -46,6 +50,14 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         {/* 본문 서체는 첫 화면에 바로 필요하다 */}
         <link rel="preload" href="/fonts/freesentation-400.woff2" as="font" type="font/woff2" crossOrigin="" />
         <link rel="preload" href="/fonts/freesentation-900.woff2" as="font" type="font/woff2" crossOrigin="" />
+        {/* 저장된 테마 선택을 첫 페인트 '전에' 붙인다. 이 스크립트가 없으면 라이트를
+            고른 사용자에게 서버가 그린 다크 화면이 한 번 번쩍인다(FOUC). 고른 적이
+            없으면 아무것도 하지 않고 CSS 의 prefers-color-scheme 에 맡긴다. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('hle-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}`,
+          }}
+        />
       </head>
       <body>
         <Toasts />

@@ -2,8 +2,20 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell, BellOff, BellRing, CalendarDays, ChartColumn, House, MonitorPlay, UserRound } from 'lucide-react';
+import {
+  Bell,
+  BellOff,
+  BellRing,
+  CalendarDays,
+  ChartColumn,
+  House,
+  MonitorPlay,
+  Moon,
+  Sun,
+  UserRound,
+} from 'lucide-react';
 import { useNotify } from '@/lib/useAppState';
+import { useTheme } from '@/lib/useTheme';
 
 const NAV = [
   { href: '/', label: '홈' },
@@ -44,7 +56,10 @@ export function AppBar() {
             </Link>
           ))}
         </nav>
-        <NotifyButton permission={permission} onAsk={ask} />
+        <div className="hbar-act">
+          <ThemeToggle />
+          <NotifyButton permission={permission} onAsk={ask} />
+        </div>
       </div>
     </header>
   );
@@ -52,6 +67,22 @@ export function AppBar() {
 
 /** 네 가지 상태를 각각 다르게 보여준다. granted 가 아니라고 전부 "켜기"로 두면,
  *  차단·미지원처럼 눌러도 켤 수 없는 상태를 켤 수 있는 것처럼 말하게 된다. */
+/** 지금 테마의 반대로 넘어가는 버튼. 아이콘은 '누르면 가는 곳'을 가리킨다. */
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  const toLight = theme === 'dark';
+  return (
+    <button
+      className="tmode"
+      onClick={toggle}
+      aria-label={toLight ? '라이트 모드로 전환' : '다크 모드로 전환'}
+      title={toLight ? '라이트 모드로 전환' : '다크 모드로 전환'}
+    >
+      {toLight ? <Sun size={17} /> : <Moon size={17} />}
+    </button>
+  );
+}
+
 const NOTIFY_VIEW: Record<string, { Icon: typeof Bell; label: string; on: boolean }> = {
   granted: { Icon: BellRing, label: '알림 켜짐', on: true },
   denied: { Icon: BellOff, label: '알림 차단됨', on: false },

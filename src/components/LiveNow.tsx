@@ -14,12 +14,10 @@ const POLL_MS = 30_000;
 /** 치지직 자체 플레이어. 문제가 생기면 환경변수 하나로 전부 끈다. */
 const CHZZK_PLAYER_ON = process.env.NEXT_PUBLIC_CHZZK_PLAYER !== 'off';
 
-/** 각 사가 공식 배포하는 브랜드 마크. 출처와 사용 조건은 public/brand/README.md 에 적어 뒀다. */
-const BRAND_MARK: Record<string, string> = {
-  chzzk: '/brand/chzzk.png',
-  soop: '/brand/soop.svg',
-  youtube: '/brand/youtube.svg',
-};
+/** 공식 브랜드 마크를 가진 플랫폼. 실제 파일과 사용 조건은 public/brand/README.md 참조.
+ *  이미지 주소는 CSS(.pmark-*)가 들고 있다 — 테마에 따라 SOOP 변형을 갈아끼워야 하는데
+ *  img 의 src 는 CSS 가 못 바꾸기 때문이다. */
+const HAS_MARK = new Set(['chzzk', 'soop', 'youtube']);
 
 /**
  * 플랫폼 식별 마크. 마크가 없는 플랫폼(디즈니+ 등)은 기존 색 점으로 떨어뜨린다.
@@ -28,10 +26,8 @@ const BRAND_MARK: Record<string, string> = {
  * 효과를 금지하고 있어서, 방송 여부 같은 상태는 마크가 아니라 우리 쪽 라벨로 나타낸다.
  */
 function PlatformMark({ s }: { s: LiveSource }) {
-  const src = BRAND_MARK[s.platform];
-  if (!src) return <i className="pd" style={{ background: s.color }} />;
-  // eslint-disable-next-line @next/next/no-img-element -- 고정 크기 로컬 아이콘이라 최적화 이득이 없다
-  return <img className="pmark" src={src} alt="" aria-hidden />;
+  if (!HAS_MARK.has(s.platform)) return <i className="pd" style={{ background: s.color }} />;
+  return <span className={`pmark pmark-${s.platform}`} aria-hidden />;
 }
 
 function EmbedPlayer({ s }: { s: LiveSource }) {
