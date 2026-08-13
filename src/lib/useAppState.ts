@@ -207,7 +207,8 @@ export function useNotify() {
       return;
     }
     if (Notification.permission === 'granted') {
-      toast('이미 켜져 있습니다', '경기 알림을 받을 준비가 됐습니다.');
+      // 사이트가 권한을 되돌릴 수 없으므로, 실제로 끌 수 있는 두 경로를 알려준다
+      toast('이미 켜져 있습니다', '받을 항목은 아래에서 고를 수 있고, 전체 차단은 브라우저 사이트 설정에서 합니다.');
       return;
     }
     if (Notification.permission === 'denied') {

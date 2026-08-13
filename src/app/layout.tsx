@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import { Anton } from 'next/font/google';
 import './globals.css';
-import IconSprite from '@/components/IconSprite';
 import { AppBar, BottomTabs } from '@/components/Chrome';
 import { Toasts } from '@/components/Shared';
 import RegisterSW from '@/components/RegisterSW';
@@ -49,7 +48,6 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         <link rel="preload" href="/fonts/freesentation-900.woff2" as="font" type="font/woff2" crossOrigin="" />
       </head>
       <body>
-        <IconSprite />
         <Toasts />
         <RegisterSW />
         <AppBar />
@@ -58,10 +56,18 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           <div className="wrap foot">
             <div>
               <b>{SITE_NAME}</b>
+              {/* 비영리 명시는 구단 2차 창작 가이드라인이 "반드시 명시"를 요구한 항목이다.
+                  라이엇 필수 고지 문구는 넣지 않는다 — 게임 아트·로고를 쓰는 프로젝트용이고,
+                  이 사이트는 LCK 명칭·챔피언 이름 텍스트·공개 데이터만 쓴다. */}
               <span>
-                팬이 운영하는 비공식 사이트입니다. 한화생명e스포츠 · 라이엇 게임즈와 관계가 없습니다.
+                한화생명e스포츠를 응원하는 팬이 만든 비공식 페이지입니다. 한화생명e스포츠 · 라이엇 게임즈 ·
+                LCK 어느 곳과도 제휴하거나 후원받지 않으며, 광고 · 후원 · 판매 등 어떠한 방식으로도 수익을
+                만들지 않습니다.
               </span>
-              <span>일정과 순위는 LCK 공식 기록을 실시간으로 반영합니다.</span>
+              <span>
+                일정과 순위는 LCK 공식 기록을 실시간으로 반영합니다. 권리자의 요청이 있을 경우 해당 콘텐츠를
+                즉시 삭제합니다.
+              </span>
             </div>
             <nav>
               <Link href="/board">커뮤니티</Link>

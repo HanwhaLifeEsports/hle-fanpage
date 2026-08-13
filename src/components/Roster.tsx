@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { PLAYERS, type Player } from '@/lib/lck2026';
-import { Ki } from './IconSprite';
+import { Star, X } from 'lucide-react';
 import { patchState, toast, useApp } from '@/lib/useAppState';
 
 function Card({ p, onOpen, fav }: { p: Player; onOpen: () => void; fav: boolean }) {
@@ -57,7 +57,7 @@ export default function RosterRail() {
                 <span style={{ color: 'var(--mute)', fontWeight: 400, fontSize: 14 }}>{open.ko}</span>
               </b>
               <button className="x" onClick={() => setOpen(null)} aria-label="닫기">
-                <Ki n="close" size={15} />
+                <X size={15} />
               </button>
             </div>
             <div className="modal-b">
@@ -78,6 +78,7 @@ export default function RosterRail() {
                 className={`btn ${fav === open.id ? 'btn-ghost' : 'btn-primary'} btn-block`}
                 onClick={() => toggleFav(open.id)}
               >
+                <Star size={16} fill={fav === open.id ? 'currentColor' : 'none'} />
                 {fav === open.id ? '최애 선수 해제' : '최애 선수로 지정'}
               </button>
               <div className="note">최애로 지정하면 이 선수 소식만 따로 알림을 받습니다.</div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Bell, Eye, RotateCcw } from 'lucide-react';
 import { PLAYERS } from '@/lib/lck2026';
 import { PREFS, patchState, resetState, toast, useApp, useNotify } from '@/lib/useAppState';
 
@@ -83,9 +84,11 @@ export default function MePage() {
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn btn-ghost btn-sm" onClick={ask}>
+              <Bell size={14} />
               권한 요청
             </button>
             <button className="btn btn-primary btn-sm" onClick={previewPush}>
+              <Eye size={14} />
               알림 미리보기
             </button>
           </div>
@@ -121,6 +124,7 @@ export default function MePage() {
             toast('설정을 초기화했습니다', '알림 설정 · 최애 선수 · 예측 기록이 모두 지워졌습니다.');
           }}
         >
+          <RotateCcw size={14} />
           저장된 설정 지우기
         </button>
       </div>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Bell, BellOff, BellRing, CalendarDays, ChartColumn, House, UserRound, Users } from 'lucide-react';
 import { useNotify } from '@/lib/useAppState';
 
 const NAV = [
@@ -14,11 +15,11 @@ const NAV = [
 ];
 
 const TABS = [
-  { href: '/', label: '홈', d: 'M3 10.5 12 3l9 7.5V21H3z' },
-  { href: '/schedule', label: '일정', d: 'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4' },
-  { href: '/roster', label: '선수', d: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 20v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1' },
-  { href: '/scenarios', label: '경우의 수', d: 'M4 20V10M10 20V4M16 20v-7M22 20H2' },
-  { href: '/me', label: 'MY', d: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4 3.6-6 8-6s8 2 8 6' },
+  { href: '/', label: '홈', Icon: House },
+  { href: '/schedule', label: '일정', Icon: CalendarDays },
+  { href: '/roster', label: '선수', Icon: Users },
+  { href: '/scenarios', label: '경우의 수', Icon: ChartColumn },
+  { href: '/me', label: 'MY', Icon: UserRound },
 ];
 
 const isOn = (path: string, href: string) => (href === '/' ? path === '/' : path.startsWith(href));
@@ -42,11 +43,52 @@ export function AppBar() {
             </Link>
           ))}
         </nav>
-        <button className="btn btn-ghost btn-sm" onClick={ask}>
-          {permission === 'granted' ? '알림 켜짐' : '알림 켜기'}
-        </button>
+        <NotifyButton permission={permission} onAsk={ask} />
       </div>
     </header>
+  );
+}
+
+/** 네 가지 상태를 각각 다르게 보여준다. granted 가 아니라고 전부 "켜기"로 두면,
+ *  차단·미지원처럼 눌러도 켤 수 없는 상태를 켤 수 있는 것처럼 말하게 된다. */
+const NOTIFY_VIEW: Record<string, { Icon: typeof Bell; label: string; on: boolean }> = {
+  granted: { Icon: BellRing, label: '알림 켜짐', on: true },
+  denied: { Icon: BellOff, label: '알림 차단됨', on: false },
+  unsupported: { Icon: BellOff, label: '알림 미지원', on: false },
+  default: { Icon: Bell, label: '알림 켜기', on: false },
+};
+
+const NOTIFY_HINT: Record<string, string> = {
+  granted: '받을 항목은 알림 설정에서 고를 수 있습니다. 전체 차단은 브라우저 사이트 설정에서 합니다.',
+  denied: '브라우저 사이트 설정에서 알림을 허용해 주세요.',
+  unsupported: '이 브라우저는 웹 알림을 지원하지 않습니다.',
+};
+
+/**
+ * 권한을 요청할 수 있을 때만 버튼이고, 나머지는 상태 표시다.
+ *
+ * 브라우저는 한 번 허용한 알림 권한을 사이트가 되돌리는 수단을 주지 않는다
+ * (requestPermission 만 있고 해제가 없다). 차단·미지원도 마찬가지로 여기서
+ * 할 수 있는 일이 없다. 할 일이 없는데 버튼 모양으로 두면 눌러도 아무 일이
+ * 없는 버튼이 되므로, 그 세 상태는 .livestat 상태 표시로 내린다.
+ * 알림 설정으로 가는 길은 상단 네비·하단 탭·홈 CTA 에 이미 있다.
+ */
+function NotifyButton({ permission, onAsk }: { permission: string; onAsk: () => void }) {
+  const { Icon, label, on } = NOTIFY_VIEW[permission] ?? NOTIFY_VIEW.default;
+
+  if (permission === 'default') {
+    return (
+      <button className="btn btn-ghost btn-sm" onClick={onAsk}>
+        <Icon size={15} />
+        {label}
+      </button>
+    );
+  }
+  return (
+    <span className={`livestat${on ? ' on' : ''}`} title={NOTIFY_HINT[permission]}>
+      <Icon size={15} />
+      {label}
+    </span>
   );
 }
 
@@ -56,9 +98,7 @@ export function BottomTabs() {
     <nav className="tabs">
       {TABS.map((t) => (
         <Link key={t.href} href={t.href} className={isOn(path, t.href) ? 'on' : undefined}>
-          <svg viewBox="0 0 24 24">
-            <path d={t.d} />
-          </svg>
+          <t.Icon />
           {t.label}
         </Link>
       ))}

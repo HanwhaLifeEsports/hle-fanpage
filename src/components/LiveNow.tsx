@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { LiveResponse, LiveSource } from '@/lib/live-types';
 import { fmtClock } from '@/lib/format';
-import { Ki } from './IconSprite';
+import { ExternalLink, Radio } from 'lucide-react';
 import { toast, useApp } from '@/lib/useAppState';
 
 // hls.js 를 끌고 오므로 실제로 열릴 때만 로드한다
@@ -63,7 +63,7 @@ function LinkCard({ s }: { s: LiveSource }) {
       </div>
       <a className="btn btn-ghost btn-sm" href={s.channelUrl} target="_blank" rel="noopener noreferrer">
         {s.name}에서 보기
-        <Ki n="external" size={14} />
+        <ExternalLink size={14} />
       </a>
     </div>
   );
@@ -109,7 +109,7 @@ export default function LiveNow() {
       <div className="livebar off">
         <div className="live-head">
           <span className="livestat">
-            <Ki n="cast" />
+            <Radio size={15} />
             중계 상태 확인 중…
           </span>
         </div>
@@ -146,7 +146,7 @@ export default function LiveNow() {
             </span>
           ) : (
             <span className="livestat">
-              <Ki n="cast" />
+              <Radio size={15} />
               중계 대기
             </span>
           )}
@@ -185,7 +185,7 @@ export default function LiveNow() {
               {s.live && s.viewers ? (
                 <span style={{ color: 'var(--mute)', fontWeight: 400 }}>{s.viewers.toLocaleString()}</span>
               ) : null}
-              {!playable && <Ki n="external" size={13} />}
+              {!playable && <ExternalLink size={13} />}
             </button>
           );
         })}

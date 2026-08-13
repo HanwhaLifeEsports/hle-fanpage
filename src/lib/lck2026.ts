@@ -133,6 +133,7 @@ export interface Player {
   nm: string;
   ko: string;
   pos: 'TOP' | 'JGL' | 'MID' | 'BOT' | 'SUP';
+  /** 실제 등번호 */
   no: string;
   /** 대표 챔피언 — 2026 시즌 경기에서 반복해 고른 픽 */
   champs: string[];
@@ -141,11 +142,12 @@ export interface Player {
 }
 
 export const PLAYERS: Player[] = [
-  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '01', champs: ['잭스', '그웬', '케넨'] },
-  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '02', champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
-  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '03', champs: ['아지르', '오리아나', '실라스'] },
-  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '04', champs: ['징크스', '제리', '칼리스타'], joined2026: true },
-  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '05', champs: ['노틸러스', '레나타', '알리스타'] },
+  // 등번호는 실제 값
+  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', champs: ['잭스', '그웬', '케넨'] },
+  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
+  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', champs: ['아지르', '오리아나', '실라스'] },
+  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', champs: ['징크스', '제리', '칼리스타'], joined2026: true },
+  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', champs: ['노틸러스', '레나타', '알리스타'] },
 ];
 
 export const STAFF = [
