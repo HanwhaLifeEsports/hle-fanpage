@@ -172,7 +172,7 @@ export default async function Home() {
         <div className="flamestrip" style={{ marginTop: 'var(--s8)' }}>
           <div>
             <div className="ko" style={{ fontSize: 'clamp(24px,4vw,34px)' }}>이번 판, 스코어 맞혀볼래?</div>
-            <p style={{ color: '#4A1D00', fontSize: 14, fontWeight: 500, marginTop: 8 }}>
+            <p style={{ color: 'var(--on-flame)', fontSize: 14, fontWeight: 500, marginTop: 8 }}>
               적중하면 포인트 · 주간 랭킹 반영
             </p>
           </div>
