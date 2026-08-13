@@ -3,7 +3,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { Maximize2, PictureInPicture2, RotateCw, Volume2, VolumeX, X } from 'lucide-react';
 import { useHls } from './useHls';
+import { toast } from '@/lib/useAppState';
 import type { ChzzkStream } from '@/lib/chzzk';
+
+/**
+ * iOS 사파리는 표준 전체화면·PiP API 를 지원하지 않는다.
+ * 요소 전체화면(Element.requestFullscreen)이 아예 없고, video 전용 WebKit API 만 있다.
+ * 홈 화면에 추가한 상태(standalone)에서는 더더욱 이 경로뿐이다.
+ */
+type WebkitVideo = HTMLVideoElement & {
+  webkitSupportsPresentationMode?: (mode: string) => boolean;
+  webkitSetPresentationMode?: (mode: 'picture-in-picture' | 'inline' | 'fullscreen') => void;
+  webkitPresentationMode?: string;
+  webkitEnterFullscreen?: () => void;
+};
 
 /**
  * 화면 하나.
@@ -54,22 +67,48 @@ export default function StreamTile({
   }, [audioOn, ready]);
 
   const pip = async () => {
-    const v = video.current;
+    const v = video.current as WebkitVideo | null;
     if (!v) return;
     try {
-      if (document.pictureInPictureElement) await document.exitPictureInPicture();
-      else await v.requestPictureInPicture();
+      // iOS 사파리 — 표준 PiP 가 없고 presentationMode 로만 전환한다
+      if (v.webkitSupportsPresentationMode?.('picture-in-picture')) {
+        v.webkitSetPresentationMode?.(
+          v.webkitPresentationMode === 'picture-in-picture' ? 'inline' : 'picture-in-picture',
+        );
+        return;
+      }
+      if (document.pictureInPictureEnabled) {
+        if (document.pictureInPictureElement) await document.exitPictureInPicture();
+        else await v.requestPictureInPicture();
+        return;
+      }
+      toast('PiP 를 지원하지 않는 브라우저입니다', '전체화면으로 보거나 치지직 앱을 이용해 주세요.');
     } catch {
-      /* 지원하지 않거나 사용자가 취소 */
+      /* 사용자가 취소했거나 브라우저가 거부 */
     }
   };
 
   const full = async () => {
+    const v = video.current as WebkitVideo | null;
     try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else await box.current?.requestFullscreen();
+      // 표준 경로 — 컨트롤까지 함께 전체화면으로 올린다
+      if (box.current?.requestFullscreen) {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else await box.current.requestFullscreen();
+        return;
+      }
+      // iOS 는 요소 전체화면이 없다. video 자체만 올릴 수 있다.
+      if (v?.webkitEnterFullscreen) {
+        v.webkitEnterFullscreen();
+        return;
+      }
+      if (v?.webkitSupportsPresentationMode?.('fullscreen')) {
+        v.webkitSetPresentationMode?.('fullscreen');
+        return;
+      }
+      toast('전체화면을 지원하지 않는 브라우저입니다', '기기를 가로로 돌려 보세요.');
     } catch {
-      /* 지원하지 않는 브라우저 */
+      /* 브라우저가 거부 */
     }
   };
 

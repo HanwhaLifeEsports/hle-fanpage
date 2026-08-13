@@ -30,6 +30,14 @@
   --note-ink:#A3A3A5;               /* 각주 — 반투명이면 얹히는 면에 따라 대비가 흔들려 불투명값으로 고정 */
   --r-card:8px; --r-lg:16px; --r-full:9999px;
   --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:72px;
+  /* viewport-fit=cover 로 화면 끝까지 쓰기 때문에, 노치·둥근 모서리·홈 인디케이터를
+     피하는 여백을 직접 줘야 한다. 브라우저에서는 전부 0 이고 홈 화면 앱에서만 값이 붙는다. */
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-l:env(safe-area-inset-left,0px);
+  --safe-r:env(safe-area-inset-right,0px);
+  /* 가로 여백 — 좁은 화면에서 글이 베젤에 붙지 않게 최소값을 보장한다 */
+  --gut:var(--s5);
   /* next/font 가 주입하는 --font-anton 을 우선 사용, 없으면 로컬 폴백 */
   --display:var(--font-anton,'Anton'),'Bebas Neue',Impact,sans-serif;
   --display-ko:'Freesentation','Pretendard','Apple SD Gothic Neo',sans-serif;
@@ -60,7 +68,18 @@ button{font-family:inherit}
 .livestat.on{color:var(--flame-text)}
 .cap{font-size:13px;color:var(--mute)}
 .cap-xs{font-size:12px;color:var(--mute)}
-.wrap{max-width:1080px;margin:0 auto;padding:0 var(--s5)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:calc(var(--gut) + var(--safe-l));padding-right:calc(var(--gut) + var(--safe-r))}
+
+/* 좁은 화면에서는 기본 여백이 빡빡하게 읽힌다 — 살짝 늘리고 큰 활자를 눌러준다 */
+@media(max-width:600px){
+  :root{--gut:20px}
+  .hero h1{font-size:clamp(48px,13vw,72px)}
+  .hero-in{padding-top:var(--s6);padding-bottom:var(--s5)}
+  .sec{padding-top:var(--s6);padding-bottom:var(--s7)}
+  .shead{margin:var(--s7) 0 var(--s4)}
+  .cd{gap:var(--s4)}
+  .cd>div{min-width:0;flex:1}
+}
 
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 26px;border:0;
@@ -97,8 +116,11 @@ button{font-family:inherit}
 /* ---------- header / nav ---------- */
 /* 96% 불투명도에서 backdrop-filter 는 아무것도 하지 않는다 — 비용만 남는 장식 블러라 걷어냈다.
    블러는 모달 스크림과 영상 위 라벨처럼 실제로 뒤를 가려야 하는 곳에만 남긴다. */
-header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-bottom:1px solid var(--hairline)}
-.hbar{max-width:1080px;margin:0 auto;padding:0 var(--s5);height:60px;display:flex;align-items:center;justify-content:space-between;gap:var(--s4)}
+/* 상태창(노치) 높이만큼 내려서 시작한다. 이게 없으면 홈 화면 앱에서
+   헤더가 시계·배터리 아래로 파고든다. */
+header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-bottom:1px solid var(--hairline);
+  padding-top:var(--safe-t)}
+.hbar{max-width:1080px;margin:0 auto;padding-left:calc(var(--gut) + var(--safe-l));padding-right:calc(var(--gut) + var(--safe-r));height:60px;display:flex;align-items:center;justify-content:space-between;gap:var(--s4)}
 .brand{display:flex;align-items:center;gap:9px}
 .mark{width:24px;height:24px;position:relative;flex:none}
 .mark i{position:absolute;bottom:0;width:4px;background:var(--flame);border-radius:1px}
@@ -111,14 +133,16 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 @media(max-width:860px){.topnav{display:none}}
 
 .tabs{position:fixed;bottom:0;left:0;right:0;z-index:60;height:58px;display:none;grid-template-columns:repeat(5,1fr);
-  background:var(--canvas);border-top:1px solid var(--hairline);padding-bottom:env(safe-area-inset-bottom)}
+  background:var(--canvas);border-top:1px solid var(--hairline);
+  padding-bottom:var(--safe-b);padding-left:var(--safe-l);padding-right:var(--safe-r)}
 .tabs a{color:var(--mute);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:600}
 .tabs a.on{color:var(--flame)}
 .tabs svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9}
-@media(max-width:860px){.tabs{display:grid}body{padding-bottom:64px}}
+@media(max-width:860px){.tabs{display:grid}body{padding-bottom:calc(64px + var(--safe-b))}}
 
 /* ---------- sections ---------- */
-.sec{padding:var(--s7) 0 var(--s8)}
+/* 세로만 지정한다 — padding 단축을 쓰면 함께 붙는 .wrap 의 좌우 여백이 0 으로 덮인다 */
+.sec{padding-top:var(--s7);padding-bottom:var(--s8)}
 /* 제목 위 여백을 아래보다 크게 — 제목이 아래 내용에 붙어 그룹을 이룬다 */
 .shead{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s4);margin:var(--s8) 0 var(--s4)}
 .shead:first-child{margin-top:0}
@@ -132,7 +156,8 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
   background:linear-gradient(180deg,#151517,#0A0A0B)}
 .hero::after{content:'';position:absolute;inset:0;pointer-events:none;
   background:repeating-linear-gradient(115deg,rgba(255,255,255,.022) 0 2px,transparent 2px 9px)}
-.hero-in{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:var(--s7) var(--s5) var(--s6)}
+.hero-in{position:relative;z-index:2;max-width:1080px;margin:0 auto;
+  padding:var(--s7) calc(var(--gut) + var(--safe-r)) var(--s6) calc(var(--gut) + var(--safe-l))}
 .hero h1{font-family:var(--display);text-transform:uppercase;font-size:clamp(52px,10.5vw,110px);line-height:.86;margin:10px 0 0}
 .hero h1 em{font-style:normal;color:var(--flame)}
 .cd{display:flex;gap:var(--s5);margin:var(--s5) 0}
@@ -233,12 +258,20 @@ table{width:100%;border-collapse:collapse;font-size:14px}
 th{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);text-align:left;padding:10px 8px;border-bottom:1px solid var(--hairline)}
 td{padding:12px 8px;border-bottom:1px solid var(--hairline);font-variant-numeric:tabular-nums}
 tbody tr:last-child td{border-bottom:0}
+.t-code{display:none}
+/* 좁은 화면: 팀명은 태그로, 스플릿 분해는 감춘다 */
+@media(max-width:600px){
+  .t-full{display:none}
+  .t-code{display:inline;font-weight:600}
+  .col-split{display:none}
+  th,td{padding:12px 6px}
+}
 /* 우리 팀 행 — 배경 띠와 팀명 강조로만 표시한다.
    왼쪽 3px 막대를 쓰면 td 공통 아래 테두리와 만나 좌하단만 ㄴ 자로 두른 것처럼 보인다. */
 tr.me td{background:var(--flame-soft)}
 tr.me td:nth-child(2){color:var(--flame-text);font-weight:600}
-.grouplabel{display:flex;align-items:baseline;gap:10px;font-size:13px;color:var(--mute);padding:var(--s5) 8px 8px}
-.grouplabel b{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.grouplabel{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute);padding:var(--s5) 8px 8px}
+.grouplabel b{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.01em;white-space:nowrap}
 
 /* ---------- toggles / forms ---------- */
 .nrow{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:14px 0;border-bottom:1px solid var(--hairline)}
