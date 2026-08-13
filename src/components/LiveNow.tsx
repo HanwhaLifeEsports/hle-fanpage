@@ -23,13 +23,15 @@ const BRAND_MARK: Record<string, string> = {
 
 /**
  * 플랫폼 식별 마크. 마크가 없는 플랫폼(디즈니+ 등)은 기존 색 점으로 떨어뜨린다.
- * dim 은 "방송 중이 아님"을 뜻한다 — 색 점이 나르던 상태 정보를 마크가 이어받는다.
+ *
+ * 마크 자체에는 아무 효과도 걸지 않는다. 치지직과 SOOP 이 형태·색상 변형과
+ * 효과를 금지하고 있어서, 방송 여부 같은 상태는 마크가 아니라 우리 쪽 라벨로 나타낸다.
  */
-function PlatformMark({ s, dim = false }: { s: LiveSource; dim?: boolean }) {
+function PlatformMark({ s }: { s: LiveSource }) {
   const src = BRAND_MARK[s.platform];
   if (!src) return <i className="pd" style={{ background: s.color }} />;
   // eslint-disable-next-line @next/next/no-img-element -- 고정 크기 로컬 아이콘이라 최적화 이득이 없다
-  return <img className={`pmark${dim ? ' dim' : ''}`} src={src} alt="" aria-hidden />;
+  return <img className="pmark" src={src} alt="" aria-hidden />;
 }
 
 function EmbedPlayer({ s }: { s: LiveSource }) {
@@ -179,7 +181,7 @@ export default function LiveNow() {
           return (
             <button
               key={s.platform}
-              className={`plat${on ? ' on' : ''}`}
+              className={`plat${on ? ' on' : ''}${s.detectable && !s.live ? ' idle' : ''}`}
               aria-pressed={on}
               onClick={() => {
                 if (!playable) {
@@ -190,7 +192,7 @@ export default function LiveNow() {
                 setBoth(false);
               }}
             >
-              <PlatformMark s={s} dim={s.detectable && !s.live} />
+              <PlatformMark s={s} />
               {s.name}
               {s.live && s.viewers ? (
                 <span style={{ color: 'var(--mute)', fontWeight: 400 }}>{s.viewers.toLocaleString()}</span>
