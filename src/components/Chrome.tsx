@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell, BellOff, BellRing, CalendarDays, ChartColumn, House, UserRound, Users } from 'lucide-react';
+import { Bell, BellOff, BellRing, CalendarDays, ChartColumn, House, MonitorPlay, UserRound } from 'lucide-react';
 import { useNotify } from '@/lib/useAppState';
 
 const NAV = [
   { href: '/', label: '홈' },
   { href: '/schedule', label: '일정' },
+  { href: '/multi', label: '멀티뷰' },
   { href: '/scenarios', label: '경우의 수' },
   { href: '/roster', label: '선수' },
   { href: '/predict', label: '예측' },
@@ -17,7 +18,7 @@ const NAV = [
 const TABS = [
   { href: '/', label: '홈', Icon: House },
   { href: '/schedule', label: '일정', Icon: CalendarDays },
-  { href: '/roster', label: '선수', Icon: Users },
+  { href: '/multi', label: '멀티뷰', Icon: MonitorPlay },
   { href: '/scenarios', label: '경우의 수', Icon: ChartColumn },
   { href: '/me', label: 'MY', Icon: UserRound },
 ];

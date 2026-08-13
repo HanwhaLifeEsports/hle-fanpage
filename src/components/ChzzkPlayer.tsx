@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ChzzkStream } from '@/app/api/chzzk/stream/route';
+import type { ChzzkStream } from '@/lib/chzzk';
 
 /**
  * 치지직 자체 플레이어.

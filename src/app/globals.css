@@ -324,6 +324,44 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 .linkcard b{font-size:15px}
 .linkcard span{font-size:13px;color:var(--mute);line-height:1.55}
 
+/* ---------- 멀티뷰 ---------- */
+.addbar{display:flex;gap:8px;flex-wrap:wrap}
+.addbar input{flex:1;min-width:240px}
+.hits{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:12px}
+.hit{text-align:left;background:var(--surface-card);border:1px solid var(--hairline);border-radius:var(--r-card);
+  padding:11px 13px;cursor:pointer;color:inherit;display:flex;flex-direction:column;gap:3px;transition:border-color .15s}
+.hit:hover{border-color:rgba(255,255,255,.28)}
+.hit b{font-size:14px}
+.hit span{font-size:12px;color:var(--mute)}
+
+/* 넓은 화면: 1개는 전체, 2개는 가로, 3~4개는 2×2.
+   좁은 화면: 무조건 세로 한 줄 (최대 3개는 컴포넌트가 자른다) */
+.grid-multi{display:grid;gap:var(--s3)}
+.grid-multi[data-n="1"]{grid-template-columns:1fr}
+.grid-multi[data-n="2"],
+.grid-multi[data-n="3"],
+.grid-multi[data-n="4"]{grid-template-columns:1fr 1fr}
+@media(max-width:860px){.grid-multi{grid-template-columns:1fr !important}}
+
+.tile{position:relative;background:#000;border:1px solid var(--hairline);border-radius:var(--r-card);overflow:hidden}
+.tile.audio{border-color:var(--flame)}
+.tile video{display:block;width:100%;aspect-ratio:16/9;background:#000;object-fit:contain}
+.tile-bar{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;align-items:center;justify-content:space-between;
+  gap:8px;padding:8px;background:linear-gradient(180deg,rgba(0,0,0,.72),rgba(0,0,0,0));opacity:0;transition:opacity .15s}
+.tile:hover .tile-bar,.tile:focus-within .tile-bar,.tile.audio .tile-bar{opacity:1}
+.tile-name{display:inline-flex;align-items:center;gap:6px;max-width:64%;height:28px;padding:0 11px;border:0;
+  border-radius:var(--r-full);background:rgba(0,0,0,.7);color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.tile.audio .tile-name{background:var(--flame);color:var(--ink-dark)}
+.tile-name span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile-name em{font-style:normal;font-weight:400;opacity:.75}
+.tile-act{display:flex;gap:4px}
+.tile-act button{width:28px;height:28px;border:0;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;
+  cursor:pointer;display:grid;place-items:center}
+.tile-act button:hover{background:rgba(0,0,0,.92)}
+.tile-holder{aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  background:#0B0B0C;font-size:13px;font-weight:600;color:var(--mute);text-align:center;padding:16px}
+.tile:fullscreen video{height:100vh;aspect-ratio:auto}
+
 /* ---------- 경우의 수 ---------- */
 .oddsrow{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s5);flex-wrap:wrap}
 .bars{display:flex;flex-direction:column;gap:10px}
