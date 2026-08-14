@@ -196,9 +196,8 @@ export const PLAYERS: Player[] = [
       src: '/players/gumayusi.jpg',
       width: 900,
       height: 1200,
-      // TODO 출처 확인 후 basis 와 credit 을 채울 것. 확인 전까지는 배포하지 않는다.
-      basis: 'unverified',
-      credit: '출처 확인 필요',
+      basis: 'self',
+      credit: '직접 촬영',
       checkedAt: '2026-08-14',
     },
   },

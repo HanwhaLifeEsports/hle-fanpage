@@ -7,6 +7,16 @@ import { Star, X } from 'lucide-react';
 import { patchState, toast, useApp } from '@/lib/useAppState';
 import type { PlayerStat, StatMap } from '@/lib/naver';
 
+/**
+ * 선수 사진 표시 스위치.
+ *
+ * 사진은 이 사이트에서 가장 되돌릴 가능성이 높은 기능이다. 저작권이 우리에게 있어도
+ * 초상권은 선수 쪽에 남아 있어서, 요청이 오면 즉시 내려야 한다. 그때 코드를 고치고
+ * 리뷰를 거치는 대신 환경변수 하나로 끌 수 있게 둔다.
+ * 치지직 자체 플레이어(NEXT_PUBLIC_CHZZK_PLAYER)와 같은 방식이다.
+ */
+const PHOTOS_ON = process.env.NEXT_PUBLIC_PLAYER_PHOTOS !== 'off';
+
 function Card({
   p,
   st,
@@ -21,7 +31,7 @@ function Card({
   return (
     <button className="pcard" onClick={onOpen}>
       <div className="ph">
-        {p.photo && (
+        {PHOTOS_ON && p.photo && (
           <Image
             className="pimg"
             src={p.photo.src}
@@ -92,7 +102,7 @@ export default function RosterRail({ stats }: { stats?: StatMap | null }) {
               </button>
             </div>
             <div className="modal-b">
-              {open.photo && (
+              {PHOTOS_ON && open.photo && (
                 <figure className="pshot">
                   <Image
                     src={open.photo.src}
