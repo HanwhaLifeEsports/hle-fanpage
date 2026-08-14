@@ -379,7 +379,12 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 @media(max-width:560px){.rail{grid-template-columns:repeat(2,1fr)}}
 .pcard{background:var(--surface-card);cursor:pointer;border:0;padding:0;text-align:left;color:inherit;display:block;width:100%}
 .pcard .ph{aspect-ratio:4/5;position:relative;background:linear-gradient(165deg,var(--photo-a),var(--photo-b));overflow:hidden}
-.pcard .ph::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,var(--shade))}
+/* 사진이 있으면 바탕 그라디언트를 덮는다. 인물 사진은 세로가 길어 아래를 잘라야
+   얼굴이 남으므로 object-position 을 위로 올린다. */
+.pcard .ph .pimg{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:50% 12%}
+/* 아래를 어둡게(라이트에서는 밝게) 깔아야 그 위 이름이 읽힌다.
+   사진보다 위, 이름(z 2)보다 아래. */
+.pcard .ph::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,transparent 45%,var(--shade))}
 .pcard .no{position:absolute;right:10px;bottom:4px;font-family:var(--display);font-size:72px;line-height:.8;color:var(--tint-ghost)}
 .pcard .pos{position:absolute;top:11px;left:11px;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--flame-text)}
 .pcard .tags{position:absolute;top:9px;right:9px;z-index:3;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
@@ -388,6 +393,11 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .pcard:hover .mt{border-top-color:var(--flame)}
 /* 카드 우측 아래 숫자 한 줄. 기록이 있으면 POM 포인트, 없으면 등번호가 들어간다 */
 .pcard .fig{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+/* 프로필 모달의 사진. 세로 사진을 그대로 세우면 모달이 스크롤만 남으므로 4:3 으로 자른다 */
+.pshot{margin:0 0 var(--s4)}
+.pshot img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;object-position:50% 12%;
+  border-radius:var(--r-card);background:var(--photo-b)}
+.pshot figcaption{font-size:11.5px;color:var(--mute);margin-top:6px}
 
 /* ---------- lists ---------- */
 .plist{border-top:1px solid var(--hairline)}

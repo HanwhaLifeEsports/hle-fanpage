@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { PLAYERS, type Player } from '@/lib/lck2026';
 import { Star, X } from 'lucide-react';
 import { patchState, toast, useApp } from '@/lib/useAppState';
@@ -20,6 +21,16 @@ function Card({
   return (
     <button className="pcard" onClick={onOpen}>
       <div className="ph">
+        {p.photo && (
+          <Image
+            className="pimg"
+            src={p.photo.src}
+            alt=""
+            width={p.photo.width}
+            height={p.photo.height}
+            sizes="(max-width:560px) 50vw, (max-width:900px) 33vw, 220px"
+          />
+        )}
         <span className="pos">{p.pos}</span>
         <div className="tags">
           {fav && <span className="badge b-flame">최애</span>}
@@ -81,6 +92,20 @@ export default function RosterRail({ stats }: { stats?: StatMap | null }) {
               </button>
             </div>
             <div className="modal-b">
+              {open.photo && (
+                <figure className="pshot">
+                  <Image
+                    src={open.photo.src}
+                    alt={`${open.nm} (${open.ko})`}
+                    width={open.photo.width}
+                    height={open.photo.height}
+                    sizes="(max-width:560px) 92vw, 472px"
+                  />
+                  {/* 출처는 사진 옆에 붙어 있어야 의미가 있다. 페이지 하단 각주로 밀면
+                      어느 사진 얘기인지 알 수 없다. */}
+                  <figcaption>{open.photo.credit}</figcaption>
+                </figure>
+              )}
               <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
                 <span className="badge b-flame">{open.pos}</span>
                 <span className="badge b-soon">#{open.no}</span>

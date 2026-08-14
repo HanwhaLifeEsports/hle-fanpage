@@ -128,6 +128,34 @@ export const SEASON = {
 /* 선수 — 2026 한화생명e스포츠 (실제 로스터)                            */
 /* ------------------------------------------------------------------ */
 
+/**
+ * 선수 사진.
+ *
+ * 이 사이트에서 가장 조심해야 하는 자산이다. 촬영자의 저작권과 선수의 초상권이
+ * 겹쳐 있고, 구단 2차 창작 가이드라인은 영상만 다루고 사진은 다루지 않는다.
+ * 그래서 파일 경로만 두지 않고 "어디서 왔고 무슨 근거로 쓰는지"를 같이 적는다.
+ * 근거를 적을 수 없는 사진은 넣지 않는다.
+ *
+ * 파일 목록과 출처는 public/players/README.md 에도 표로 남긴다.
+ */
+export interface PlayerPhoto {
+  src: string;
+  /** next/image 가 로딩 전에 자리를 잡으려면 원본 크기가 필요하다 */
+  width: number;
+  height: number;
+  /**
+   * 무슨 근거로 쓰는가.
+   *  self        직접 촬영. 저작권은 우리에게 있고 초상권만 남는다
+   *  permission  촬영자 또는 구단에게 사용 허락을 받았다
+   *  unverified  아직 확인하지 못했다 — 배포 전에 반드시 해소할 것
+   */
+  basis: 'self' | 'permission' | 'unverified';
+  /** 화면과 문서에 표시할 출처 문구 */
+  credit: string;
+  /** 근거를 확인한 날짜 */
+  checkedAt: string;
+}
+
 export interface Player {
   id: string;
   nm: string;
@@ -143,6 +171,7 @@ export interface Player {
    * 값은 /service/v1/ranking/lck_2026/player 응답의 playerId 에서 확인한다.
    */
   naverId: string;
+  photo?: PlayerPhoto;
   /** 대표 챔피언 — 2026 시즌 경기에서 반복해 고른 픽 */
   champs: string[];
   /** 2026 시즌 합류 여부 */
@@ -154,7 +183,25 @@ export const PLAYERS: Player[] = [
   { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', champs: ['잭스', '그웬', '케넨'] },
   { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
   { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', champs: ['아지르', '오리아나', '실라스'] },
-  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', naverId: '10320', champs: ['징크스', '제리', '칼리스타'], joined2026: true },
+  {
+    id: 'gumayusi',
+    nm: 'Gumayusi',
+    ko: '이민형',
+    pos: 'BOT',
+    no: '98',
+    naverId: '10320',
+    champs: ['징크스', '제리', '칼리스타'],
+    joined2026: true,
+    photo: {
+      src: '/players/gumayusi.jpg',
+      width: 900,
+      height: 1200,
+      // TODO 출처 확인 후 basis 와 credit 을 채울 것. 확인 전까지는 배포하지 않는다.
+      basis: 'unverified',
+      credit: '출처 확인 필요',
+      checkedAt: '2026-08-14',
+    },
+  },
   { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', champs: ['노틸러스', '레나타', '알리스타'] },
 ];
 
