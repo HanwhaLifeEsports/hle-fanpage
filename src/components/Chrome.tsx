@@ -9,6 +9,8 @@ const NAV = [
   { href: '/', label: '홈' },
   { href: '/schedule', label: '일정' },
   { href: '/multi', label: '멀티뷰' },
+  { href: '/scoreboard', label: '스코어보드' },
+  { href: '/soloq', label: '솔랭' },
   { href: '/scenarios', label: '경우의 수' },
   { href: '/roster', label: '선수' },
   { href: '/predict', label: '예측' },

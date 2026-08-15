@@ -75,7 +75,8 @@ export interface Season {
   matches: MatchRow[];
 }
 
-async function call<T>(path: string): Promise<T> {
+/** persisted/gw 호출. 라이브스탯(src/lib/livestats.ts)도 경기 정보를 여기서 받아 쓴다. */
+export async function call<T>(path: string): Promise<T> {
   const res = await fetch(`${API}/${path}`, {
     headers: { 'x-api-key': KEY, Accept: 'application/json' },
     signal: AbortSignal.timeout(12_000),

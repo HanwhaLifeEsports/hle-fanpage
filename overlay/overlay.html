@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>솔랭 관전 오버레이</title>
+<link rel="stylesheet" href="./hud.css">
+</head>
+<body>
+
+<!-- 관전 시작 전 안내. body.live 가 붙으면 사라진다 -->
+<div id="wait">
+  <div>
+    <b id="waitTitle"></b>
+    <span id="waitBody"></span><br>
+    <em id="waitHint"></em>
+  </div>
+</div>
+
+<div id="hud">
+  <!-- 좌상단 = 상단 강(유충·전령·바론), 우상단 = 하단 강(용) -->
+  <div class="timers l" id="timersL"></div>
+  <div class="timers r" id="timersR"></div>
+
+  <div class="top">
+    <div class="row1">
+      <div class="side b" id="sideB"></div>
+      <div class="score">
+        <div class="kw"><span class="bnty" id="bb"></span><b class="kb" id="kb">0</b></div>
+        <span class="dia"></span>
+        <div class="kw"><span class="bnty" id="br"></span><b class="kr" id="kr">0</b></div>
+      </div>
+      <div class="side r" id="sideR"></div>
+    </div>
+    <div class="row2">
+      <div class="obj" id="objB"></div>
+      <div class="clock" id="clock">0:00</div>
+      <div class="obj r" id="objR"></div>
+    </div>
+    <!-- 골드가 없어 장비 가치로 대신하는 격차 표시 -->
+    <div class="econ" id="econ"></div>
+  </div>
+
+  <div class="rail b" id="railB"></div>
+  <div class="rail r" id="railR"></div>
+
+  <div class="buffs" id="buffs"></div>
+  <div class="feed" id="feed"></div>
+
+  <div class="board">
+    <div class="cap" id="boardCap">SOLO QUEUE</div>
+    <div id="boardRows"></div>
+  </div>
+</div>
+
+<div id="stale">게임 데이터 끊김 — 관전 창이 닫혔는지 확인하세요</div>
+
+<script type="module" src="./hud.js"></script>
+</body>
+</html>

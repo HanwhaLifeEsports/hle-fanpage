@@ -1,0 +1,258 @@
+/* ==========================================================================
+   솔랭 관전 오버레이 — LCK 중계 레이아웃
+   1920×1080 기준. 다른 해상도는 --k 배율로 통째로 늘어난다.
+   배경은 반드시 투명. 뒤에 관전 화면이 깔린다.
+
+   LCK 화면과 다른 점 — 관전 API 에 없는 값은 그리지 않는다.
+     · 체력·마나 바 없음 (allPlayers 에 필드 자체가 없음 — 실측 확인)
+     · 골드 없음 (activePlayer 가 관전 모드에서 error)
+   그 자리는 KDA·CS 로 채웠다.
+
+   솔랭이라 중계의 선수 얼굴 자리가 비므로, 하단 스코어보드를 그 폭까지 넓혔다.
+   ========================================================================== */
+
+:root{
+  --k:1;
+  --band-1:#241650; --band-2:#3A2170;
+  --blue:#3FA0FF; --red:#FF4E7D;
+  --ink:#fff; --mute:rgba(255,255,255,.66); --faint:rgba(255,255,255,.34);
+  --panel:rgba(10,8,22,.86);
+  --panel-2:rgba(16,12,34,.94);
+  --hair:rgba(255,255,255,.13);
+  --hl:#FF6A13;
+  --baron:#A855F7;                  /* 바론 버프 */
+  --elder:#FFFFFF;                  /* 장로 버프 */
+  --sans:'Freesentation','Pretendard','Apple SD Gothic Neo',-apple-system,sans-serif;
+  --num:'DIN Alternate','Bebas Neue',Impact,var(--sans);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:transparent}
+body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;
+  font-size:calc(16px * var(--k));line-height:1.2;user-select:none}
+img{display:block}
+
+#wait{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.74)}
+#wait div{text-align:center;font-size:calc(19px * var(--k));color:var(--mute);line-height:1.7}
+#wait b{display:block;color:var(--ink);font-size:calc(26px * var(--k));margin-bottom:calc(10px * var(--k))}
+#wait em{font-style:normal;color:var(--hl)}
+body.live #wait{display:none}
+body:not(.live) #hud{display:none}
+
+/* ================= 오브젝트 타이머 (좌상단 · 우상단) ================= */
+/* 중계 화면 양 끝 구석의 그 자리. 왼쪽은 상단 강(유충·바론), 오른쪽은 하단 강(용). */
+.timers{position:absolute;top:calc(14px * var(--k));display:flex;flex-direction:column;
+  gap:calc(8px * var(--k))}
+.timers.l{left:calc(16px * var(--k))}
+.timers.r{right:calc(16px * var(--k));align-items:flex-end}
+/* 요청대로 타이머만 약 3배로 키웠다 — 중계에서 가장 자주 쳐다보는 숫자다 */
+.tm{display:flex;align-items:center;gap:calc(14px * var(--k));
+  background:var(--panel-2);padding:calc(10px * var(--k)) calc(20px * var(--k));
+  border-radius:calc(6px * var(--k));
+  box-shadow:0 0 0 calc(2px * var(--k)) var(--hair)}
+.timers.r .tm{flex-direction:row-reverse}
+.tm .ko{color:var(--mute);font-size:calc(20px * var(--k));font-weight:600}
+.tm .v{font-family:var(--num);font-size:calc(38px * var(--k));line-height:1;
+  font-variant-numeric:tabular-nums;letter-spacing:.03em}
+.tm.up .v{color:#6EE7A0}          /* 지금 나와 있음 */
+.tm.soon .v{color:#FFC53D}        /* 30초 안 */
+.tm.unknown .v{color:var(--faint)}
+/* 스폰 시각은 패치마다 바뀌는 추정치다. 확정값처럼 보이면 안 된다. */
+.tm.est::after{content:'추정';font-size:calc(13px * var(--k));color:var(--faint);letter-spacing:.04em}
+
+/* ================= 상단 띠 ================= */
+.top{position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:calc(940px * var(--k));
+  background:linear-gradient(90deg,var(--band-1),var(--band-2) 50%,var(--band-1));
+  border-bottom:calc(2px * var(--k)) solid rgba(255,255,255,.14);
+  border-radius:0 0 calc(5px * var(--k)) calc(5px * var(--k));
+  box-shadow:0 calc(5px * var(--k)) calc(16px * var(--k)) rgba(0,0,0,.45)}
+
+.top .row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+  padding:calc(7px * var(--k)) calc(16px * var(--k))}
+.top .side{display:flex;align-items:center;gap:calc(11px * var(--k))}
+.top .side.r{flex-direction:row-reverse}
+.top .side .tag{font-family:var(--num);font-size:calc(26px * var(--k));letter-spacing:.04em;line-height:1}
+.top .side.b .tag{color:var(--blue)}
+.top .side.r .tag{color:var(--red)}
+.top .side .edge{width:calc(4px * var(--k));height:calc(26px * var(--k));border-radius:calc(2px * var(--k))}
+.top .side.b .edge{background:var(--blue)}
+.top .side.r .edge{background:var(--red)}
+.top .side .sub{font-size:calc(11px * var(--k));color:var(--mute)}
+
+.top .score{display:flex;align-items:center;gap:calc(13px * var(--k));padding:0 calc(18px * var(--k))}
+.top .score .kw{display:flex;flex-direction:column;align-items:center}
+/* 현상금은 API 에 없어 연속 처치로 추정한 값이다 — 킬 숫자보다 확실히 작게 둔다 */
+.top .score .bnty{font-size:calc(10px * var(--k));color:#FFC53D;letter-spacing:.02em;
+  height:calc(12px * var(--k));font-variant-numeric:tabular-nums}
+.top .score b{font-family:var(--num);font-size:calc(32px * var(--k));line-height:1;
+  font-variant-numeric:tabular-nums;min-width:calc(38px * var(--k));text-align:center}
+.top .score .kb{color:var(--blue)}
+.top .score .kr{color:var(--red)}
+.top .score .dia{width:calc(11px * var(--k));height:calc(11px * var(--k));
+  background:rgba(255,255,255,.75);transform:rotate(45deg);flex:none}
+
+.top .row2{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+  padding:calc(4px * var(--k)) calc(16px * var(--k)) calc(5px * var(--k));
+  background:rgba(0,0,0,.30)}
+.top .obj{display:flex;align-items:center;gap:calc(11px * var(--k));font-size:calc(12px * var(--k));color:var(--mute)}
+.top .obj.r{flex-direction:row-reverse}
+.top .obj span{display:flex;align-items:center;gap:calc(4px * var(--k));font-variant-numeric:tabular-nums}
+.top .obj b{color:var(--ink);font-weight:700}
+.top .clock{font-family:var(--num);font-size:calc(19px * var(--k));letter-spacing:.05em;
+  font-variant-numeric:tabular-nums;padding:0 calc(16px * var(--k))}
+.drakes{display:flex;gap:calc(3px * var(--k))}
+.drakes i{width:calc(9px * var(--k));height:calc(9px * var(--k));border-radius:calc(2px * var(--k))}
+body.partial .top .obj{opacity:.45}
+body.partial .top .obj::after{content:'관전 후';font-size:calc(9px * var(--k));color:var(--hl);letter-spacing:.05em}
+
+/* 장비 가치 격차 — 진짜 골드가 아니므로 "장비" 라고 못 박아 쓴다 */
+.econ{padding:calc(4px * var(--k)) calc(16px * var(--k)) calc(6px * var(--k));background:rgba(0,0,0,.22)}
+.econbar{position:relative;height:calc(5px * var(--k));border-radius:var(--k);
+  background:rgba(255,255,255,.10);overflow:hidden}
+.econbar::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.3)}
+.econbar i{position:absolute;top:0;bottom:0;border-radius:var(--k);min-width:calc(2px * var(--k))}
+.econv{text-align:center;font-size:calc(11px * var(--k));font-weight:600;
+  font-variant-numeric:tabular-nums;margin-top:calc(3px * var(--k))}
+
+/* ================= 선수 레일 ================= */
+/* 벽에 붙는 세로 띠. 아이템은 하단 스코어보드에 있으므로 여기서는 빼고 짧게 간다 —
+   챔피언·레벨·룬·스펠·KDA·CS 만. 게임 화면을 덜 가린다. */
+.rail{position:absolute;top:calc(104px * var(--k));width:calc(206px * var(--k));
+  display:flex;flex-direction:column;gap:calc(7px * var(--k))}
+.rail.b{left:calc(6px * var(--k))}
+.rail.r{right:calc(6px * var(--k))}
+
+.p{position:relative}
+.p .head{display:flex;align-items:baseline;gap:calc(6px * var(--k));
+  padding:0 calc(3px * var(--k)) calc(2px * var(--k))}
+.rail.r .p .head{flex-direction:row-reverse}
+.p .nm{font-size:calc(12.5px * var(--k));font-weight:700;letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(150px * var(--k));
+  text-shadow:0 calc(1px * var(--k)) calc(3px * var(--k)) rgba(0,0,0,.9)}
+.p.hl .nm{color:var(--hl)}
+.p .kda{margin-left:auto;font-size:calc(12.5px * var(--k));font-variant-numeric:tabular-nums;
+  letter-spacing:.01em;text-shadow:0 calc(1px * var(--k)) calc(3px * var(--k)) rgba(0,0,0,.9)}
+.rail.r .p .kda{margin-left:0;margin-right:auto}
+.p .kda i{font-style:normal;color:var(--faint);padding:0 calc(1px * var(--k))}
+
+.p .card{display:flex;align-items:center;gap:calc(6px * var(--k));
+  background:var(--panel);padding:calc(5px * var(--k));
+  border:calc(1px * var(--k)) solid var(--hair);
+  border-left:calc(3px * var(--k)) solid var(--blue);
+  border-radius:calc(3px * var(--k))}
+.rail.r .p .card{flex-direction:row-reverse;
+  border-left:calc(1px * var(--k)) solid var(--hair);
+  border-right:calc(3px * var(--k)) solid var(--red)}
+.p.hl .card{border-color:var(--hl);background:var(--panel-2)}
+.p.dead .card{opacity:.42}
+
+/* 바론·장로 버프 — 요청대로 바론은 보라, 장로는 흰색 */
+.p.baron .card{border-color:var(--baron);
+  box-shadow:0 0 0 calc(2px * var(--k)) var(--baron), 0 0 calc(15px * var(--k)) rgba(168,85,247,.85);
+  background:linear-gradient(90deg,rgba(88,28,135,.6),var(--panel) 60%)}
+.rail.r .p.baron .card{background:linear-gradient(270deg,rgba(88,28,135,.6),var(--panel) 60%)}
+.p.elder .card{border-color:var(--elder);
+  box-shadow:0 0 0 calc(2px * var(--k)) var(--elder), 0 0 calc(17px * var(--k)) rgba(255,255,255,.8);
+  background:linear-gradient(90deg,rgba(255,255,255,.22),var(--panel) 60%)}
+.rail.r .p.elder .card{background:linear-gradient(270deg,rgba(255,255,255,.22),var(--panel) 60%)}
+
+/* 룬 2 + 스펠 2 를 세로 두 줄로 — LCK 은 초상 바깥쪽에 이렇게 붙인다 */
+.p .kit{display:grid;grid-template-columns:repeat(2,calc(16px * var(--k)));
+  gap:calc(2px * var(--k));flex:none}
+.p .kit img,.p .kit i{width:calc(16px * var(--k));height:calc(16px * var(--k));
+  border-radius:calc(2px * var(--k));background:rgba(255,255,255,.06);display:block}
+
+.p .por{position:relative;flex:none;width:calc(42px * var(--k));height:calc(42px * var(--k))}
+.p .por img{width:100%;height:100%;border-radius:calc(2px * var(--k));background:#111}
+.p .por .lv{position:absolute;right:calc(-3px * var(--k));bottom:calc(-3px * var(--k));
+  min-width:calc(17px * var(--k));height:calc(17px * var(--k));padding:0 calc(3px * var(--k));
+  border-radius:calc(2px * var(--k));background:#0B0A14;
+  box-shadow:0 0 0 calc(1px * var(--k)) rgba(255,255,255,.3);
+  font-size:calc(10.5px * var(--k));font-weight:700;display:grid;place-items:center;
+  font-variant-numeric:tabular-nums}
+.p .por .rez{position:absolute;inset:0;display:none;place-items:center;
+  border-radius:calc(2px * var(--k));background:rgba(0,0,0,.74);
+  font-family:var(--num);font-size:calc(19px * var(--k))}
+.p.dead .por .rez{display:grid}
+
+/* CS 는 카드 안 오른쪽 끝에 — 아이템이 빠진 자리를 채운다 */
+.p .cs{font-size:calc(11.5px * var(--k));color:var(--mute);font-variant-numeric:tabular-nums;
+  margin-left:auto;white-space:nowrap}
+.rail.r .p .cs{margin-left:0;margin-right:auto}
+
+/* ================= 하단 스코어보드 ================= */
+/* 중계는 여기 양옆에 선수 얼굴이 들어간다. 솔랭엔 얼굴이 없으니 그 폭까지 넓혔다. */
+.board{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:calc(1560px * var(--k));
+  background:linear-gradient(180deg,rgba(36,22,80,.95),rgba(16,10,40,.97));
+  border:calc(1px * var(--k)) solid rgba(255,255,255,.14);border-bottom:0;
+  border-radius:calc(5px * var(--k)) calc(5px * var(--k)) 0 0;
+  box-shadow:0 calc(-4px * var(--k)) calc(18px * var(--k)) rgba(0,0,0,.5)}
+.board .cap{text-align:center;font-family:var(--num);font-size:calc(13px * var(--k));
+  letter-spacing:.24em;color:rgba(255,255,255,.7);
+  padding:calc(4px * var(--k)) 0 calc(3px * var(--k));
+  border-bottom:calc(1px * var(--k)) solid rgba(255,255,255,.10)}
+.board .row{display:grid;
+  grid-template-columns:calc(118px * var(--k)) calc(22px * var(--k)) calc(146px * var(--k))
+                        calc(70px * var(--k)) calc(38px * var(--k))
+                        calc(32px * var(--k)) calc(78px * var(--k)) calc(32px * var(--k))
+                        calc(38px * var(--k)) calc(70px * var(--k))
+                        calc(146px * var(--k)) calc(22px * var(--k)) calc(118px * var(--k));
+  align-items:center;justify-content:center;gap:calc(12px * var(--k));
+  padding:calc(3px * var(--k)) calc(16px * var(--k));
+  border-bottom:calc(1px * var(--k)) solid rgba(255,255,255,.06)}
+.board .row:last-child{border-bottom:0}
+.board .lv{font-size:calc(12px * var(--k));font-weight:700;text-align:center;
+  font-variant-numeric:tabular-nums;color:var(--mute)}
+.board .bi{display:flex;gap:calc(2px * var(--k))}
+.board .bi.r{flex-direction:row-reverse}
+.board .bi i{width:calc(22px * var(--k));height:calc(22px * var(--k));border-radius:calc(2px * var(--k));
+  background:rgba(255,255,255,.05) center/cover no-repeat;
+  box-shadow:inset 0 0 0 calc(1px * var(--k)) rgba(255,255,255,.07)}
+.board .bk{font-size:calc(13px * var(--k));font-variant-numeric:tabular-nums;text-align:center;letter-spacing:.01em}
+.board .bk i{font-style:normal;color:var(--faint);padding:0 calc(1px * var(--k))}
+.board .bc,.board .bn{font-size:calc(12px * var(--k));font-variant-numeric:tabular-nums;
+  color:var(--mute);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.board .bn{color:var(--ink);font-weight:600;text-align:left}
+.board .bn.r{text-align:right}
+/* 라인 맞대결 골드 차이 — 화살표가 앞선 쪽을 가리킨다. 추정치라 색만 주고 크게 키우지 않는다 */
+.board .gd{display:flex;align-items:center;justify-content:center;gap:calc(4px * var(--k));
+  font-size:calc(12px * var(--k));font-weight:700;font-variant-numeric:tabular-nums;
+  color:var(--faint)}
+.board .gd.b{color:var(--blue)}
+.board .gd.r{color:var(--red);flex-direction:row-reverse}
+.board .ch{width:calc(34px * var(--k));height:calc(34px * var(--k));border-radius:calc(2px * var(--k));
+  background:#111;justify-self:center}
+.board .row.b .lv{color:var(--blue)}
+
+/* ================= 킬 피드 ================= */
+.feed{position:absolute;top:calc(104px * var(--k));right:calc(220px * var(--k));
+  display:flex;flex-direction:column;align-items:flex-end;gap:calc(3px * var(--k));pointer-events:none}
+.feed .ev{display:flex;align-items:center;gap:calc(6px * var(--k));
+  background:var(--panel-2);padding:calc(4px * var(--k)) calc(10px * var(--k));
+  border-radius:calc(3px * var(--k));font-size:calc(12.5px * var(--k));
+  border-left:calc(3px * var(--k)) solid rgba(255,255,255,.3);
+  animation:in .25s ease-out}
+.feed .ev.fade{opacity:0;transition:opacity .6s}
+.feed .ev b{font-weight:700}
+.feed .ev .b{color:var(--blue)}
+.feed .ev .r{color:var(--red)}
+.feed .ev .tag{font-size:calc(10px * var(--k));letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+@keyframes in{from{opacity:0;transform:translateX(calc(12px * var(--k)))}to{opacity:1;transform:none}}
+
+/* 버프 남은 시간 배너 */
+.buffs{position:absolute;top:calc(104px * var(--k));left:50%;transform:translateX(-50%);
+  display:flex;gap:calc(7px * var(--k))}
+.buffs .bf{display:flex;align-items:center;gap:calc(6px * var(--k));
+  padding:calc(4px * var(--k)) calc(11px * var(--k));border-radius:calc(3px * var(--k));
+  background:var(--panel-2);font-size:calc(12px * var(--k));font-weight:700;
+  font-variant-numeric:tabular-nums}
+.buffs .bf.baron{box-shadow:0 0 0 calc(2px * var(--k)) var(--baron)}
+.buffs .bf.elder{box-shadow:0 0 0 calc(2px * var(--k)) var(--elder)}
+.buffs .bf .who{color:var(--mute);font-weight:400}
+
+#stale{position:absolute;bottom:calc(4px * var(--k));left:calc(10px * var(--k));
+  display:none;background:rgba(229,72,77,.92);font-size:calc(11px * var(--k));
+  padding:calc(3px * var(--k)) calc(10px * var(--k));border-radius:calc(3px * var(--k))}
+body.stale #stale{display:block}
