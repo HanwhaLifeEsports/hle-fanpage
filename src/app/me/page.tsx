@@ -114,7 +114,7 @@ export default function MePage() {
         <p className="cap" style={{ marginBottom: 'var(--s4)' }}>
           {favPlayer ? `최애 선수 · ${favPlayer.nm} (${favPlayer.ko})` : '최애 선수를 지정하지 않았습니다.'}
           <br />
-          알림 설정 · 최애 선수 · 승부예측은 <b style={{ color: '#fff' }}>이 브라우저에만</b> 저장되며 서버로
+          알림 설정 · 최애 선수 · 승부예측은 <b style={{ color: 'var(--ink)' }}>이 브라우저에만</b> 저장되며 서버로
           전송되지 않습니다.
         </p>
         <button
