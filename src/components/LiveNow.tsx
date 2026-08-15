@@ -14,12 +14,32 @@ const POLL_MS = 30_000;
 /** 치지직 자체 플레이어. 문제가 생기면 환경변수 하나로 전부 끈다. */
 const CHZZK_PLAYER_ON = process.env.NEXT_PUBLIC_CHZZK_PLAYER !== 'off';
 
+/** 각 사가 공식 배포하는 브랜드 마크. 출처와 사용 조건은 public/brand/README.md 에 적어 뒀다. */
+const BRAND_MARK: Record<string, string> = {
+  chzzk: '/brand/chzzk.png',
+  soop: '/brand/soop.svg',
+  youtube: '/brand/youtube.svg',
+};
+
+/**
+ * 플랫폼 식별 마크. 마크가 없는 플랫폼(디즈니+ 등)은 기존 색 점으로 떨어뜨린다.
+ *
+ * 마크 자체에는 아무 효과도 걸지 않는다. 치지직과 SOOP 이 형태·색상 변형과
+ * 효과를 금지하고 있어서, 방송 여부 같은 상태는 마크가 아니라 우리 쪽 라벨로 나타낸다.
+ */
+function PlatformMark({ s }: { s: LiveSource }) {
+  const src = BRAND_MARK[s.platform];
+  if (!src) return <i className="pd" style={{ background: s.color }} />;
+  // eslint-disable-next-line @next/next/no-img-element -- 고정 크기 로컬 아이콘이라 최적화 이득이 없다
+  return <img className="pmark" src={src} alt="" aria-hidden />;
+}
+
 function EmbedPlayer({ s }: { s: LiveSource }) {
   const yt = s.platform === 'youtube';
   return (
     <div className="pframe">
-      <span className="lbl" style={{ color: s.color }}>
-        <i className="dot" style={{ background: s.color }} />
+      <span className="lbl">
+        <PlatformMark s={s} />
         {s.name}
       </span>
       <iframe
@@ -43,10 +63,7 @@ function LinkCard({ s }: { s: LiveSource }) {
     <div className="noembed">
       <div>
         <b style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <i
-            className="pd"
-            style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, display: 'inline-block' }}
-          />
+          <PlatformMark s={s} />
           {s.name}
           <span className="badge b-soon">{s.role}</span>
           {s.live && (
@@ -164,7 +181,7 @@ export default function LiveNow() {
           return (
             <button
               key={s.platform}
-              className={`plat${on ? ' on' : ''}`}
+              className={`plat${on ? ' on' : ''}${s.detectable && !s.live ? ' idle' : ''}`}
               aria-pressed={on}
               onClick={() => {
                 if (!playable) {
@@ -175,12 +192,7 @@ export default function LiveNow() {
                 setBoth(false);
               }}
             >
-              <i
-                className="pd"
-                style={{
-                  background: s.live ? s.color : s.detectable ? 'rgba(255,255,255,.18)' : 'rgba(255,255,255,.32)',
-                }}
-              />
+              <PlatformMark s={s} />
               {s.name}
               {s.live && s.viewers ? (
                 <span style={{ color: 'var(--mute)', fontWeight: 400 }}>{s.viewers.toLocaleString()}</span>

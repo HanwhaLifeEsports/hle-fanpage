@@ -1,6 +1,6 @@
 import { getSeason } from '@/lib/season';
 import { OUR_TAG, SEASON } from '@/lib/lck2026';
-import { LEGEND_OUTCOME, RISE_OUTCOME } from '@/lib/scenarios';
+import { LEGEND_BANDS, RISE_BANDS, countIn, worldsRanks } from '@/lib/scenarios';
 import { fmtDate } from '@/lib/format';
 import type { Metadata } from 'next';
 
@@ -28,9 +28,19 @@ export default async function ScenariosPage() {
 
   const { season, scenarios: sc, us, ourGroup } = bundle;
   const group = ourGroup === 'legend' ? season.legend : season.rise;
-  const outcome = ourGroup === 'legend' ? LEGEND_OUTCOME : RISE_OUTCOME;
+  const bands = ourGroup === 'legend' ? LEGEND_BANDS : RISE_BANDS;
+  const bandOf = (r: number) => bands.find((b) => b.ranks.includes(r));
   const ourRemaining = sc.remaining.filter((r) => r.a === OUR_TAG || r.b === OUR_TAG);
-  const topProb = sc.rank.slice(0, sc.seedCut).reduce((a, b) => a + b, 0);
+
+  // 월즈 진출이 확정되는 순위 = 플레이오프에 오르는 순위. MSI 우승으로 얻은 시드다.
+  const wRanks = worldsRanks(bands);
+  const worldsCut = wRanks.length ? Math.max(...wRanks) : 0;
+  const worldsProb = countIn(sc.rank, wRanks);
+  const maybeProb = countIn(
+    sc.rank,
+    bands.filter((b) => b.worlds === 'possible').flatMap((b) => b.ranks),
+  );
+  const topProb = countIn(sc.rank, bands[0].ranks);
 
   return (
     <div className="wrap sec">
@@ -43,12 +53,16 @@ export default async function ScenariosPage() {
         <div className="card" style={{ marginBottom: 'var(--s6)' }}>
           <div className="oddsrow">
             <div>
-              <div className="num" style={{ fontSize: 52 }}>
-                {pct(topProb, sc.total).toFixed(1)}
+              <div className="num" style={{ fontSize: 52, color: 'var(--flame-text)' }}>
+                {pct(worldsProb, sc.total).toFixed(1)}
                 <span style={{ fontSize: 22, color: 'var(--mute)' }}>%</span>
               </div>
               <div className="cap" style={{ marginTop: 2 }}>
-                {outcome[1]} 확률
+                월즈 진출 확정 확률 · {worldsCut}위 안
+              </div>
+              <div className="cap-xs" style={{ marginTop: 6 }}>
+                {bands[0].label} {pct(topProb, sc.total).toFixed(1)}%
+                {maybeProb > 0 && <> · 플레이-인행 {pct(maybeProb, sc.total).toFixed(1)}%</>}
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
@@ -57,9 +71,14 @@ export default async function ScenariosPage() {
                 {us.diff})
               </b>
               <div className="cap" style={{ marginTop: 2 }}>
-                이대로면 {outcome[us.rank]}
+                이대로면 {bandOf(us.rank)?.label ?? '-'}
               </div>
             </div>
+          </div>
+          <div className="note" style={{ marginBottom: 0 }}>
+            <b>2026 MSI 우승으로 플레이오프에 오르기만 하면 월즈 진출이 확정</b>됩니다. 그래서 {worldsCut}위
+            안에 들면 그 자리에서 월즈가 결정됩니다. 플레이-인은 통과해야 플레이오프로 올라가므로 아직
+            확정이 아닙니다.
           </div>
         </div>
       )}
@@ -71,18 +90,28 @@ export default async function ScenariosPage() {
         {sc.rank.map((n, i) => {
           const r = i + 1;
           const p = pct(n, sc.total);
+          const b = bandOf(r);
+          const won = b?.worlds === 'confirmed';
           return (
             <div className="bar" key={r}>
               <span className="bl">
-                {r}위<em>{outcome[r]}</em>
+                {r}위
+                <em>
+                  {b?.label}
+                  {won && ' · 월즈 확정'}
+                  {b?.worlds === 'possible' && ' · 통과 시 월즈'}
+                </em>
               </span>
               <span className="bt">
-                <i style={{ width: `${Math.max(p, 0.4)}%`, background: r <= sc.seedCut ? 'var(--flame)' : undefined }} />
+                <i style={{ width: `${Math.max(p, 0.4)}%`, background: won ? 'var(--flame)' : undefined }} />
               </span>
               <span className="bv num">{p.toFixed(1)}%</span>
             </div>
           );
         })}
+      </div>
+      <div className="note">
+        주황 막대가 <b>월즈 진출이 확정되는 순위</b>입니다. 아래로 갈수록 순위가 낮아집니다.
       </div>
 
       <div className="shead">
@@ -93,25 +122,35 @@ export default async function ScenariosPage() {
           <thead>
             <tr>
               <th>HLE 잔여 성적</th>
-              <th>{outcome[1]}</th>
-              <th>{outcome[sc.seedCut + 1] ?? '-'}</th>
+              <th>월즈 확정</th>
+              {bands.map((b) => (
+                <th key={b.label}>{b.label}</th>
+              ))}
               <th>최선</th>
               <th>최악</th>
             </tr>
           </thead>
           <tbody>
-            {sc.byOwnWins.map((b) => {
-              const top = b.rank.slice(0, sc.seedCut).reduce((x, y) => x + y, 0);
-              const rest = b.total - top;
+            {sc.byOwnWins.map((row) => {
+              const worlds = countIn(row.rank, wRanks);
               return (
-                <tr key={b.wins}>
+                <tr key={row.wins}>
                   <td>
-                    {b.wins}승 {ourRemaining.length - b.wins}패
+                    {row.wins}승 {ourRemaining.length - row.wins}패
                   </td>
-                  <td style={{ color: top ? 'var(--win)' : 'var(--faint)' }}>{pct(top, b.total).toFixed(1)}%</td>
-                  <td>{pct(rest, b.total).toFixed(1)}%</td>
-                  <td>{b.best}위</td>
-                  <td>{b.worst}위</td>
+                  <td style={{ color: worlds ? 'var(--flame-text)' : 'var(--faint)', fontWeight: 600 }}>
+                    {pct(worlds, row.total).toFixed(1)}%
+                  </td>
+                  {bands.map((b) => {
+                    const c = countIn(row.rank, b.ranks);
+                    return (
+                      <td key={b.label} style={{ color: c ? undefined : 'var(--faint)' }}>
+                        {pct(c, row.total).toFixed(1)}%
+                      </td>
+                    );
+                  })}
+                  <td>{row.best}위</td>
+                  <td>{row.worst}위</td>
                 </tr>
               );
             })}
@@ -123,7 +162,7 @@ export default async function ScenariosPage() {
         <h2 className="ko">경기별 영향력</h2>
       </div>
       <p className="lede" style={{ marginBottom: 'var(--s4)' }}>
-        각 경기의 승패가 HLE의 {outcome[1]} 확률을 얼마나 흔드는지입니다. 차이가 큰 경기일수록 중요합니다.
+        각 경기의 승패가 HLE의 {bands[0].label} 확률을 얼마나 흔드는지입니다. 차이가 큰 경기일수록 중요합니다.
       </p>
       <div style={{ overflowX: 'auto' }}>
         <table>

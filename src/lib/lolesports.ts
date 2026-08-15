@@ -233,16 +233,19 @@ export async function fetchStandings(tournamentId: string) {
 /**
  * LCK 동률 처리: 승-패 → 승자승(동률 팀들끼리의 맞대결) → 세트 득실.
  * 그래도 갈리지 않으면 실제로는 타이브레이커 경기를 치른다.
+ *
+ * 팀마다 치른 경기 수가 다를 수 있어(스플릿2+3 합산, 연기 경기) 승수만으로는
+ * 전적이 갈리지 않는다. 16승 6패와 16승 7패는 동률이 아니라 전자가 위다.
+ * 승자승은 '전적이 완전히 같은' 팀들 사이에서만 적용한다.
  */
 export function rankGroup(teams: TeamRow[]): TeamRow[] {
-  const sorted = [...teams].sort((x, y) => y.w - x.w || y.diff - x.diff);
+  const sorted = [...teams].sort((x, y) => y.w - x.w || x.l - y.l || y.diff - x.diff);
 
-  // 승수가 같은 묶음 안에서만 승자승을 적용한다
   const out: TeamRow[] = [];
   let i = 0;
   while (i < sorted.length) {
     let j = i;
-    while (j + 1 < sorted.length && sorted[j + 1].w === sorted[i].w) j++;
+    while (j + 1 < sorted.length && sorted[j + 1].w === sorted[i].w && sorted[j + 1].l === sorted[i].l) j++;
     const block = sorted.slice(i, j + 1);
     if (block.length > 1) {
       const h2hWins = (t: TeamRow) =>
