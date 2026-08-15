@@ -18,9 +18,16 @@
   src:url('/fonts/freesentation-900.woff2') format('woff2')}
 
 :root{
+  /* 기본은 다크. 라이트 팔레트는 아래 @media / [data-theme=light] 에서 덮는다.
+     color-scheme 은 스크롤바·폼 컨트롤 같은 브라우저 기본 UI 색을 따라오게 한다. */
+  color-scheme:dark;
   --canvas:#08090A; --surface:#121315; --surface-card:#17181B; --surface-light:#fff;
   --flame:#FF6A13; --flame-deep:#D8500A; --flame-soft:rgba(255,106,19,.13);
   --ink:#fff; --ink-dark:#0B0B0C;
+  /* --ink 의 반대색. 글자색이 아니라 '--ink 를 배경으로 쓸 때 얹는 색'이다.
+     --ink-dark 와 값이 같아 보이지만 다르다. --ink-dark 는 주황 면 위 글자라 고정이고
+     이쪽은 테마를 따라 뒤집힌다. */
+  --ink-inv:#0B0B0C;
   --body:rgba(255,255,255,.72); --mute:rgba(255,255,255,.44); --faint:rgba(255,255,255,.26);
   --hairline:rgba(255,255,255,.10); --hairline-lt:rgba(0,0,0,.10);
   /* 승리 = LoL VICTORY 화면의 바이올렛. 오렌지와 보색이라 검은 캔버스에서 둘 다 선다 */
@@ -89,8 +96,68 @@
   --sans:'Freesentation',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
 }
 
+/* ==========================================================================
+   라이트 팔레트
+   ==========================================================================
+   기본은 다크다. 라이트는 두 경로로 켜진다.
+     1) OS 가 라이트인데 사용자가 다크를 고른 적이 없을 때
+     2) 사용자가 토글로 라이트를 골랐을 때 (data-theme=light)
+   CSS 에는 믹스인이 없어 같은 블록을 두 선택자에 쓴다. 값이 갈리면 안 되므로
+   한쪽만 고치지 말 것.
+
+   뒤집지 않는 것: --always-light, --video-bg, --video-surface, --on-flame,
+   --ink-dark, --flame, --live. 전부 "테마와 무관하게 어두운 면" 위에 얹히거나
+   그 면 자체다. 여기를 뒤집으면 오히려 안 보인다. */
+@media(prefers-color-scheme:light){
+  :root:not([data-theme=dark]){
+    color-scheme:light;
+    --canvas:#F7F7F8; --surface:#fff; --surface-card:#fff;
+    --ink:#0B0B0C; --ink-inv:#fff;
+    --body:rgba(0,0,0,.74); --mute:rgba(0,0,0,.52); --faint:rgba(0,0,0,.38);
+    --hairline:rgba(0,0,0,.12);
+    --note-ink:#5C5C5E;
+    /* 흰 바닥에서는 밝은 액센트가 서지 않는다. 어두운 쪽으로 옮긴다 */
+    --flame-text:#C4490A; --win:#6C46D9; --loss:#C4282D;
+    --win-soft:rgba(108,70,217,.13); --win-edge:rgba(108,70,217,.30);
+    --loss-soft:rgba(196,40,45,.12);
+    --tint-weave:rgba(0,0,0,.022);
+    --tint-1:rgba(0,0,0,.05); --tint-ghost:rgba(0,0,0,.06); --tint-off:rgba(0,0,0,.06);
+    --tint-2:rgba(0,0,0,.06); --tint-btn:rgba(0,0,0,.07); --tint-3:rgba(0,0,0,.10);
+    --tint-toast:rgba(0,0,0,.10); --tint-track:rgba(0,0,0,.18); --tint-4:rgba(0,0,0,.12);
+    --tint-edge:rgba(0,0,0,.28); --ink-off:rgba(0,0,0,.45); --bar-fill:rgba(0,0,0,.22);
+    /* 선수 카드 사진 하단과 스포일러 가림막은 그 위에 어두운 글자가 얹히므로 밝게 뒤집는다 */
+    --shade:rgba(255,255,255,.88); --veil:rgba(247,247,248,.5);
+    --shadow:rgba(0,0,0,.16);
+    --hero-a:#fff; --hero-b:#EDEDEF;
+    --photo-a:#E9E9EC; --photo-b:#D4D4DA;
+    --avatar-a:#E4E4E8; --avatar-b:#CDCDD4;
+    --toast-bg:rgba(255,255,255,.98);
+  }
+}
+:root[data-theme=light]{
+  color-scheme:light;
+  --canvas:#F7F7F8; --surface:#fff; --surface-card:#fff;
+  --ink:#0B0B0C; --ink-inv:#fff;
+  --body:rgba(0,0,0,.74); --mute:rgba(0,0,0,.52); --faint:rgba(0,0,0,.38);
+  --hairline:rgba(0,0,0,.12);
+  --note-ink:#5C5C5E;
+  --flame-text:#C4490A; --win:#6C46D9; --loss:#C4282D;
+  --win-soft:rgba(108,70,217,.13); --win-edge:rgba(108,70,217,.30);
+  --loss-soft:rgba(196,40,45,.12);
+  --tint-weave:rgba(0,0,0,.022);
+  --tint-1:rgba(0,0,0,.05); --tint-ghost:rgba(0,0,0,.06); --tint-off:rgba(0,0,0,.06);
+  --tint-2:rgba(0,0,0,.06); --tint-btn:rgba(0,0,0,.07); --tint-3:rgba(0,0,0,.10);
+  --tint-toast:rgba(0,0,0,.10); --tint-track:rgba(0,0,0,.18); --tint-4:rgba(0,0,0,.12);
+  --tint-edge:rgba(0,0,0,.28); --ink-off:rgba(0,0,0,.45); --bar-fill:rgba(0,0,0,.22);
+  --shade:rgba(255,255,255,.88); --veil:rgba(247,247,248,.5);
+  --shadow:rgba(0,0,0,.16);
+  --hero-a:#fff; --hero-b:#EDEDEF;
+  --photo-a:#E9E9EC; --photo-b:#D4D4DA;
+  --avatar-a:#E4E4E8; --avatar-b:#CDCDD4;
+  --toast-bg:rgba(255,255,255,.98);
+}
+
 *{box-sizing:border-box;margin:0;padding:0}
-html{color-scheme:dark}
 body{background:var(--canvas);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit}
@@ -146,7 +213,9 @@ button{font-family:inherit}
 
 .chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:var(--r-full);
   border:1px solid var(--hairline);background:transparent;color:var(--body);font-size:12px;font-weight:600;cursor:pointer}
-.chip.on{background:var(--ink);color:var(--ink-dark);border-color:var(--ink)}
+/* 배경이 --ink 이므로 글자는 그 반대색이어야 한다. --ink-dark 를 쓰면 라이트에서
+   검정 위 검정이 된다 */
+.chip.on{background:var(--ink);color:var(--ink-inv);border-color:var(--ink)}
 
 .badge{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 10px;border-radius:var(--r-full);
   font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
@@ -175,6 +244,15 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .mark i:nth-child(1){left:0;height:38%}.mark i:nth-child(2){left:6.5px;height:72%}
 .mark i:nth-child(3){left:13px;height:100%}.mark i:nth-child(4){left:19.5px;height:56%}
 .wordmark{font-family:var(--display);font-size:18px;letter-spacing:.04em}
+.hbar-act{display:flex;align-items:center;gap:var(--s5);flex:none}
+/* 테마 토글 — 보조 동작이라 조용해야 한다.
+   hover 에 배경을 깔면 바로 옆 알림 버튼(면이 채워진 알약)과 무게가 비슷해져
+   형태가 둘 겹쳐 보인다. 그래서 면은 주지 않고 색만 올린다.
+   34px 는 눈에 보이는 크기가 아니라 손가락이 닿는 크기다. */
+.tmode{width:34px;height:34px;border:0;background:transparent;color:var(--mute);
+  display:grid;place-items:center;cursor:pointer;flex:none;transition:color .15s}
+.tmode:hover{color:var(--ink)}
+.tmode:focus-visible{outline:2px solid var(--flame);outline-offset:2px;border-radius:var(--r-full)}
 .topnav{display:flex;gap:var(--s5)}
 .topnav a{color:var(--body);font-size:14px;font-weight:500;padding:19px 0;border-bottom:2px solid transparent}
 .topnav a.on{color:var(--ink);border-bottom-color:var(--flame)}
@@ -184,7 +262,7 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
   background:var(--canvas);border-top:1px solid var(--hairline);
   padding-bottom:var(--safe-b);padding-left:var(--safe-l);padding-right:var(--safe-r)}
 .tabs a{color:var(--mute);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:600}
-.tabs a.on{color:var(--flame)}
+.tabs a.on{color:var(--flame-text)}
 .tabs svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9}
 @media(max-width:860px){.tabs{display:grid}body{padding-bottom:calc(64px + var(--safe-b))}}
 
@@ -245,7 +323,7 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .spoil{position:relative;cursor:pointer;user-select:none}
 .spoil.hid .sc,.spoil.hid .b-win,.spoil.hid .b-loss{filter:blur(9px);opacity:.5}
 .spoil.hid::after{content:'탭해서 결과 보기';position:absolute;inset:0;display:grid;place-items:center;
-  font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--flame);background:var(--veil);border-radius:var(--r-card)}
+  font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--flame-text);background:var(--veil);border-radius:var(--r-card)}
 
 /* ---------- live ---------- */
 /* 방송 중 표시는 LIVE 배지와 테두리가 맡는다. 배경 그라디언트는 장식일 뿐이고,
@@ -263,7 +341,17 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
    흑백·투명도·라운딩을 걸지 않는다 — 치지직은 "형태·색상 변형 금지",
    SOOP 은 "불필요한 변형과 효과 금지, 오리지널 형태와 색상 유지"를 명시한다.
    방송 여부 같은 상태는 아래 .plat 쪽 우리 UI 로 나타낸다. */
-.pmark{width:18px;height:18px;object-fit:contain;flex:none}
+.pmark{width:18px;height:18px;flex:none;background-repeat:no-repeat;background-position:center;background-size:contain}
+.pmark-chzzk{background-image:url(/brand/chzzk.png)}
+.pmark-soop{background-image:url(/brand/soop.svg)}
+.pmark-youtube{background-image:url(/brand/youtube.svg)}
+/* 라이트에서는 SOOP 공식 Blue 심볼로 바꾼다. 브랜드 블루(#0545b1)는 어두운 면에서
+   거의 안 보이고 White 심볼은 밝은 면에서 안 보인다. 우리가 색을 만드는 것이 아니라
+   SOOP 이 배포하는 두 변형 중 배경에 맞는 것을 고르는 것이라 변형 금지에 걸리지 않는다. */
+@media(prefers-color-scheme:light){
+  :root:not([data-theme=dark]) .pmark-soop{background-image:url(/brand/soop-blue.svg)}
+}
+:root[data-theme=light] .pmark-soop{background-image:url(/brand/soop-blue.svg)}
 /* 방송 중이 아닌 채널 — 마크는 그대로 두고 우리 쪽 라벨만 눌러 표시한다 */
 .plat.idle{color:var(--mute)}
 .plat.on{background:var(--tint-3);color:var(--ink);border-color:var(--tint-edge)}
@@ -301,7 +389,7 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .plist{border-top:1px solid var(--hairline)}
 .prow{display:flex;align-items:center;gap:var(--s4);padding:15px 0;border-bottom:1px solid var(--hairline);cursor:pointer;
   background:0;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;color:inherit}
-.prow:hover .ti{color:var(--flame)}
+.prow:hover .ti{color:var(--flame-text)}
 .prow .bd{font-size:12px;font-weight:600;color:var(--flame-text);width:76px;flex:none}
 .prow .ti{flex:1;font-size:15px;font-weight:500;transition:color .15s;min-width:0}
 .prow .st{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums;display:flex;gap:14px;flex:none;align-items:center}
