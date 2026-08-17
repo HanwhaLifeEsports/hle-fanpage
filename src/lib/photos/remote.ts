@@ -33,6 +33,7 @@ export const remoteBackend: PhotoBackend = {
 
   async load() {
     const sb = supabase()!;
+    // 보기만 할 때는 계정을 만들지 않는다. 이미 있으면 쓰고, 없으면 없는 대로 읽는다
     const uid = await anonId();
 
     // 하트 순은 인덱스가 잡혀 있다. hidden 은 RLS 가 이미 걸러 준다
@@ -43,9 +44,13 @@ export const remoteBackend: PhotoBackend = {
       .order('created_at', { ascending: false });
     if (error) throw error;
 
-    // 내가 누른 하트만 따로 읽는다. 남이 누구를 눌렀는지는 RLS 가 안 준다
-    const { data: mine } = await sb.from('fan_hearts').select('photo_id');
-    const mineSet = new Set((mine ?? []).map((m) => m.photo_id as string));
+    // 내가 누른 하트만 따로 읽는다. 남이 누구를 눌렀는지는 RLS 가 안 준다.
+    // 아직 계정이 없으면 누른 것도 없으니 물어볼 것이 없다
+    const mineSet = new Set<string>();
+    if (uid) {
+      const { data: mine } = await sb.from('fan_hearts').select('photo_id');
+      for (const m of mine ?? []) mineSet.add(m.photo_id as string);
+    }
 
     return (rows as Row[]).map((r) => ({
       id: r.id,
@@ -62,7 +67,7 @@ export const remoteBackend: PhotoBackend = {
 
   async add(playerId, blob) {
     const sb = supabase()!;
-    const uid = await anonId();
+    const uid = await anonId(true);
     if (!uid) throw new Error('익명 로그인에 실패했습니다');
 
     const path = `${playerId}/${crypto.randomUUID()}.jpg`;
@@ -96,7 +101,7 @@ export const remoteBackend: PhotoBackend = {
 
   async setHeart(id, on) {
     const sb = supabase()!;
-    const uid = await anonId();
+    const uid = await anonId(true);
     if (!uid) throw new Error('익명 로그인에 실패했습니다');
 
     // hearts 집계는 트리거가 맞춘다. 여기서는 내 한 표만 넣고 뺀다
@@ -108,7 +113,7 @@ export const remoteBackend: PhotoBackend = {
 
   async report(id) {
     const sb = supabase()!;
-    if (!(await anonId())) throw new Error('익명 로그인에 실패했습니다');
+    if (!(await anonId(true))) throw new Error('익명 로그인에 실패했습니다');
     const { error } = await sb.from('fan_reports').insert({ photo_id: id });
     // 같은 사람이 두 번 신고하면 기본키에 걸린다. 이미 내려간 상태라 문제가 아니다
     if (error && error.code !== '23505') throw error;

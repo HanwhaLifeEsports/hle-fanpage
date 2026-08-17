@@ -37,15 +37,21 @@ let signingIn: Promise<string | null> | null = null;
  * 막는 기준이 이 id 이고, 표의 기본키가 (사진, 이 id) 라 데이터베이스가 구조로
  * 한 번만 허용한다.
  *
+ * create 를 켤 때만 새로 만든다. 익명 사용자도 auth.users 에 행으로 쌓이므로,
+ * 사진을 건드리지도 않은 방문자마다 계정을 만들면 남의 데이터베이스를 우리가
+ * 불려 놓는 셈이 된다. 읽기는 로그인 없이도 되니 볼 때는 만들지 않고,
+ * 하트·업로드·신고처럼 실제로 쓰는 순간에만 만든다.
+ *
  * 완벽하지는 않다. 시크릿 창을 열면 새 id 가 된다. 로그인이 붙기 전까지는
  * 하트가 조작 가능하다는 뜻이고, 그 위험은 감수하고 시작하는 것이다.
  */
-export async function anonId(): Promise<string | null> {
+export async function anonId(create = false): Promise<string | null> {
   const sb = supabase();
   if (!sb) return null;
 
   const { data } = await sb.auth.getSession();
   if (data.session) return data.session.user.id;
+  if (!create) return null;
 
   // 동시에 여러 번 불려도 로그인은 한 번만
   signingIn ??= sb.auth
