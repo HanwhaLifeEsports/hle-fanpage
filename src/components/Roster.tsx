@@ -7,7 +7,7 @@ import { Star, X } from 'lucide-react';
 import { patchState, toast, useApp } from '@/lib/useAppState';
 import type { PlayerStat, StatMap } from '@/lib/naver';
 import PhotoGallery from './PhotoGallery';
-import { topFor, useFanPhotos, type FanPhoto } from '@/lib/fanPhotos';
+import { topFor, useFanPhotos, type FanPhoto } from '@/lib/photos';
 
 /**
  * 선수 사진 표시 스위치.

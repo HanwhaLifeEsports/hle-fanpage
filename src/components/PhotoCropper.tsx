@@ -13,7 +13,7 @@ import {
   type Corner,
   type CropRect,
 } from '@/lib/crop';
-import { FAN_OUT_H, FAN_OUT_W, FAN_RATIO, addFanPhoto } from '@/lib/fanPhotos';
+import { FAN_OUT_H, FAN_OUT_W, FAN_RATIO, addFanPhoto } from '@/lib/photos';
 import { toast } from '@/lib/useAppState';
 
 /** 원본 상한. 이보다 크면 디코드부터 느려지고, 어차피 잘라서 줄여 내보낸다 */

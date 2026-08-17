@@ -1,9 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, Flag, Heart, ImagePlus, X } from 'lucide-react';
+import { ArrowLeft, Flag, Heart, ImagePlus, Trash2, X } from 'lucide-react';
 import PhotoCropper from './PhotoCropper';
-import { heartFanPhoto, reportFanPhoto, useFanPhotos, visibleFor, type FanPhoto } from '@/lib/fanPhotos';
+import {
+  heartFanPhoto,
+  removeFanPhoto,
+  reportFanPhoto,
+  sharedHearts,
+  useFanPhotos,
+  visibleFor,
+  type FanPhoto,
+} from '@/lib/photos';
 import { toast } from '@/lib/useAppState';
 
 /** 확대 보기 — 하트와 신고는 여기서만 받는다. 격자 칸은 너무 작아 오조작이 난다 */
@@ -12,7 +20,13 @@ function Viewer({ photo, onBack }: { photo: FanPhoto; onBack: () => void }) {
 
   const report = () => {
     void reportFanPhoto(photo.id);
-    toast('신고를 접수했습니다', '해당 사진을 화면에서 즉시 내렸습니다.');
+    toast('신고를 접수했습니다', '해당 사진을 즉시 내렸습니다.');
+    onBack();
+  };
+
+  const drop = () => {
+    void removeFanPhoto(photo.id);
+    toast('사진을 지웠습니다', '갤러리에서 제거했습니다.');
     onBack();
   };
 
@@ -41,17 +55,23 @@ function Viewer({ photo, onBack }: { photo: FanPhoto; onBack: () => void }) {
 
         {confirming ? (
           <span className="greport">
-            <span className="cap">내릴까요?</span>
-            <button className="btn btn-ghost btn-sm" onClick={report}>
-              신고
+            <span className="cap">{photo.owned ? '지울까요?' : '내릴까요?'}</span>
+            <button className="btn btn-ghost btn-sm" onClick={photo.owned ? drop : report}>
+              {photo.owned ? '삭제' : '신고'}
             </button>
             <button className="iconbtn" onClick={() => setConfirming(false)} aria-label="취소">
               <X size={13} />
             </button>
           </span>
         ) : (
-          <button className="iconbtn" onClick={() => setConfirming(true)} aria-label="신고">
-            <Flag size={14} />
+          // 내가 올린 사진은 신고가 아니라 삭제다. 남의 사진을 내리는 것과
+          // 내 사진을 거두는 것은 다른 행동이라 버튼도 다르게 둔다
+          <button
+            className="iconbtn"
+            onClick={() => setConfirming(true)}
+            aria-label={photo.owned ? '삭제' : '신고'}
+          >
+            {photo.owned ? <Trash2 size={14} /> : <Flag size={14} />}
           </button>
         )}
       </div>
@@ -120,9 +140,11 @@ export default function PhotoGallery({
               </button>
             ))}
           </div>
+          {/* 하트가 공유되지 않는 상태를 조용히 두면, 사용자는 자기 하트가
+              남에게 보인다고 오해한다. 어느 쪽인지 그대로 말한다 */}
           <p className="note">
-            하트가 가장 많은 사진이 선수 카드에 걸립니다. 지금은 이 브라우저에만 저장되어 하트도 이 기기에서만
-            세어집니다.
+            하트가 가장 많은 사진이 선수 카드에 걸립니다.
+            {!sharedHearts && ' 지금은 이 브라우저에만 저장되어 하트도 이 기기에서만 세어집니다.'}
           </p>
         </>
       )}
