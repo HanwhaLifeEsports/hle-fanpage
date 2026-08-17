@@ -419,9 +419,9 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
   background:var(--glass);color:var(--always-light);font-size:11px;line-height:1;
   padding:3px 6px;border-radius:var(--r-full);font-variant-numeric:tabular-nums}
 .gtile .hcount.on{color:var(--flame)}
-/* 공식 사진 표시. 하트 자리와 겹치지 않게 반대쪽 위에 둔다 */
-.gtile .otag{position:absolute;left:5px;top:5px;background:var(--flame);color:var(--on-flame);
-  font-size:10px;font-weight:700;letter-spacing:.06em;line-height:1;padding:3px 5px;border-radius:2px}
+/* 지금 선수 카드에 걸려 있는 사진. 하트 자리와 겹치지 않게 반대쪽 위에 둔다 */
+.gtile .rtag{position:absolute;left:5px;top:5px;background:var(--flame);color:var(--on-flame);
+  font-size:10px;font-weight:700;letter-spacing:.02em;line-height:1;padding:3px 5px;border-radius:2px}
 
 /* 확대 보기 */
 .gbig{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--photo-b)}

@@ -118,6 +118,9 @@ export default function PhotoGallery({
   const [adding, setAdding] = useState(false);
   const [viewing, setViewing] = useState<string | null>(null);
 
+  // visibleFor 가 하트 많은 순으로 준다. 하트가 0이면 대표가 아니다
+  const repId = photos[0]?.hearts > 0 ? photos[0].id : null;
+
   if (viewing === OFFICIAL && official)
     return <OfficialViewer photo={official} onBack={() => setViewing(null)} />;
   const open = viewing ? photos.find((p) => p.id === viewing) : null;
@@ -156,19 +159,21 @@ export default function PhotoGallery({
         </div>
       ) : (
         <>
-          {/* 하트 많은 순으로 3열. 첫 칸이 곧 지금 카드에 걸려 있는 사진이다 */}
+          {/* 하트 많은 순으로 3열 */}
           <div className="ggrid">
             {official && (
               <button className="gtile" onClick={() => setViewing(OFFICIAL)}>
                 {/* eslint-disable-next-line @next/next/no-img-element -- 격자 썸네일 */}
                 <img src={official.src} alt="" />
-                <span className="otag">공식</span>
               </button>
             )}
             {photos.map((p) => (
               <button key={p.id} className="gtile" onClick={() => setViewing(p.id)}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- 브라우저 저장소의 objectURL */}
+                {/* eslint-disable-next-line @next/next/no-img-element -- 저장소가 준 주소 */}
                 <img src={p.url} alt="" />
+                {/* 하트를 받아 실제로 카드에 걸린 사진에만 붙인다. 0하트에도 붙이면
+                    '대표' 가 그냥 목록의 첫 칸이라는 뜻이 되어 버린다 */}
+                {p.id === repId && <span className="rtag">대표사진</span>}
                 <span className={`hcount${p.mine ? ' on' : ''}`}>
                   <Heart size={11} fill={p.mine ? 'currentColor' : 'none'} />
                   {p.hearts}
