@@ -135,9 +135,29 @@ export function visibleFor(all: FanPhoto[], playerId: string): FanPhoto[] {
     .sort((a, b) => b.hearts - a.hearts || b.createdAt.localeCompare(a.createdAt));
 }
 
-/** 카드에 올릴 사진 — 하트가 가장 많은 것. 동률이면 최근 것 */
+/** 하트가 가장 많은 팬 사진. 동률이면 최근 것 */
 export function topFor(all: FanPhoto[], playerId: string): FanPhoto | null {
   return visibleFor(all, playerId)[0] ?? null;
+}
+
+/**
+ * 선수 카드에 실제로 걸리는 팬 사진. null 이면 공식 사진이 걸린다.
+ *
+ * 공식 사진이 있는 선수는 팬 사진이 하트를 받아야 이긴다. 올리자마자 0하트로
+ * 대표 자리를 가져가면 검증된 사진이 검증 없는 사진에 밀리는 셈이다.
+ * 공식 사진이 없는 선수는 비교 대상이 없으므로 0하트라도 바로 건다.
+ *
+ * 화면 두 곳(카드 렌더, 갤러리의 '대표사진' 표시)이 이 판단을 함께 쓴다.
+ * 각자 계산하면 언젠가 서로 다른 사진을 대표라고 부르게 된다.
+ */
+export function cardFanPhoto(
+  all: FanPhoto[],
+  playerId: string,
+  hasOfficial: boolean,
+): FanPhoto | null {
+  const top = topFor(all, playerId);
+  if (!top) return null;
+  return top.hearts > 0 || !hasOfficial ? top : null;
 }
 
 export function useFanPhotos(): FanPhoto[] {

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ArrowLeft, Flag, Heart, ImagePlus, Trash2, X } from 'lucide-react';
 import PhotoCropper from './PhotoCropper';
 import {
+  cardFanPhoto,
   heartFanPhoto,
   removeFanPhoto,
   reportFanPhoto,
@@ -118,8 +119,9 @@ export default function PhotoGallery({
   const [adding, setAdding] = useState(false);
   const [viewing, setViewing] = useState<string | null>(null);
 
-  // visibleFor 가 하트 많은 순으로 준다. 하트가 0이면 대표가 아니다
-  const repId = photos[0]?.hearts > 0 ? photos[0].id : null;
+  // 카드 렌더와 같은 판단을 쓴다. 여기서 따로 계산하면 언젠가 서로 다른 사진을
+  // 대표라고 부르게 된다
+  const repId = cardFanPhoto(all, playerId, !!official)?.id ?? null;
 
   if (viewing === OFFICIAL && official)
     return <OfficialViewer photo={official} onBack={() => setViewing(null)} />;
@@ -171,8 +173,7 @@ export default function PhotoGallery({
               <button key={p.id} className="gtile" onClick={() => setViewing(p.id)}>
                 {/* eslint-disable-next-line @next/next/no-img-element -- 저장소가 준 주소 */}
                 <img src={p.url} alt="" />
-                {/* 하트를 받아 실제로 카드에 걸린 사진에만 붙인다. 0하트에도 붙이면
-                    '대표' 가 그냥 목록의 첫 칸이라는 뜻이 되어 버린다 */}
+                {/* 지금 실제로 카드에 걸려 있는 사진에만 붙인다 */}
                 {p.id === repId && <span className="rtag">대표사진</span>}
                 <span className={`hcount${p.mine ? ' on' : ''}`}>
                   <Heart size={11} fill={p.mine ? 'currentColor' : 'none'} />

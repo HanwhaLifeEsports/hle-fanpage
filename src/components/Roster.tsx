@@ -7,7 +7,7 @@ import { Star, X } from 'lucide-react';
 import { patchState, toast, useApp } from '@/lib/useAppState';
 import type { PlayerStat, StatMap } from '@/lib/naver';
 import PhotoGallery from './PhotoGallery';
-import { topFor, useFanPhotos, type FanPhoto } from '@/lib/photos';
+import { cardFanPhoto, useFanPhotos, type FanPhoto } from '@/lib/photos';
 import type { ChampionMap } from '@/lib/champions';
 
 /**
@@ -20,19 +20,6 @@ import type { ChampionMap } from '@/lib/champions';
  */
 const PHOTOS_ON = process.env.NEXT_PUBLIC_PLAYER_PHOTOS !== 'off';
 
-/**
- * 카드에 걸 사진을 고른다.
- *
- * 팬 사진이 운영자 사진을 밀어내려면 하트를 실제로 받아야 한다. 올리자마자
- * 0하트로 대표 자리를 가져가면, 검증된 사진이 아무 검증 없는 사진에 밀리는 셈이다.
- * 운영자 사진이 없는 선수는 그런 비교 대상이 없으므로 0하트라도 바로 건다.
- */
-function cardPhoto(p: Player, fan: FanPhoto | null) {
-  if (!PHOTOS_ON) return null;
-  if (fan && (fan.hearts > 0 || !p.photo)) return { fan };
-  return p.photo ? { official: p.photo } : null;
-}
-
 function Card({
   p,
   st,
@@ -42,12 +29,13 @@ function Card({
 }: {
   p: Player;
   st?: PlayerStat;
-  /** 하트가 가장 많은 팬 사진 */
+  /** 카드에 걸릴 팬 사진. 없으면 공식 사진으로 떨어진다 (cardFanPhoto) */
   fan: FanPhoto | null;
   onOpen: () => void;
   fav: boolean;
 }) {
-  const shot = cardPhoto(p, fan);
+  // 판단은 cardFanPhoto 가 이미 끝냈다. 여기서는 무엇을 그릴지만 정한다
+  const shot = !PHOTOS_ON ? null : fan ? { fan } : p.photo ? { official: p.photo } : null;
   return (
     <button className="pcard" onClick={onOpen}>
       <div className="ph">
@@ -118,7 +106,7 @@ export default function RosterRail({
             key={p.id}
             p={p}
             st={stats?.[p.naverId]}
-            fan={topFor(fanPhotos, p.id)}
+            fan={cardFanPhoto(fanPhotos, p.id, !!p.photo)}
             fav={fav === p.id}
             onOpen={() => setOpen(p)}
           />
