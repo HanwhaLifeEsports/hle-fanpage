@@ -11,9 +11,12 @@
  *    응답에 있는 이름을 그대로 쓴다.
  *  - 대진 경기 13개가 전부 getSchedule 에도 있고 id 가 같다. 날짜는 거기서 붙인다.
  *    대진표 응답에는 시각이 없다.
- *  - 각 자리에 origin 이 있어 "정규 몇 번 시드" 인지 "어느 경기 승자" 인지 알 수
- *    있지만, slot 번호가 무엇을 뜻하는지는 응답만으로 확정할 수 없어 쓰지 않는다.
- *    지어낸 시드 표기를 띄우느니 미정으로 두는 편이 낫다.
+ *  - 각 자리에 origin 이 있다. 2025 완료 데이터로 slot 의 뜻을 확정했다:
+ *      type='match'         slot 1 = 승자 (12/12), slot 2 = 패자 (6/6) — 18개 전부 일치
+ *      type='decisionPoint' slot 은 순위가 아니라 대진표상의 자리다.
+ *                           2025 본선에서 slot 5·6 이 정규 1·2위였다.
+ *    그래서 승자/패자 연결만 자리마다 쓰고, 시드는 자리가 아니라 '칸' 단위로 적는다.
+ *    어느 자리가 3위이고 어느 자리가 4위인지는 응답으로 알 수 없다.
  */
 
 import type { MatchRow } from './lolesports';
@@ -27,6 +30,8 @@ export interface BracketTeam {
   win: boolean | null;
   /** 아직 정해지지 않은 자리 */
   tbd: boolean;
+  /** 미정 자리에 무엇이 들어오는가 — "1라운드 승자". 모르면 null */
+  from: string | null;
 }
 
 export interface BracketMatch {
@@ -70,38 +75,45 @@ export interface RawBracketStage {
         slug: string;
         matches?: {
           id: string;
+          structuralId?: string;
           state: BracketMatch['state'];
-          teams?: ({
-            code?: string;
-            name?: string;
-            image?: string;
-            result?: { outcome: 'win' | 'loss'; gameWins: number } | null;
-          } | null)[];
+          teams?: (RawTeam | null)[];
         }[];
       }[];
     }[];
   }[];
 }
 
-const TBD: BracketTeam = {
+const tbdTeam = (from: string | null): BracketTeam => ({
   code: 'TBD',
   name: '미정',
   image: '',
   games: null,
   win: null,
   tbd: true,
-};
+  from,
+});
 
 interface RawTeam {
   code?: string;
   name?: string;
   image?: string;
   result?: { outcome: 'win' | 'loss'; gameWins: number } | null;
+  origin?: { structuralId: string; type: string; slot: number } | null;
 }
 
 /** 빈 자리는 teams 가 아예 없거나 code 가 'TBD' 로 온다. 둘 다 미정으로 본다 */
-function toTeam(t: RawTeam | null | undefined): BracketTeam {
-  if (!t || !t.code || t.code === 'TBD') return TBD;
+function toTeam(t: RawTeam | null | undefined, cellOf: Map<string, string>): BracketTeam {
+  if (!t || !t.code || t.code === 'TBD') {
+    const o = t?.origin;
+    let from: string | null = null;
+    if (o?.type === 'match') {
+      const src = cellOf.get(o.structuralId);
+      // slot 1 = 승자, 2 = 패자. 2025 데이터 18건으로 확인했다
+      if (src) from = `${src} ${o.slot === 1 ? '승자' : '패자'}`;
+    }
+    return tbdTeam(from);
+  }
   return {
     code: t.code,
     name: t.name ?? t.code,
@@ -109,6 +121,7 @@ function toTeam(t: RawTeam | null | undefined): BracketTeam {
     games: t.result?.gameWins ?? null,
     win: t.result ? t.result.outcome === 'win' : null,
     tbd: false,
+    from: null,
   };
 }
 
@@ -120,6 +133,20 @@ function toTeam(t: RawTeam | null | undefined): BracketTeam {
  */
 export function buildBracket(stages: RawBracketStage[], matches: MatchRow[]): BracketStage[] {
   const when = new Map(matches.map((m) => [m.id, m.startTime]));
+
+  // structuralId -> 그 경기가 속한 칸 이름. 승자/패자가 어디서 오는지 적을 때 쓴다
+  const cellOf = new Map<string, string>();
+  for (const st of stages) {
+    for (const sec of st.sections ?? []) {
+      for (const col of sec.columns ?? []) {
+        for (const cell of col.cells ?? []) {
+          for (const m of cell.matches ?? []) {
+            if (m.structuralId) cellOf.set(m.structuralId, cell.name);
+          }
+        }
+      }
+    }
+  }
 
   return stages
     .map((st) => ({
@@ -136,13 +163,42 @@ export function buildBracket(stages: RawBracketStage[], matches: MatchRow[]): Br
               id: m.id,
               state: m.state,
               startTime: when.get(m.id) ?? null,
-              teams: [toTeam(m.teams?.[0]), toTeam(m.teams?.[1])] as [BracketTeam, BracketTeam],
+              teams: [toTeam(m.teams?.[0], cellOf), toTeam(m.teams?.[1], cellOf)] as [
+                BracketTeam,
+                BracketTeam,
+              ],
             })),
           })),
         }))
         .filter((col) => col.cells.length > 0),
     }))
     .filter((st) => st.columns.length > 0);
+}
+
+/**
+ * 각 라운드에 어느 순위가 들어오는가.
+ *
+ * 이 값은 API 가 주지 않는다. decisionPoint 의 slot 은 순위가 아니라 자리 번호라
+ * 거기서 읽어낼 수 없다. 대신 LCK 포맷은 우리가 이미 알고 있고 lck2026.ts 의
+ * SEASON 에 적어 두었다 — 그 지식을 칸 이름에 붙인다.
+ *
+ * 2025 완료 데이터와 대조해 맞는 것을 확인했다: 상위권 2라운드에 정규 1·2위가
+ * 있었고(HLE, GEN), 1라운드에는 3·4위와 플레이-인 통과 팀이 있었다.
+ *
+ * 자리마다 "3위" "4위" 를 박지 않는 이유: 한 칸 안에서 어느 쪽이 3위인지는
+ * 응답으로 알 수 없다. 칸 단위로만 적는다.
+ *
+ * 포맷이 바뀌면 여기와 SEASON 을 함께 고쳐야 한다.
+ */
+export function seedNote(stageSlug: string, cellSlug: string): string | null {
+  if (stageSlug === 'play_ins') {
+    if (cellSlug === 'round_1') return '레전드 5위 · 라이즈 1~3위';
+    return null;
+  }
+  // 본선. slug 는 해마다 바뀌지만(playoffs / regional_championship) 칸 이름은 같다
+  if (cellSlug === 'round_1') return '레전드 3~4위 · 플레이-인 통과';
+  if (cellSlug === 'upper_bracket_round_2') return '레전드 1~2위 직행';
+  return null;
 }
 
 /** 대진이 하나라도 확정됐는가 — 아직이면 화면에서 확률을 대신 보여준다 */

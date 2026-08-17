@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { fmtDate } from '@/lib/format';
-import type { BracketMatch, BracketStage, BracketTeam } from '@/lib/bracket';
+import { seedNote, type BracketMatch, type BracketStage, type BracketTeam } from '@/lib/bracket';
 
 /**
  * 포스트시즌 대진표.
@@ -23,7 +23,9 @@ function Side({ t, ourTag }: { t: BracketTeam; ourTag: string }) {
       ) : (
         <Image className="bemblem" src={t.image} alt="" width={22} height={22} unoptimized />
       )}
-      <span className="bcode">{t.tbd ? '미정' : t.code}</span>
+      {/* 미정 자리에는 무엇이 들어오는지를 적는다. 그냥 '미정' 만 늘어놓으면
+          대진표를 봐도 흐름을 알 수 없다 */}
+      <span className="bcode">{t.tbd ? (t.from ?? '미정') : t.code}</span>
       <span className="bscore">{t.games ?? '-'}</span>
     </div>
   );
@@ -54,7 +56,12 @@ export default function Bracket({ stages, ourTag }: { stages: BracketStage[]; ou
                 <div className="bcol" key={i}>
                   {col.cells.map((cell) => (
                     <div className="bcell" key={cell.slug}>
-                      <div className="bcellname">{cell.name}</div>
+                      <div className="bcellname">
+                        {cell.name}
+                        {seedNote(st.slug, cell.slug) && (
+                          <span className="bseed">{seedNote(st.slug, cell.slug)}</span>
+                        )}
+                      </div>
                       {cell.matches.map((m) => (
                         <Match key={m.id} m={m} ourTag={ourTag} />
                       ))}
