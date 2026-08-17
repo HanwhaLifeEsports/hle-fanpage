@@ -135,6 +135,14 @@ export interface Player {
   pos: 'TOP' | 'JGL' | 'MID' | 'BOT' | 'SUP';
   /** 실제 등번호 */
   no: string;
+  /**
+   * 네이버 e스포츠 선수 id — POM 포인트와 기록을 붙이는 연결 키 (src/lib/naver.ts).
+   *
+   * 닉네임으로 맞추지 않는 이유: 표기가 바뀌면(대소문자, 개명) 조용히 어긋나고
+   * 화면에서는 그냥 기록이 없는 선수로 보인다. id 는 바뀌지 않는다.
+   * 값은 /service/v1/ranking/lck_2026/player 응답의 playerId 에서 확인한다.
+   */
+  naverId: string;
   /** 대표 챔피언 — 2026 시즌 경기에서 반복해 고른 픽 */
   champs: string[];
   /** 2026 시즌 합류 여부 */
@@ -142,12 +150,12 @@ export interface Player {
 }
 
 export const PLAYERS: Player[] = [
-  // 등번호는 실제 값
-  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', champs: ['잭스', '그웬', '케넨'] },
-  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
-  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', champs: ['아지르', '오리아나', '실라스'] },
-  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', champs: ['징크스', '제리', '칼리스타'], joined2026: true },
-  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', champs: ['노틸러스', '레나타', '알리스타'] },
+  // 등번호는 실제 값. naverId 는 2026-08-17 응답 기준으로 확인했다
+  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', champs: ['잭스', '그웬', '케넨'] },
+  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
+  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', champs: ['아지르', '오리아나', '실라스'] },
+  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', naverId: '10320', champs: ['징크스', '제리', '칼리스타'], joined2026: true },
+  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', champs: ['노틸러스', '레나타', '알리스타'] },
 ];
 
 export const STAFF = [

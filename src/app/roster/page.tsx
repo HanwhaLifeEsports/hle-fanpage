@@ -1,5 +1,6 @@
 import RosterRail from '@/components/Roster';
 import { PLAYERS, STAFF } from '@/lib/lck2026';
+import { getPlayerStats } from '@/lib/naver';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -7,14 +8,18 @@ export const metadata: Metadata = {
   description: '2026 시즌 한화생명e스포츠 로스터와 코칭스태프.',
 };
 
-export default function RosterPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function RosterPage() {
   const joined = PLAYERS.filter((p) => p.joined2026);
+  // 못 가져오면 null 이 온다. 카드는 등번호로 되돌아가고 나머지는 그대로 뜬다
+  const stats = await getPlayerStats();
 
   return (
     <div className="wrap sec">
       <h2 className="ko ptitle">선수단 2026</h2>
       <p className="lede" style={{ margin: '10px 0 var(--s5)' }}>
-        카드를 누르면 프로필이 열립니다. 최애 선수로 지정하면 그 선수 알림만 따로 받을 수 있어요.
+        카드를 누르면 정규시즌 기록이 열립니다. 최애 선수로 지정하면 그 선수 알림만 따로 받아요.
       </p>
 
       {joined.length > 0 && (
@@ -29,7 +34,7 @@ export default function RosterPage() {
         </div>
       )}
 
-      <RosterRail />
+      <RosterRail stats={stats} />
 
       <div className="shead" style={{ marginTop: 'var(--s7)' }}>
         <h2 className="ko">코칭스태프</h2>
