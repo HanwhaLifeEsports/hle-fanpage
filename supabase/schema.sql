@@ -100,6 +100,20 @@ create trigger fan_reports_hide
   after insert on public.fan_reports
   for each row execute function public.hide_on_report();
 
+-- 최근 10분 동안 이 사람이 올린 장수. 도배 제한이 쓴다.
+--
+-- security definer 인 것이 핵심이다. 정책 안에 서브쿼리로 직접 세면 그 서브쿼리도
+-- RLS 를 타서, 가려진 사진(hidden)이 개수에서 빠진다. 그러면 5장 올리고 자기
+-- 사진을 자기가 신고하는 것만으로 한도가 초기화된다 — 가려진 사진의 파일은
+-- 저장소에 그대로 남으므로 저장소를 무제한으로 채울 수 있다.
+--
+-- uid 를 인자로 받지 않는 것도 일부러다. 받으면 남의 id 를 넘겨 한도를 우회한다.
+create or replace function public.recent_upload_count()
+returns int language sql security definer stable set search_path = public as $$
+  select count(*)::int from public.fan_photos
+  where owner = auth.uid() and created_at > now() - interval '10 minutes'
+$$;
+
 -- ---------------------------------------------------------------------
 -- 권한 (RLS)
 -- ---------------------------------------------------------------------
@@ -117,7 +131,9 @@ create policy "사진 읽기" on public.fan_photos
 
 -- 쓰기: 본인 명의로만, 확인란을 통과한 것만.
 -- 마지막 조건은 도배 제한이다 — 10분에 5장. 계정이 없으니 사람 단위가 아니라
--- 익명 id 단위지만, 창을 새로 여는 수고를 매번 들이게 만드는 것만으로 충분히 걸린다
+-- 익명 id 단위지만, 창을 새로 여는 수고를 매번 들이게 만드는 것만으로 충분히 걸린다.
+-- 개수는 반드시 recent_upload_count() 로 센다. 여기에 서브쿼리를 직접 쓰면
+-- 그 서브쿼리가 RLS 를 타서 가려진 사진이 빠진다 (함수 주석 참고)
 drop policy if exists "사진 올리기" on public.fan_photos;
 create policy "사진 올리기" on public.fan_photos
   for insert to authenticated
@@ -126,13 +142,16 @@ create policy "사진 올리기" on public.fan_photos
     and attested = true
     and hidden = false
     and hearts = 0
-    and (
-      select count(*) from public.fan_photos p
-      where p.owner = auth.uid() and p.created_at > now() - interval '10 minutes'
-    ) < 5
+    and public.recent_upload_count() < 5
   );
 
--- 수정 정책은 두지 않는다. hearts 와 hidden 은 트리거만 건드린다
+-- 수정 정책은 두지 않는다. hearts 와 hidden 은 트리거만 건드린다.
+--
+-- 삭제는 본인 사진만. 다만 가려진 사진은 이 정책으로도 지워지지 않는다.
+-- PostgreSQL 은 DELETE 의 WHERE 가 컬럼을 참조하면 SELECT 정책을 함께 적용하는데,
+-- 가려진 행은 SELECT 정책에 안 걸려 애초에 대상이 되지 않는다. 에러 없이 0행이 지워진다.
+-- 의도한 결과다 — 신고로 내려간 것을 올린 사람이 치워 증거를 없애는 일이 없어야 한다.
+-- 대신 정리는 운영자 몫이고, 아래 운영 메모의 쿼리를 쓴다.
 drop policy if exists "본인 사진 삭제" on public.fan_photos;
 create policy "본인 사진 삭제" on public.fan_photos
   for delete to authenticated
@@ -219,8 +238,13 @@ create policy "팬 사진 지우기" on storage.objects
 -- 운영 메모
 -- ---------------------------------------------------------------------
 --
--- 가려진 사진 보기:
+-- 가려진 사진 보기 (클라이언트에서는 아무에게도 안 보인다):
 --   select * from fan_photos where hidden order by created_at desc;
+--
+-- 가려진 지 오래된 것 치우기. 올린 사람도 지울 수 없으므로 여기서만 정리된다.
+-- 저장소 파일은 Storage > fan-photos 에서 같은 path 를 함께 지운다:
+--   select path from fan_photos where hidden and created_at < now() - interval '30 days';
+--   delete from fan_photos where hidden and created_at < now() - interval '30 days';
 --
 -- 근거 없는 신고를 되돌리기:
 --   update fan_photos set hidden = false where id = '...';
