@@ -12,6 +12,8 @@
  *    플레이-인 · 플레이오프 · 결승 · 토너먼트 스테이지는 제외.
  */
 
+import { buildBracket, type BracketStage, type RawBracketStage } from './bracket';
+
 const API = 'https://esports-api.lolesports.com/persisted/gw';
 
 /** 공개 클라이언트 키 (lolesports.com 웹이 그대로 노출해 쓰는 값) */
@@ -73,6 +75,8 @@ export interface Season {
   legend: TeamRow[];
   rise: TeamRow[];
   matches: MatchRow[];
+  /** 포스트시즌 대진표. 팀이 정해지기 전에도 뼈대가 내려온다 */
+  bracket: BracketStage[];
 }
 
 async function call<T>(path: string): Promise<T> {
@@ -95,6 +99,7 @@ interface RawStandings {
       name: string;
       stages: {
         slug: string;
+        name: string;
         sections: {
           name: string;
           rankings: {
@@ -223,7 +228,8 @@ export async function fetchStandings(tournamentId: string) {
       }
     }
   }
-  return { name: st.name, teams: out };
+  // 대진표는 같은 응답에 들어 있다. 따로 부르지 않는다
+  return { name: st.name, teams: out, stages: st.stages as unknown as RawBracketStage[] };
 }
 
 /* ------------------------------------------------------------------ */
@@ -313,6 +319,7 @@ export function buildSeason(
     legend: rankGroup(rows.filter((t) => t.group === 'legend')),
     rise: rankGroup(rows.filter((t) => t.group === 'rise')),
     matches,
+    bracket: buildBracket(s3.stages, matches),
   };
 }
 

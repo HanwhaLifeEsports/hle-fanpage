@@ -549,3 +549,39 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 .bar .bt i{display:block;height:100%;background:var(--bar-fill);border-radius:var(--r-full)}
 .bar .bv{font-size:14px;text-align:right;font-weight:400}
 @media(max-width:560px){.bar{grid-template-columns:104px 1fr 56px;gap:10px}}
+
+/* ---------- 포스트시즌 대진표 ---------- */
+.bstage{margin:0 0 var(--s6)}
+/* 좁은 화면에서는 가로로 넘긴다. 세로로 접으면 '어느 승자가 어디로 가는지'가 사라진다 */
+.bscroll{overflow-x:auto;margin:0 calc(var(--gut) * -1);padding:0 var(--gut) 4px;scrollbar-width:thin}
+.bcols{display:flex;gap:var(--s3);align-items:flex-start;min-width:min-content}
+.bcol{display:flex;flex-direction:column;gap:var(--s4);flex:none;width:172px}
+.bcellname{font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--mute);margin-bottom:6px}
+.bcell + .bcell{margin-top:var(--s2)}
+
+.bmatch{background:var(--surface-card);border:1px solid var(--hairline);border-radius:var(--r-card);
+  padding:8px 9px;margin-bottom:8px}
+.bmatch.live{border-color:var(--live-edge)}
+.bteam{display:flex;align-items:center;gap:7px;padding:3px 0}
+.bteam + .bteam{border-top:1px solid var(--hairline)}
+.bemblem{width:22px;height:22px;object-fit:contain;flex:none;border-radius:2px;background:var(--tint-2)}
+.bcode{flex:1;font-size:13px;font-weight:600;letter-spacing:.02em;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bscore{font-size:14px;font-variant-numeric:tabular-nums;color:var(--mute);flex:none}
+/* 진 쪽을 흐리게 하지 않고 이긴 쪽을 세운다. 흐리게 하면 미정 칸과 헷갈린다 */
+.bteam.won .bcode,.bteam.won .bscore{color:var(--ink)}
+.bteam.won .bscore{font-weight:700}
+.bteam.tbd .bcode{color:var(--faint);font-weight:400}
+.bteam.me .bcode{color:var(--flame-text)}
+.bwhen{font-size:11px;color:var(--faint);margin-top:5px;font-variant-numeric:tabular-nums}
+.bwhen b{color:var(--live)}
+
+/* 진출 확정 전 — 확률로 대신한다 */
+.bodds{display:grid;gap:8px;margin:0 0 var(--s5)}
+.bodd{display:flex;align-items:center;gap:var(--s3)}
+.bodd .ol{flex:1;font-size:13.5px;min-width:0}
+.bodd .ov{font-size:13.5px;font-variant-numeric:tabular-nums;flex:none;width:56px;text-align:right}
+.bodd .ob{flex:none;width:88px;height:6px;background:var(--tint-1);border-radius:var(--r-full);overflow:hidden}
+.bodd .ob i{display:block;height:100%;background:var(--bar-fill)}
+.bodd.hit .ov{color:var(--flame-text);font-weight:600}
+.bodd.hit .ob i{background:var(--flame)}
