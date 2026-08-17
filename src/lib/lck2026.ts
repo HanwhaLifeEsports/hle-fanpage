@@ -171,18 +171,23 @@ export interface Player {
    * 값은 /service/v1/ranking/lck_2026/player 응답의 playerId 에서 확인한다.
    */
   naverId: string;
+  /**
+   * Leaguepedia 선수 문서 이름 — 챔피언 전적을 붙이는 연결 키 (src/lib/leaguepedia.ts).
+   *
+   * 닉네임과 다를 수 있다. 동명이인이 있으면 문서 이름에 괄호가 붙는다
+   * (Zeka -> "Zeka (Kim Geon-woo)"). 값은 ScoreboardPlayers.Link 에서 확인한다.
+   */
+  lpName: string;
   photo?: PlayerPhoto;
-  /** 대표 챔피언 — 2026 시즌 경기에서 반복해 고른 픽 */
-  champs: string[];
   /** 2026 시즌 합류 여부 */
   joined2026?: boolean;
 }
 
 export const PLAYERS: Player[] = [
-  // 등번호는 실제 값. naverId 는 2026-08-17 응답 기준으로 확인했다
-  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', champs: ['잭스', '그웬', '케넨'] },
-  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
-  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', champs: ['아지르', '오리아나', '실라스'] },
+  // 등번호는 실제 값. naverId 와 lpName 은 각 API 응답에서 확인했다 (2026-08-18)
+  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', lpName: 'Zeus' },
+  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', lpName: 'Kanavi', joined2026: true },
+  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', lpName: 'Zeka (Kim Geon-woo)' },
   {
     id: 'gumayusi',
     nm: 'Gumayusi',
@@ -190,7 +195,7 @@ export const PLAYERS: Player[] = [
     pos: 'BOT',
     no: '98',
     naverId: '10320',
-    champs: ['징크스', '제리', '칼리스타'],
+    lpName: 'Gumayusi',
     joined2026: true,
     photo: {
       src: '/players/gumayusi.jpg',
@@ -201,7 +206,7 @@ export const PLAYERS: Player[] = [
       checkedAt: '2026-08-14',
     },
   },
-  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', champs: ['노틸러스', '레나타', '알리스타'] },
+  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', lpName: 'Delight' },
 ];
 
 export const STAFF = [

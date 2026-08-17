@@ -1,6 +1,7 @@
 import RosterRail from '@/components/Roster';
 import { PLAYERS, STAFF } from '@/lib/lck2026';
 import { getPlayerStats } from '@/lib/naver';
+import { getChampionStats } from '@/lib/leaguepedia';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -13,7 +14,8 @@ export const dynamic = 'force-dynamic';
 export default async function RosterPage() {
   const joined = PLAYERS.filter((p) => p.joined2026);
   // 못 가져오면 null 이 온다. 카드는 등번호로 되돌아가고 나머지는 그대로 뜬다
-  const stats = await getPlayerStats();
+  // 출처가 달라 서로 기다릴 이유가 없다. 둘 다 실패해도 null 이 온다
+  const [stats, champions] = await Promise.all([getPlayerStats(), getChampionStats()]);
 
   return (
     <div className="wrap sec">
@@ -34,7 +36,7 @@ export default async function RosterPage() {
         </div>
       )}
 
-      <RosterRail stats={stats} />
+      <RosterRail stats={stats} champions={champions} />
 
       <div className="shead" style={{ marginTop: 'var(--s7)' }}>
         <h2 className="ko">코칭스태프</h2>

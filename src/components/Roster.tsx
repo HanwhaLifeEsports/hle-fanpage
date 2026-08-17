@@ -8,6 +8,7 @@ import { patchState, toast, useApp } from '@/lib/useAppState';
 import type { PlayerStat, StatMap } from '@/lib/naver';
 import PhotoGallery from './PhotoGallery';
 import { topFor, useFanPhotos, type FanPhoto } from '@/lib/photos';
+import type { ChampionMap } from '@/lib/champions';
 
 /**
  * 선수 사진 표시 스위치.
@@ -72,10 +73,17 @@ function Card({
   );
 }
 
-export default function RosterRail({ stats }: { stats?: StatMap | null }) {
+export default function RosterRail({
+  stats,
+  champions,
+}: {
+  stats?: StatMap | null;
+  champions?: ChampionMap | null;
+}) {
   const { fav } = useApp();
   const [open, setOpen] = useState<Player | null>(null);
   const openStat = open ? stats?.[open.naverId] : undefined;
+  const openChamps = open ? champions?.[open.id] : undefined;
   // 구독은 여기서 한 번만. 카드마다 걸면 선수 수만큼 리렌더가 붙는다
   const fanPhotos = useFanPhotos();
 
@@ -175,14 +183,26 @@ export default function RosterRail({ stats }: { stats?: StatMap | null }) {
                 </>
               )}
 
-              <h3 className="grouphead">대표 챔피언</h3>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-                {open.champs.map((c) => (
-                  <span className="chip" key={c}>
-                    {c}
-                  </span>
-                ))}
-              </div>
+              {openChamps && openChamps.length > 0 && (
+                <>
+                  <h3 className="grouphead">많이 고른 챔피언</h3>
+                  {/* 손으로 적어 두지 않는다. 시즌 중에 계속 바뀌는 값이라
+                      한 번 적어 두면 반드시 실제와 어긋난다 */}
+                  <ul className="champs">
+                    {openChamps.slice(0, 6).map((c) => (
+                      <li key={c.key}>
+                        <span className="cn">{c.name}</span>
+                        <span className="cw">
+                          {c.wins}승 {c.losses}패
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="note" style={{ marginBottom: 20 }}>
+                    2026 정규시즌 기준 · 기록 출처: Leaguepedia
+                  </p>
+                </>
+              )}
               <button
                 className={`btn ${fav === open.id ? 'btn-ghost' : 'btn-primary'} btn-block`}
                 onClick={() => toggleFav(open.id)}
