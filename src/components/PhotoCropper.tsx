@@ -1,13 +1,25 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ImagePlus, Loader2, RotateCcw } from 'lucide-react';
-import { IDENTITY, baseScale, clampView, cropToBlob, loadImage, type CropView } from '@/lib/crop';
-import { FAN_OUT_H, FAN_OUT_W, addFanPhoto } from '@/lib/fanPhotos';
+import { useEffect, useRef, useState } from 'react';
+import { ImagePlus, Loader2, TriangleAlert } from 'lucide-react';
+import {
+  SHARP_MIN_W,
+  clampRect,
+  containFit,
+  cropToBlob,
+  initialRect,
+  loadImage,
+  resizeRect,
+  type Corner,
+  type CropRect,
+} from '@/lib/crop';
+import { FAN_OUT_H, FAN_OUT_W, FAN_RATIO, addFanPhoto } from '@/lib/fanPhotos';
 import { toast } from '@/lib/useAppState';
 
-/** 원본 상한. 이보다 큰 파일은 디코드부터 느려지고, 어차피 잘라서 줄여 내보낸다 */
+/** 원본 상한. 이보다 크면 디코드부터 느려지고, 어차피 잘라서 줄여 내보낸다 */
 const MAX_BYTES = 25 * 1024 * 1024;
+
+const CORNERS: Corner[] = ['nw', 'ne', 'sw', 'se'];
 
 export default function PhotoCropper({
   playerId,
@@ -18,22 +30,22 @@ export default function PhotoCropper({
   playerName: string;
   onDone: () => void;
 }) {
-  const boxRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
 
   const [preview, setPreview] = useState<string | null>(null);
   const [nat, setNat] = useState({ w: 0, h: 0 });
-  const [box, setBox] = useState({ w: 0, h: 0 });
-  const [view, setView] = useState<CropView>(IDENTITY);
+  const [stage, setStage] = useState({ w: 0, h: 0 });
+  const [rect, setRect] = useState<CropRect | null>(null);
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  /* 뷰포트 크기는 반응형이라 실제 픽셀을 재야 자르는 위치가 맞는다 */
+  /* 무대 크기는 반응형이라 실제 픽셀을 재야 화면 좌표를 원본 좌표로 되돌릴 수 있다 */
   useEffect(() => {
-    const el = boxRef.current;
+    const el = stageRef.current;
     if (!el) return;
-    const measure = () => setBox({ w: el.clientWidth, h: el.clientHeight });
+    const measure = () => setStage({ w: el.clientWidth, h: el.clientHeight });
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
@@ -55,39 +67,64 @@ export default function PhotoCropper({
       const img = await loadImage(file);
       imgRef.current = img;
       setNat({ w: img.naturalWidth, h: img.naturalHeight });
+      setRect(initialRect(img.naturalWidth, img.naturalHeight, FAN_RATIO));
       setPreview(URL.createObjectURL(file));
-      setView(IDENTITY);
     } catch {
       toast('사진을 읽지 못했습니다', '다른 파일로 시도해 주세요.');
     }
   };
 
-  /* 끌어서 위치 잡기 */
-  const drag = useRef<{ id: number; x: number; y: number; from: CropView } | null>(null);
-  const onDown = (e: React.PointerEvent) => {
-    if (!preview) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, from: view };
+  const fit = nat.w && stage.w ? containFit(nat.w, nat.h, stage.w, stage.h) : null;
+
+  /* 화면 좌표 → 원본 좌표 */
+  const toNat = (clientX: number, clientY: number) => {
+    const box = stageRef.current!.getBoundingClientRect();
+    return {
+      x: (clientX - box.left - fit!.dx) / fit!.scale,
+      y: (clientY - box.top - fit!.dy) / fit!.scale,
+    };
   };
+
+  const drag = useRef<
+    | { kind: 'move'; id: number; from: CropRect; ox: number; oy: number }
+    | { kind: 'resize'; id: number; corner: Corner }
+    | null
+  >(null);
+
+  const startMove = (e: React.PointerEvent) => {
+    if (!rect || !fit) return;
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const p = toNat(e.clientX, e.clientY);
+    drag.current = { kind: 'move', id: e.pointerId, from: rect, ox: p.x - rect.x, oy: p.y - rect.y };
+  };
+
+  const startResize = (e: React.PointerEvent, corner: Corner) => {
+    if (!rect || !fit) return;
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    drag.current = { kind: 'resize', id: e.pointerId, corner };
+  };
+
   const onMove = (e: React.PointerEvent) => {
     const d = drag.current;
-    if (!d || d.id !== e.pointerId) return;
-    const next = { ...d.from, x: d.from.x + (e.clientX - d.x), y: d.from.y + (e.clientY - d.y) };
-    setView(clampView(next, nat.w, nat.h, box.w, box.h));
+    if (!d || d.id !== e.pointerId || !rect || !fit) return;
+    const p = toNat(e.clientX, e.clientY);
+    if (d.kind === 'move') {
+      setRect(clampRect({ ...d.from, x: p.x - d.ox, y: p.y - d.oy }, nat.w, nat.h));
+    } else {
+      setRect(resizeRect(rect, d.corner, p.x, p.y, nat.w, nat.h, FAN_RATIO));
+    }
   };
-  const onUp = () => void (drag.current = null);
 
-  const zoomTo = useCallback(
-    (zoom: number) => setView((v) => clampView({ ...v, zoom }, nat.w, nat.h, box.w, box.h)),
-    [nat.w, nat.h, box.w, box.h],
-  );
+  const endDrag = () => void (drag.current = null);
 
   const submit = async () => {
     const img = imgRef.current;
-    if (!img || !agreed || busy) return;
+    if (!img || !rect || !agreed || busy) return;
     setBusy(true);
     try {
-      const blob = await cropToBlob(img, view, box.w, box.h, FAN_OUT_W, FAN_OUT_H);
+      const blob = await cropToBlob(img, rect, FAN_OUT_W, FAN_OUT_H);
       await addFanPhoto(playerId, blob);
       toast('사진을 올렸습니다', `${playerName} 갤러리에 추가했습니다.`);
       onDone();
@@ -98,7 +135,18 @@ export default function PhotoCropper({
     }
   };
 
-  const s = nat.w && box.w ? baseScale(nat.w, nat.h, box.w, box.h) * view.zoom : 1;
+  /* 선택 영역을 화면 좌표로 옮긴 값 */
+  const box =
+    rect && fit
+      ? {
+          left: fit.dx + rect.x * fit.scale,
+          top: fit.dy + rect.y * fit.scale,
+          width: rect.w * fit.scale,
+          height: rect.h * fit.scale,
+        }
+      : null;
+
+  const soft = rect ? rect.w < SHARP_MIN_W : false;
 
   return (
     <div className="cropper">
@@ -110,50 +158,59 @@ export default function PhotoCropper({
         </button>
       ) : (
         <>
-          {/* 4:5 로 고정한다. 카드와 갤러리가 같은 비율이라 두 번 자를 일이 없다 */}
-          <div
-            ref={boxRef}
-            className="cropbox"
-            onPointerDown={onDown}
-            onPointerMove={onMove}
-            onPointerUp={onUp}
-            onPointerCancel={onUp}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element -- 화면에서만 쓰는 objectURL 미리보기 */}
-            <img
-              src={preview}
-              alt=""
-              draggable={false}
-              style={{
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                width: nat.w * s,
-                height: nat.h * s,
-                transform: `translate(-50%,-50%) translate(${view.x}px, ${view.y}px)`,
-              }}
-            />
-            <span className="crophint">끌어서 위치를 맞추세요</span>
+          {/* 사진 전체를 펼쳐 놓고 그 위에서 사각형을 잡는다.
+              무대에 max-height 를 걸어도 사진은 contain 으로 담기므로 비율이 안 깨진다. */}
+          <div ref={stageRef} className="cropstage" onPointerMove={onMove} onPointerUp={endDrag} onPointerCancel={endDrag}>
+            {fit && (
+              // eslint-disable-next-line @next/next/no-img-element -- 화면에서만 쓰는 objectURL 미리보기
+              <img
+                src={preview}
+                alt=""
+                draggable={false}
+                style={{
+                  position: 'absolute',
+                  left: fit.dx,
+                  top: fit.dy,
+                  width: nat.w * fit.scale,
+                  height: nat.h * fit.scale,
+                }}
+              />
+            )}
+            {box && (
+              <div className="cropsel" style={box} onPointerDown={startMove}>
+                {CORNERS.map((c) => (
+                  <span
+                    key={c}
+                    className={`crophandle h-${c}`}
+                    onPointerDown={(e) => startResize(e, c)}
+                    role="presentation"
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="croptools">
-            <input
-              type="range"
-              min={1}
-              max={3}
-              step={0.01}
-              value={view.zoom}
-              onChange={(e) => zoomTo(+e.target.value)}
-              aria-label="확대"
-            />
-            <button className="btn btn-ghost btn-sm" onClick={() => setView(IDENTITY)}>
-              <RotateCcw size={14} />
-              처음으로
+            <span className="cap">
+              모서리를 끌어 크기를, 안쪽을 끌어 위치를 맞추세요. 카드에 이 비율 그대로 걸립니다.
+            </span>
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => setRect(initialRect(nat.w, nat.h, FAN_RATIO))}
+            >
+              전체
             </button>
             <button className="btn btn-ghost btn-sm" onClick={() => fileRef.current?.click()}>
               다른 사진
             </button>
           </div>
+
+          {soft && (
+            <p className="cropwarn">
+              <TriangleAlert size={14} />
+              고른 영역이 작아 늘려 그리게 됩니다. 더 넓게 잡으면 선명해집니다.
+            </p>
+          )}
         </>
       )}
 
@@ -178,12 +235,10 @@ export default function PhotoCropper({
         <ul>
           <li>다른 사람이 찍은 사진, 방송 화면, 기사 사진, 구단이나 멤버십에 올라온 사진은 올릴 수 없습니다.</li>
           <li>AI 로 만들거나 합성한 선수 이미지는 올릴 수 없습니다.</li>
+          <li>저작권자의 중단 요구가 있으면 저작권법 제103조에 따라 즉시 내립니다.</li>
           <li>
-            저작권자의 중단 요구가 있으면 저작권법 제103조에 따라 <b>즉시</b> 내립니다.
-          </li>
-          <li>
-            직접 촬영한 사진이어도 선수에게는 <b>초상권</b>이 따로 있습니다. 선수 본인이나 구단이 요청하면
-            즉시 삭제합니다.
+            직접 촬영한 사진이어도 선수에게는 초상권이 따로 있습니다. 선수 본인이나 구단이 요청하면 즉시
+            삭제합니다.
           </li>
         </ul>
       </div>

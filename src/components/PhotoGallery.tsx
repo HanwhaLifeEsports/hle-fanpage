@@ -1,33 +1,42 @@
 'use client';
 
 import { useState } from 'react';
-import { Flag, Heart, ImagePlus, X } from 'lucide-react';
+import { ArrowLeft, Flag, Heart, ImagePlus, X } from 'lucide-react';
 import PhotoCropper from './PhotoCropper';
-import { heartFanPhoto, reportFanPhoto, useFanPhotos, visibleFor } from '@/lib/fanPhotos';
+import { heartFanPhoto, reportFanPhoto, useFanPhotos, visibleFor, type FanPhoto } from '@/lib/fanPhotos';
 import { toast } from '@/lib/useAppState';
 
-function Slide({ id, url, hearts, mine }: { id: string; url: string; hearts: number; mine: boolean }) {
+/** 확대 보기 — 하트와 신고는 여기서만 받는다. 격자 칸은 너무 작아 오조작이 난다 */
+function Viewer({ photo, onBack }: { photo: FanPhoto; onBack: () => void }) {
   const [confirming, setConfirming] = useState(false);
 
   const report = () => {
-    void reportFanPhoto(id);
-    setConfirming(false);
+    void reportFanPhoto(photo.id);
     toast('신고를 접수했습니다', '해당 사진을 화면에서 즉시 내렸습니다.');
+    onBack();
   };
 
   return (
-    <figure className="gslide">
-      {/* eslint-disable-next-line @next/next/no-img-element -- 브라우저 저장소의 objectURL 이라 최적화 대상이 아니다 */}
-      <img src={url} alt="" />
-      <figcaption>
+    <section className="gwrap">
+      <div className="ghead">
+        <button className="btn btn-ghost btn-sm" onClick={onBack}>
+          <ArrowLeft size={14} />
+          갤러리
+        </button>
+      </div>
+
+      {/* eslint-disable-next-line @next/next/no-img-element -- 브라우저 저장소의 objectURL */}
+      <img className="gbig" src={photo.url} alt="" />
+
+      <div className="gbar">
         <button
-          className={`heart${mine ? ' on' : ''}`}
-          onClick={() => void heartFanPhoto(id)}
-          aria-pressed={mine}
-          aria-label={mine ? '하트 취소' : '하트'}
+          className={`heart${photo.mine ? ' on' : ''}`}
+          onClick={() => void heartFanPhoto(photo.id)}
+          aria-pressed={photo.mine}
+          aria-label={photo.mine ? '하트 취소' : '하트'}
         >
-          <Heart size={17} fill={mine ? 'currentColor' : 'none'} />
-          <span>{hearts}</span>
+          <Heart size={18} fill={photo.mine ? 'currentColor' : 'none'} />
+          <span>{photo.hearts}</span>
         </button>
 
         {confirming ? (
@@ -45,8 +54,8 @@ function Slide({ id, url, hearts, mine }: { id: string; url: string; hearts: num
             <Flag size={14} />
           </button>
         )}
-      </figcaption>
-    </figure>
+      </div>
+    </section>
   );
 }
 
@@ -60,6 +69,10 @@ export default function PhotoGallery({
   const all = useFanPhotos();
   const photos = visibleFor(all, playerId);
   const [adding, setAdding] = useState(false);
+  const [viewing, setViewing] = useState<string | null>(null);
+
+  const open = viewing ? photos.find((p) => p.id === viewing) : null;
+  if (open) return <Viewer photo={open} onBack={() => setViewing(null)} />;
 
   if (adding) {
     return (
@@ -78,7 +91,9 @@ export default function PhotoGallery({
   return (
     <section className="gwrap">
       <div className="ghead">
-        <h3 className="grouphead">팬 사진 {photos.length > 0 && <span className="cap">{photos.length}</span>}</h3>
+        <h3 className="grouphead">
+          팬 사진 {photos.length > 0 && <span className="cap">{photos.length}</span>}
+        </h3>
         <button className="btn btn-ghost btn-sm" onClick={() => setAdding(true)}>
           <ImagePlus size={14} />
           올리기
@@ -92,10 +107,17 @@ export default function PhotoGallery({
         </div>
       ) : (
         <>
-          {/* 옆으로 넘기는 방식. 세로로 쌓으면 모달이 스크롤만 남는다 */}
-          <div className="gstrip">
+          {/* 하트 많은 순으로 3열. 첫 칸이 곧 지금 카드에 걸려 있는 사진이다 */}
+          <div className="ggrid">
             {photos.map((p) => (
-              <Slide key={p.id} id={p.id} url={p.url} hearts={p.hearts} mine={p.mine} />
+              <button key={p.id} className="gtile" onClick={() => setViewing(p.id)}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- 브라우저 저장소의 objectURL */}
+                <img src={p.url} alt="" />
+                <span className={`hcount${p.mine ? ' on' : ''}`}>
+                  <Heart size={11} fill={p.mine ? 'currentColor' : 'none'} />
+                  {p.hearts}
+                </span>
+              </button>
             ))}
           </div>
           <p className="note">

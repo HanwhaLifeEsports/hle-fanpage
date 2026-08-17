@@ -407,14 +407,19 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .ghead{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-bottom:10px}
 .ghead .grouphead{margin:0;display:flex;align-items:baseline;gap:6px}
 
-/* 옆으로 넘기는 띠. scroll-snap 이면 손가락으로도 한 장씩 딱 맞는다 */
-.gstrip{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;
-  margin:0 calc(var(--s5) * -1);padding:0 var(--s5);scrollbar-width:none}
-.gstrip::-webkit-scrollbar{display:none}
-.gslide{flex:0 0 78%;scroll-snap-align:center;margin:0;max-width:320px}
-.gslide img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;
-  border-radius:var(--r-card);background:var(--photo-b)}
-.gslide figcaption{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px}
+/* 3열 격자. 칸은 선수 카드와 같은 4:5 라 카드에 걸렸을 때 잘리는 곳이 없다.
+   틈을 좁게 두는 편이 한 화면에 더 많이 들어와 고르기 쉽다 */
+.ggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.gtile{position:relative;display:block;margin:0;padding:0;border:0;background:transparent;cursor:pointer}
+.gtile img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--photo-b)}
+.gtile .hcount{position:absolute;left:5px;bottom:5px;display:inline-flex;align-items:center;gap:3px;
+  background:var(--glass);color:var(--always-light);font-size:11px;line-height:1;
+  padding:3px 6px;border-radius:var(--r-full);font-variant-numeric:tabular-nums}
+.gtile .hcount.on{color:var(--flame)}
+
+/* 확대 보기 */
+.gbig{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--photo-b)}
+.gbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px}
 
 .heart{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;padding:0;
   color:var(--mute);font-size:13px;font-variant-numeric:tabular-nums;cursor:pointer;transition:color .15s}
@@ -428,26 +433,39 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 
 /* ---------- 크롭 ---------- */
 .cropper{display:flex;flex-direction:column;gap:var(--s4)}
-.cropdrop{width:100%;aspect-ratio:4/5;max-height:300px;border:1px dashed var(--hairline);
+/* 크기 제한은 max-width 로만 건다. max-height 를 걸면 aspect-ratio 가 깨져
+   창이 4:5 가 아니게 되고, 그 창을 4:5 캔버스에 그리면 사진이 눌린다 */
+.cropdrop{width:100%;max-width:300px;margin:0 auto;aspect-ratio:4/5;border:1px dashed var(--hairline);
   border-radius:var(--r-card);background:transparent;color:var(--mute);cursor:pointer;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:border-color .15s,color .15s}
 .cropdrop:hover{border-color:var(--tint-edge);color:var(--ink)}
 .cropdrop b{font-size:15px;color:var(--ink)}
 
-/* 잘릴 범위를 눈으로 확인하는 창. overflow:hidden 이 곧 크롭 경계다 */
-.cropbox{position:relative;width:100%;aspect-ratio:4/5;max-height:340px;margin:0 auto;
-  overflow:hidden;border-radius:var(--r-card);background:var(--video-bg);
-  cursor:grab;touch-action:none;user-select:none}
-.cropbox:active{cursor:grabbing}
-.cropbox img{pointer-events:none}
-.crophint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);
-  background:var(--glass);color:var(--always-light);font-size:11.5px;padding:4px 9px;border-radius:var(--r-full)}
+/* 사진 전체를 펼쳐 놓는 무대. 사진은 contain 으로 담기므로 여기에 높이를 걸어도
+   비율이 안 깨진다. 잘리는 범위는 이 위에 얹는 .cropsel 이 정한다 */
+.cropstage{position:relative;width:100%;height:320px;overflow:hidden;
+  border-radius:var(--r-card);background:var(--video-bg);touch-action:none;user-select:none}
+.cropstage img{pointer-events:none}
+
+/* 바깥을 덮는 그늘은 box-shadow 로 만든다. 패널 네 장을 따로 두지 않아도 된다 */
+.cropsel{position:absolute;cursor:move;box-shadow:0 0 0 9999px rgba(0,0,0,.55);
+  outline:1px solid var(--always-light);outline-offset:-1px}
+.crophandle{position:absolute;width:22px;height:22px;background:transparent;cursor:nwse-resize}
+.crophandle::after{content:'';position:absolute;width:11px;height:11px;
+  border:2px solid var(--always-light);border-radius:1px}
+.h-nw{left:-11px;top:-11px}       .h-nw::after{right:0;bottom:0;border-right:0;border-bottom:0}
+.h-ne{right:-11px;top:-11px}      .h-ne::after{left:0;bottom:0;border-left:0;border-bottom:0}
+.h-sw{left:-11px;bottom:-11px}    .h-sw::after{right:0;top:0;border-right:0;border-top:0}
+.h-se{right:-11px;bottom:-11px}   .h-se::after{left:0;top:0;border-left:0;border-top:0}
+.h-ne,.h-sw{cursor:nesw-resize}
 
 .croptools{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
-.croptools input[type=range]{flex:1;min-width:120px;accent-color:var(--flame)}
+.croptools .cap{flex:1;min-width:180px;font-size:12px;line-height:1.5}
+.cropwarn{display:flex;align-items:center;gap:6px;margin:0;font-size:12.5px;color:var(--flame-text)}
 
 .croplaw{border-left:2px solid var(--flame);padding:2px 0 2px 14px;font-size:12.5px;color:var(--body);line-height:1.65}
-.croplaw b{display:block;color:var(--ink);font-size:13px;margin-bottom:4px}
+/* 제목만 블록. 목록 안의 강조는 문장 중간이라 줄을 바꾸면 안 된다 */
+.croplaw > b{display:block;color:var(--ink);font-size:13px;margin-bottom:4px}
 .croplaw ul{margin:0;padding-left:16px}
 .croplaw li{margin-top:2px}
 
