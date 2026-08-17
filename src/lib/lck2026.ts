@@ -137,6 +137,12 @@ export const SEASON = {
  * 근거를 적을 수 없는 사진은 넣지 않는다.
  *
  * 파일 목록과 출처는 public/players/README.md 에도 표로 남긴다.
+ *
+ * [현재 등록된 사진 없음]
+ * 처음 넣었던 사진은 basis 를 'self'(운영자 직접 촬영)로 적었는데 실제 경위가
+ * 그와 달라 내렸다. 근거가 확실하지 않은 사진은 싣지 않는다는 것이 이 타입의
+ * 존재 이유이고, 그 타입이 실제로 걸러낸 첫 사례다.
+ * 지금은 팬 사진(src/lib/photos)만 뜬다.
  */
 export interface PlayerPhoto {
   src: string;
@@ -188,24 +194,7 @@ export const PLAYERS: Player[] = [
   { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', lpName: 'Zeus' },
   { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', lpName: 'Kanavi', joined2026: true },
   { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', lpName: 'Zeka (Kim Geon-woo)' },
-  {
-    id: 'gumayusi',
-    nm: 'Gumayusi',
-    ko: '이민형',
-    pos: 'BOT',
-    no: '98',
-    naverId: '10320',
-    lpName: 'Gumayusi',
-    joined2026: true,
-    photo: {
-      src: '/players/gumayusi.jpg',
-      width: 900,
-      height: 1200,
-      basis: 'self',
-      credit: '직접 촬영',
-      checkedAt: '2026-08-14',
-    },
-  },
+  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', naverId: '10320', lpName: 'Gumayusi', joined2026: true },
   { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', lpName: 'Delight' },
 ];
 
