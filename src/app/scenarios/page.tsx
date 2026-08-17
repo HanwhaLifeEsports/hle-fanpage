@@ -98,7 +98,7 @@ export default async function ScenariosPage() {
                 {r}위
                 <em>
                   {b?.label}
-                  {won && ' · 월즈 확정'}
+                  {won && ' · 월즈 진출 확정'}
                   {b?.worlds === 'possible' && ' · 통과 시 월즈'}
                 </em>
               </span>
@@ -122,7 +122,7 @@ export default async function ScenariosPage() {
           <thead>
             <tr>
               <th>HLE 잔여 성적</th>
-              <th>월즈 확정</th>
+              <th>월즈 진출 확정</th>
               {bands.map((b) => (
                 <th key={b.label}>{b.label}</th>
               ))}
