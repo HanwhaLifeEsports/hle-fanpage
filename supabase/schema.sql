@@ -87,7 +87,13 @@ create trigger fan_hearts_sync
 -- 저작권법 제102조 제1항은 침해를 '알게 된 때' 즉시 중단시킨 경우에 책임을
 -- 제한한다. 신고가 곧 그 통지다. 맞는지 따져본 뒤 내리면 그 사이가 비어 버린다.
 -- 정보통신망법 제44조의2 의 임시조치도 같은 순서다 — 먼저 가리고 나중에 판단한다.
--- 근거 없는 신고였다면 운영자가 대시보드에서 hidden 을 false 로 되돌린다.
+-- 근거 없는 신고였다면 운영자가 대시보드에서 되돌린다 (아래 fan_reports_unhide).
+--
+-- [아직 못 하는 것 — 계정이 붙어야 한다]
+-- 정보통신망법 제44조의2 는 삭제·임시조치를 하면 신청인과 '정보게재자' 양쪽에
+-- 알릴 것을 요구하고, 저작권법 제103조 제3항은 내려간 사람이 소명해 재개를
+-- 요구하는 절차를 둔다. 지금은 업로더가 익명이라 연락할 방법이 없어 둘 다 못 한다.
+-- 로그인이 붙으면 (1) 내려갔다는 고지 (2) 이의제기 창구를 함께 만들어야 한다.
 create or replace function public.hide_on_report()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
@@ -99,6 +105,35 @@ drop trigger if exists fan_reports_hide on public.fan_reports;
 create trigger fan_reports_hide
   after insert on public.fan_reports
   for each row execute function public.hide_on_report();
+
+-- 신고를 지우면 자동으로 되살린다.
+--
+-- 복원을 운영자의 손작업으로 두면, 악성 사용자가 사진을 하나씩 눌러 내리는 수고보다
+-- 되돌리는 수고가 더 커진다. 공격이 이기는 구조다.
+-- 이 트리거가 있으면 복원은 "그 사람의 신고를 지운다" 한 줄로 끝난다:
+--   delete from fan_reports where reporter = '문제된-id';
+-- 남은 신고가 하나도 없을 때만 푼다 — 다른 사람의 정당한 신고까지 무시하면 안 된다.
+create or replace function public.unhide_when_no_reports()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from fan_reports where photo_id = old.photo_id) then
+    update fan_photos set hidden = false where id = old.photo_id;
+  end if;
+  return null;
+end $$;
+
+drop trigger if exists fan_reports_unhide on public.fan_reports;
+create trigger fan_reports_unhide
+  after delete on public.fan_reports
+  for each row execute function public.unhide_when_no_reports();
+
+-- 최근 10분 동안 이 사람이 넣은 신고 건수. 신고 도배 제한이 쓴다.
+-- 업로드 쪽과 같은 이유로 security definer 다 (정책 안 서브쿼리는 RLS 를 탄다).
+create or replace function public.recent_report_count()
+returns int language sql security definer stable set search_path = public as $$
+  select count(*)::int from public.fan_reports
+  where reporter = auth.uid() and created_at > now() - interval '10 minutes'
+$$;
 
 -- 최근 10분 동안 이 사람이 올린 장수. 도배 제한이 쓴다.
 --
@@ -170,10 +205,16 @@ drop policy if exists "하트 취소" on public.fan_hearts;
 create policy "하트 취소" on public.fan_hearts
   for delete to authenticated using (voter = auth.uid());
 
--- 신고: 넣기만 한다. 남의 신고를 읽을 이유가 없다
+-- 신고: 넣기만 한다. 남의 신고를 읽을 이유가 없다.
+--
+-- 10분에 3건까지. 신고 한 건이 곧 숨김이므로, 제한이 없으면 한 사람이 갤러리를
+-- 통째로 내릴 수 있다. 익명 id 라 창을 새로 열면 우회되지만, 매번 그 수고를
+-- 들이게 만드는 것과 아무 대가 없이 누르는 것은 다르다.
+-- 로그인이 붙으면 이 제한은 계정 단위가 되어 실제로 막는 장치가 된다.
 drop policy if exists "신고하기" on public.fan_reports;
 create policy "신고하기" on public.fan_reports
-  for insert to authenticated with check (reporter = auth.uid());
+  for insert to authenticated
+  with check (reporter = auth.uid() and public.recent_report_count() < 3);
 
 -- ---------------------------------------------------------------------
 -- 저장소
@@ -246,9 +287,12 @@ create policy "팬 사진 지우기" on storage.objects
 --   select path from fan_photos where hidden and created_at < now() - interval '30 days';
 --   delete from fan_photos where hidden and created_at < now() - interval '30 days';
 --
--- 근거 없는 신고를 되돌리기:
---   update fan_photos set hidden = false where id = '...';
+-- 근거 없는 신고를 되돌리기 (트리거가 hidden 을 알아서 푼다):
 --   delete from fan_reports where photo_id = '...';
+--
+-- 한 사람이 무더기로 눌렀을 때 — 그 사람의 신고를 통째로 지우면 전부 복원된다:
+--   select reporter, count(*) from fan_reports group by reporter order by 2 desc;
+--   delete from fan_reports where reporter = '문제된-id';
 --
 -- 권리자 요청으로 완전히 지우기 (저장소 파일은 대시보드 Storage 에서 함께 지운다):
 --   delete from fan_photos where id = '...';
