@@ -6,6 +6,8 @@ import { PLAYERS, type Player } from '@/lib/lck2026';
 import { Star, X } from 'lucide-react';
 import { patchState, toast, useApp } from '@/lib/useAppState';
 import type { PlayerStat, StatMap } from '@/lib/naver';
+import PhotoGallery from './PhotoGallery';
+import { topFor, useFanPhotos, type FanPhoto } from '@/lib/fanPhotos';
 
 /**
  * 선수 사진 표시 스위치.
@@ -20,26 +22,37 @@ const PHOTOS_ON = process.env.NEXT_PUBLIC_PLAYER_PHOTOS !== 'off';
 function Card({
   p,
   st,
+  fan,
   onOpen,
   fav,
 }: {
   p: Player;
   st?: PlayerStat;
+  /** 하트가 가장 많은 팬 사진. 있으면 운영자 사진보다 앞선다 */
+  fan: FanPhoto | null;
   onOpen: () => void;
   fav: boolean;
 }) {
   return (
     <button className="pcard" onClick={onOpen}>
       <div className="ph">
-        {PHOTOS_ON && p.photo && (
-          <Image
-            className="pimg"
-            src={p.photo.src}
-            alt=""
-            width={p.photo.width}
-            height={p.photo.height}
-            sizes="(max-width:560px) 50vw, (max-width:900px) 33vw, 220px"
-          />
+        {/* 팬 사진은 브라우저 저장소의 objectURL 이라 next/image 최적화 경로를 못 탄다.
+            이미 4:5 900px 으로 잘려 들어온 값이라 최적화할 것도 없다. */}
+        {PHOTOS_ON && fan ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="pimg" src={fan.url} alt="" />
+        ) : (
+          PHOTOS_ON &&
+          p.photo && (
+            <Image
+              className="pimg"
+              src={p.photo.src}
+              alt=""
+              width={p.photo.width}
+              height={p.photo.height}
+              sizes="(max-width:560px) 50vw, (max-width:900px) 33vw, 220px"
+            />
+          )
         )}
         <span className="pos">{p.pos}</span>
         <div className="tags">
@@ -63,6 +76,8 @@ export default function RosterRail({ stats }: { stats?: StatMap | null }) {
   const { fav } = useApp();
   const [open, setOpen] = useState<Player | null>(null);
   const openStat = open ? stats?.[open.naverId] : undefined;
+  // 구독은 여기서 한 번만. 카드마다 걸면 선수 수만큼 리렌더가 붙는다
+  const fanPhotos = useFanPhotos();
 
   const toggleFav = (id: string) => {
     const next = fav === id ? null : id;
@@ -83,6 +98,7 @@ export default function RosterRail({ stats }: { stats?: StatMap | null }) {
             key={p.id}
             p={p}
             st={stats?.[p.naverId]}
+            fan={topFor(fanPhotos, p.id)}
             fav={fav === p.id}
             onOpen={() => setOpen(p)}
           />
@@ -116,6 +132,7 @@ export default function RosterRail({ stats }: { stats?: StatMap | null }) {
                   <figcaption>{open.photo.credit}</figcaption>
                 </figure>
               )}
+              {PHOTOS_ON && <PhotoGallery playerId={open.id} playerName={open.nm} />}
               <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
                 <span className="badge b-flame">{open.pos}</span>
                 <span className="badge b-soon">#{open.no}</span>

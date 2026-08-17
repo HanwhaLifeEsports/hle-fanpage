@@ -402,6 +402,61 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
   border-radius:var(--r-card);background:var(--photo-b)}
 .pshot figcaption{font-size:11.5px;color:var(--mute);margin-top:6px}
 
+/* ---------- 팬 사진 ---------- */
+.gwrap{margin:0 0 var(--s5)}
+.ghead{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-bottom:10px}
+.ghead .grouphead{margin:0;display:flex;align-items:baseline;gap:6px}
+
+/* 옆으로 넘기는 띠. scroll-snap 이면 손가락으로도 한 장씩 딱 맞는다 */
+.gstrip{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;
+  margin:0 calc(var(--s5) * -1);padding:0 var(--s5);scrollbar-width:none}
+.gstrip::-webkit-scrollbar{display:none}
+.gslide{flex:0 0 78%;scroll-snap-align:center;margin:0;max-width:320px}
+.gslide img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;
+  border-radius:var(--r-card);background:var(--photo-b)}
+.gslide figcaption{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px}
+
+.heart{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;padding:0;
+  color:var(--mute);font-size:13px;font-variant-numeric:tabular-nums;cursor:pointer;transition:color .15s}
+.heart:hover{color:var(--ink)}
+.heart.on{color:var(--flame-text)}
+
+.iconbtn{width:26px;height:26px;border:0;background:transparent;color:var(--faint);
+  display:grid;place-items:center;cursor:pointer;transition:color .15s}
+.iconbtn:hover{color:var(--ink)}
+.greport{display:inline-flex;align-items:center;gap:6px}
+
+/* ---------- 크롭 ---------- */
+.cropper{display:flex;flex-direction:column;gap:var(--s4)}
+.cropdrop{width:100%;aspect-ratio:4/5;max-height:300px;border:1px dashed var(--hairline);
+  border-radius:var(--r-card);background:transparent;color:var(--mute);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:border-color .15s,color .15s}
+.cropdrop:hover{border-color:var(--tint-edge);color:var(--ink)}
+.cropdrop b{font-size:15px;color:var(--ink)}
+
+/* 잘릴 범위를 눈으로 확인하는 창. overflow:hidden 이 곧 크롭 경계다 */
+.cropbox{position:relative;width:100%;aspect-ratio:4/5;max-height:340px;margin:0 auto;
+  overflow:hidden;border-radius:var(--r-card);background:var(--video-bg);
+  cursor:grab;touch-action:none;user-select:none}
+.cropbox:active{cursor:grabbing}
+.cropbox img{pointer-events:none}
+.crophint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);
+  background:var(--glass);color:var(--always-light);font-size:11.5px;padding:4px 9px;border-radius:var(--r-full)}
+
+.croptools{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.croptools input[type=range]{flex:1;min-width:120px;accent-color:var(--flame)}
+
+.croplaw{border-left:2px solid var(--flame);padding:2px 0 2px 14px;font-size:12.5px;color:var(--body);line-height:1.65}
+.croplaw b{display:block;color:var(--ink);font-size:13px;margin-bottom:4px}
+.croplaw ul{margin:0;padding-left:16px}
+.croplaw li{margin-top:2px}
+
+.cropagree{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--body);cursor:pointer;line-height:1.5}
+.cropagree input{margin-top:2px;accent-color:var(--flame);flex:none}
+
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 /* ---------- lists ---------- */
 .plist{border-top:1px solid var(--hairline)}
 .prow{display:flex;align-items:center;gap:var(--s4);padding:15px 0;border-bottom:1px solid var(--hairline);cursor:pointer;
