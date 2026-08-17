@@ -20,6 +20,19 @@ import type { ChampionMap } from '@/lib/champions';
  */
 const PHOTOS_ON = process.env.NEXT_PUBLIC_PLAYER_PHOTOS !== 'off';
 
+/**
+ * 카드에 걸 사진을 고른다.
+ *
+ * 팬 사진이 운영자 사진을 밀어내려면 하트를 실제로 받아야 한다. 올리자마자
+ * 0하트로 대표 자리를 가져가면, 검증된 사진이 아무 검증 없는 사진에 밀리는 셈이다.
+ * 운영자 사진이 없는 선수는 그런 비교 대상이 없으므로 0하트라도 바로 건다.
+ */
+function cardPhoto(p: Player, fan: FanPhoto | null) {
+  if (!PHOTOS_ON) return null;
+  if (fan && (fan.hearts > 0 || !p.photo)) return { fan };
+  return p.photo ? { official: p.photo } : null;
+}
+
 function Card({
   p,
   st,
@@ -29,31 +42,30 @@ function Card({
 }: {
   p: Player;
   st?: PlayerStat;
-  /** 하트가 가장 많은 팬 사진. 있으면 운영자 사진보다 앞선다 */
+  /** 하트가 가장 많은 팬 사진 */
   fan: FanPhoto | null;
   onOpen: () => void;
   fav: boolean;
 }) {
+  const shot = cardPhoto(p, fan);
   return (
     <button className="pcard" onClick={onOpen}>
       <div className="ph">
-        {/* 팬 사진은 브라우저 저장소의 objectURL 이라 next/image 최적화 경로를 못 탄다.
+        {/* 팬 사진은 저장소가 준 주소라 next/image 최적화 경로를 못 탄다.
             이미 4:5 900px 으로 잘려 들어온 값이라 최적화할 것도 없다. */}
-        {PHOTOS_ON && fan ? (
+        {shot?.fan && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img className="pimg" src={fan.url} alt="" />
-        ) : (
-          PHOTOS_ON &&
-          p.photo && (
-            <Image
-              className="pimg"
-              src={p.photo.src}
-              alt=""
-              width={p.photo.width}
-              height={p.photo.height}
-              sizes="(max-width:560px) 50vw, (max-width:900px) 33vw, 220px"
-            />
-          )
+          <img className="pimg" src={shot.fan.url} alt="" />
+        )}
+        {shot?.official && (
+          <Image
+            className="pimg"
+            src={shot.official.src}
+            alt=""
+            width={shot.official.width}
+            height={shot.official.height}
+            sizes="(max-width:560px) 50vw, (max-width:900px) 33vw, 220px"
+          />
         )}
         <span className="pos">{p.pos}</span>
         <div className="tags">
@@ -126,21 +138,12 @@ export default function RosterRail({
               </button>
             </div>
             <div className="modal-b">
-              {PHOTOS_ON && open.photo && (
-                <figure className="pshot">
-                  <Image
-                    src={open.photo.src}
-                    alt={`${open.nm} (${open.ko})`}
-                    width={open.photo.width}
-                    height={open.photo.height}
-                    sizes="(max-width:560px) 92vw, 472px"
-                  />
-                  {/* 출처는 사진 옆에 붙어 있어야 의미가 있다. 페이지 하단 각주로 밀면
-                      어느 사진 얘기인지 알 수 없다. */}
-                  <figcaption>{open.photo.credit}</figcaption>
-                </figure>
+              {/* 사진 자리는 하나다. 운영자 사진을 따로 크게 띄우고 그 아래 갤러리를
+                  또 두면, 같은 선수인데 카드와 모달의 얼굴이 달라 보인다.
+                  운영자 사진은 갤러리의 첫 칸으로 들어간다. */}
+              {PHOTOS_ON && (
+                <PhotoGallery playerId={open.id} playerName={open.nm} official={open.photo} />
               )}
-              {PHOTOS_ON && <PhotoGallery playerId={open.id} playerName={open.nm} />}
               <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
                 <span className="badge b-flame">{open.pos}</span>
                 <span className="badge b-soon">#{open.no}</span>

@@ -13,6 +13,27 @@ import {
   type FanPhoto,
 } from '@/lib/photos';
 import { toast } from '@/lib/useAppState';
+import type { PlayerPhoto } from '@/lib/lck2026';
+
+/** 운영자 사진 확대 보기. 하트도 신고도 없다 — 검증된 사진이라 신고 한 번에
+ *  내려가면 안 되고, 하트 경쟁에 끼지도 않는다. 대신 출처를 여기서 보여준다 */
+function OfficialViewer({ photo, onBack }: { photo: PlayerPhoto; onBack: () => void }) {
+  return (
+    <section className="gwrap">
+      <div className="ghead">
+        <button className="btn btn-ghost btn-sm" onClick={onBack}>
+          <ArrowLeft size={14} />
+          갤러리
+        </button>
+      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element -- 갤러리 안에서만 쓰는 확대 보기 */}
+      <img className="gbig" src={photo.src} alt="" />
+      <div className="gbar">
+        <span className="cap">{photo.credit}</span>
+      </div>
+    </section>
+  );
+}
 
 /** 확대 보기 — 하트와 신고는 여기서만 받는다. 격자 칸은 너무 작아 오조작이 난다 */
 function Viewer({ photo, onBack }: { photo: FanPhoto; onBack: () => void }) {
@@ -79,18 +100,26 @@ function Viewer({ photo, onBack }: { photo: FanPhoto; onBack: () => void }) {
   );
 }
 
+/** 운영자 사진 칸의 고정 id. 팬 사진 id 와 겹칠 일이 없다 */
+const OFFICIAL = '__official__';
+
 export default function PhotoGallery({
   playerId,
   playerName,
+  official,
 }: {
   playerId: string;
   playerName: string;
+  /** 코드에 박힌 검증된 사진. 있으면 격자의 첫 칸이 된다 */
+  official?: PlayerPhoto;
 }) {
   const all = useFanPhotos();
   const photos = visibleFor(all, playerId);
   const [adding, setAdding] = useState(false);
   const [viewing, setViewing] = useState<string | null>(null);
 
+  if (viewing === OFFICIAL && official)
+    return <OfficialViewer photo={official} onBack={() => setViewing(null)} />;
   const open = viewing ? photos.find((p) => p.id === viewing) : null;
   if (open) return <Viewer photo={open} onBack={() => setViewing(null)} />;
 
@@ -112,7 +141,7 @@ export default function PhotoGallery({
     <section className="gwrap">
       <div className="ghead">
         <h3 className="grouphead">
-          팬 사진 {photos.length > 0 && <span className="cap">{photos.length}</span>}
+          사진 <span className="cap">{photos.length + (official ? 1 : 0)}</span>
         </h3>
         <button className="btn btn-ghost btn-sm" onClick={() => setAdding(true)}>
           <ImagePlus size={14} />
@@ -120,7 +149,7 @@ export default function PhotoGallery({
         </button>
       </div>
 
-      {photos.length === 0 ? (
+      {photos.length === 0 && !official ? (
         <div className="empty">
           <b>아직 올라온 사진이 없습니다</b>
           <span>직접 촬영한 {playerName} 사진을 올리면 여기에 쌓입니다.</span>
@@ -129,6 +158,13 @@ export default function PhotoGallery({
         <>
           {/* 하트 많은 순으로 3열. 첫 칸이 곧 지금 카드에 걸려 있는 사진이다 */}
           <div className="ggrid">
+            {official && (
+              <button className="gtile" onClick={() => setViewing(OFFICIAL)}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- 격자 썸네일 */}
+                <img src={official.src} alt="" />
+                <span className="otag">공식</span>
+              </button>
+            )}
             {photos.map((p) => (
               <button key={p.id} className="gtile" onClick={() => setViewing(p.id)}>
                 {/* eslint-disable-next-line @next/next/no-img-element -- 브라우저 저장소의 objectURL */}
@@ -143,7 +179,7 @@ export default function PhotoGallery({
           {/* 하트가 공유되지 않는 상태를 조용히 두면, 사용자는 자기 하트가
               남에게 보인다고 오해한다. 어느 쪽인지 그대로 말한다 */}
           <p className="note">
-            하트가 가장 많은 사진이 선수 카드에 걸립니다.
+            하트가 가장 많은 사진이 선수 카드에 걸립니다. 하트를 받기 전까지는 공식 사진이 걸립니다.
             {!sharedHearts && ' 지금은 이 브라우저에만 저장되어 하트도 이 기기에서만 세어집니다.'}
           </p>
         </>
