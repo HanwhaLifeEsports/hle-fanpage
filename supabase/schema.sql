@@ -200,10 +200,11 @@ create policy "팬 사진 지우기" on storage.objects
 --    where relnamespace = 'public'::regnamespace
 --      and relname in ('fan_photos', 'fan_hearts', 'fan_reports');
 --
--- 2) 정책이 8개 붙어 있어야 한다.
+-- 2) 정책이 7개 붙어 있어야 한다 (3 + 3 + 1).
 --    fan_photos  SELECT / INSERT / DELETE
 --    fan_hearts  SELECT / INSERT / DELETE
 --    fan_reports INSERT
+--    storage.objects 의 3개는 tablename 이 달라 아래 쿼리에 안 잡힌다.
 --    fan_photos 에 UPDATE 정책이 없는 것이 맞다. hearts 와 hidden 은
 --    트리거만 건드려야 하므로 아무에게도 수정 권한을 주지 않는다.
 --
