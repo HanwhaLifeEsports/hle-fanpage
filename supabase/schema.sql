@@ -186,6 +186,35 @@ create policy "팬 사진 지우기" on storage.objects
   using (bucket_id = 'fan-photos' and owner = auth.uid());
 
 -- ---------------------------------------------------------------------
+-- 확인
+-- ---------------------------------------------------------------------
+--
+-- 위를 실행한 뒤 아래 두 개를 돌려 본다.
+--
+-- 1) 세 표 모두 rls 가 t 여야 한다. force 는 전부 f 여야 한다.
+--    force 를 켜면 표 소유자까지 RLS 를 타게 되어, 소유자 권한으로 도는
+--    security definer 트리거가 막힌다 — 하트 수가 안 올라간다.
+--
+--    select relname, relrowsecurity as rls, relforcerowsecurity as force
+--    from pg_class
+--    where relnamespace = 'public'::regnamespace
+--      and relname in ('fan_photos', 'fan_hearts', 'fan_reports');
+--
+-- 2) 정책이 8개 붙어 있어야 한다.
+--    fan_photos  SELECT / INSERT / DELETE
+--    fan_hearts  SELECT / INSERT / DELETE
+--    fan_reports INSERT
+--    fan_photos 에 UPDATE 정책이 없는 것이 맞다. hearts 와 hidden 은
+--    트리거만 건드려야 하므로 아무에게도 수정 권한을 주지 않는다.
+--
+--    select tablename, policyname, cmd, roles
+--    from pg_policies where tablename like 'fan\_%' order by tablename, cmd;
+--
+-- 대시보드의 "새 표에 RLS 자동 활성화" 는 Table Editor 로 만든 표에만 걸린다.
+-- SQL 로 만든 이 표들은 위 alter 문이 책임진다. 다만 앞으로 표를 늘릴 때를
+-- 대비해 그 설정도 켜 두는 편이 낫다.
+--
+-- ---------------------------------------------------------------------
 -- 운영 메모
 -- ---------------------------------------------------------------------
 --
