@@ -9,12 +9,17 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
  * 화면은 그대로 뜬다. 저장소가 없다고 사이트가 못 뜰 이유가 없고, 로컬에서
  * 열쇠 없이 화면만 손볼 때도 이 편이 편하다.
  *
- * anon 키는 공개된 값이다. 숨겨야 하는 열쇠가 아니라 "여기부터는 RLS 가
- * 판단한다" 는 표시에 가깝다. 실제 권한은 전부 supabase/schema.sql 에 있다.
+ * publishable 키(sb_publishable_...)는 공개된 값이다. 숨겨야 하는 열쇠가 아니라
+ * "여기부터는 RLS 가 판단한다" 는 표시에 가깝다. 실제 권한은 전부
+ * supabase/schema.sql 에 있다. 짝이 되는 secret 키(sb_secret_...)는 RLS 를
+ * 통째로 우회하므로 이 저장소 어디에도 두지 않는다.
  */
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+/** 레거시 anon 키(2026년 말 폐기)도 값만 넣으면 그대로 동작하므로 함께 받는다 */
+const KEY =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export const hasSupabase = Boolean(URL && KEY);
 
