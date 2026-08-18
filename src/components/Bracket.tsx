@@ -108,7 +108,7 @@ export default function Bracket({ stages, ourTag }: { stages: BracketStage[]; ou
            스크롤 영역 여백 32 - 테두리 2 = 998px) 안에 딱 들어간다. 더 좁은 화면에서는
            가로로 넘어가지만 넓은 화면에서는 스크롤이 아예 생기지 않는다. */
         return (
-          <details key={st.slug} className="bstage" open={open}>
+          <details key={st.slug} className="bstage rv" open={open}>
             <summary className="bhead">
               <b>{st.name}</b>
               <span className="bhx">

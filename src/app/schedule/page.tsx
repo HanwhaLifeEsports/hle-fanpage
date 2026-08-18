@@ -23,8 +23,8 @@ export default async function SchedulePage() {
   } catch {
     return (
       <div className="wrap sec">
-        <h2 className="ko ptitle">일정을 불러오지 못했습니다</h2>
-        <p className="lede" style={{ marginTop: 10 }}>잠시 뒤 새로고침해 주세요.</p>
+        <h2 className="ko ptitle rv">일정을 불러오지 못했습니다</h2>
+        <p className="lede rv" style={{ marginTop: 10 }}>잠시 뒤 새로고침해 주세요.</p>
       </div>
     );
   }
@@ -44,12 +44,12 @@ export default async function SchedulePage() {
 
   return (
     <div className="wrap sec">
-      <h2 className="ko ptitle">일정 &amp; 순위</h2>
-      <p className="lede" style={{ margin: '10px 0 var(--s5)' }}>
+      <h2 className="ko ptitle rv">일정 &amp; 순위</h2>
+      <p className="lede rv" style={{ margin: '10px 0 var(--s5)' }}>
         {SEASON.year} 시즌 · {SEASON.format}
       </p>
 
-      <div className="shead">
+      <div className="shead rv">
         <h2 className="ko">순위표</h2>
         <span className="cap">{new Date(fetchedAt).toLocaleTimeString('ko-KR')} 기준</span>
       </div>
@@ -61,14 +61,14 @@ export default async function SchedulePage() {
         정규 1~2라운드와 3~4라운드를 <b>합산한 성적</b>입니다. 동률은 승자승, 그다음 세트 득실 순으로 가립니다.
       </div>
 
-      <div className="shead">
+      <div className="shead rv">
         <h2 className="ko">경기 일정</h2>
       </div>
       <MatchFilter matches={regular} ourTag={OUR_TAG} />
 
       {season.bracket.length > 0 && (
         <>
-          <div className="shead">
+          <div className="shead rv">
             <h2 className="ko">포스트시즌</h2>
           </div>
 
@@ -76,10 +76,10 @@ export default async function SchedulePage() {
               확률로 말해 준다. 확정되면 이 자리가 실제 팀으로 채워진다. */}
           {!confirmed && odds.length > 0 && (
             <>
-              <p className="lede" style={{ margin: '0 0 var(--s4)' }}>
+              <p className="lede rv" style={{ margin: '0 0 var(--s4)' }}>
                 아직 대진이 정해지지 않았습니다. 남은 경기를 전부 전개해 계산한 {OUR_TAG} 진출 예상입니다.
               </p>
-              <div className="bodds">
+              <div className="bodds rv">
                 {odds.map((o) => (
                   <div
                     className={`bodd${o.pct >= 50 ? ' odlead' : ''}${o.pct === 0 ? ' odnone' : ''}`}

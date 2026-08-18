@@ -24,13 +24,13 @@ export default async function RosterPage() {
 
   return (
     <div className="wrap sec">
-      <h2 className="ko ptitle">선수단 2026</h2>
-      <p className="lede" style={{ margin: '10px 0 var(--s5)' }}>
+      <h2 className="ko ptitle rv">선수단 2026</h2>
+      <p className="lede rv" style={{ margin: '10px 0 var(--s5)' }}>
         카드를 누르면 정규시즌 기록이 열립니다. 최애 선수로 지정하면 그 선수 알림만 따로 받아요.
       </p>
 
       {joined.length > 0 && (
-        <div className="banner" style={{ marginBottom: 'var(--s5)' }}>
+        <div className="banner rv" style={{ marginBottom: 'var(--s5)' }}>
           <div>
             <b>2026 시즌 새 얼굴</b>
             <span>
@@ -43,12 +43,12 @@ export default async function RosterPage() {
 
       <RosterRail stats={stats} champions={champions} contracts={contracts} />
 
-      <div className="shead" style={{ marginTop: 'var(--s7)' }}>
+      <div className="shead rv" style={{ marginTop: 'var(--s7)' }}>
         <h2 className="ko">코칭스태프</h2>
       </div>
-      <div className="statgrid">
+      <div className="statgrid rv">
         {STAFF.map((s) => (
-          <div className="card" key={s.id}>
+          <div className="card rv" key={s.id}>
             <div style={{ fontSize: 18, fontWeight: 600 }}>{s.nm}</div>
             <div className="cap" style={{ marginTop: 2 }}>
               {s.ko} · {s.role}

@@ -86,12 +86,12 @@ export default function MePage() {
 
   return (
     <div className="wrap sec">
-      <h2 className="ko ptitle" style={{ marginBottom: 'var(--s5)' }}>
+      <h2 className="ko ptitle rv" style={{ marginBottom: 'var(--s5)' }}>
         알림 설정
       </h2>
 
       {iosHint && (
-        <div className="banner" style={{ marginBottom: 'var(--s5)' }}>
+        <div className="banner rv" style={{ marginBottom: 'var(--s5)' }}>
           <div>
             <b>아이폰은 홈 화면에 추가해야 알림이 옵니다</b>
             <span>
@@ -101,7 +101,7 @@ export default function MePage() {
         </div>
       )}
 
-      <div className="card" style={{ marginBottom: 'var(--s5)' }}>
+      <div className="card rv" style={{ marginBottom: 'var(--s5)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
           <div>
             <b style={{ fontSize: 15 }}>브라우저 알림 권한</b>
@@ -120,21 +120,21 @@ export default function MePage() {
         </div>
       </div>
 
-      <div className="card" style={{ marginBottom: 'var(--s5)' }}>
+      <div className="card rv" style={{ marginBottom: 'var(--s5)' }}>
         <h3 className="grouphead">경기</h3>
         {PREFS.filter((p) => p.g === 'match').map((p) => (
           <Row key={p.k} k={p.k} t={p.t} d={p.d} lead={'lead' in p ? p.lead : undefined} />
         ))}
       </div>
 
-      <div className="card" style={{ marginBottom: 'var(--s5)' }}>
+      <div className="card rv" style={{ marginBottom: 'var(--s5)' }}>
         <h3 className="grouphead">기타</h3>
         {PREFS.filter((p) => p.g === 'etc').map((p) => (
           <Row key={p.k} k={p.k} t={p.t} d={p.d} />
         ))}
       </div>
 
-      <div className="card">
+      <div className="card rv">
         <h3 className="grouphead">내 정보</h3>
         <p className="cap" style={{ marginBottom: 'var(--s4)' }}>
           {favPlayer ? `최애 선수 · ${favPlayer.nm} (${favPlayer.ko})` : '최애 선수를 지정하지 않았습니다.'}

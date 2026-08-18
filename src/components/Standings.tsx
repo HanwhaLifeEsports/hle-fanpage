@@ -5,11 +5,11 @@ export default function Standings({ rows, group }: { rows: TeamRow[]; group: Gro
   const meta = SEASON[group];
   return (
     <>
-      <div className="grouplabel">
+      <div className="grouplabel rv">
         <b>{meta.label}</b>
         {meta.note}
       </div>
-      <div style={{ overflowX: 'auto' }}>
+      <div className="rv" style={{ overflowX: 'auto' }}>
         <table>
           <thead>
             <tr>

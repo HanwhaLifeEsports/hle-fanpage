@@ -5,6 +5,7 @@ import './globals.css';
 import { AppBar, BottomTabs } from '@/components/Chrome';
 import { Toasts } from '@/components/Shared';
 import RegisterSW from '@/components/RegisterSW';
+import Reveal from '@/components/Reveal';
 import { ABUSE_CONTACT, SITE_DESC, SITE_NAME, SITE_URL } from '@/lib/site';
 
 // 라틴 초대형 디스플레이 전용. 한글은 자체 호스팅한 Freesentation (globals.css)
@@ -62,10 +63,16 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
             __html: `try{var t=localStorage.getItem('hle-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}`,
           }}
         />
+        {/* 자바스크립트가 꺼져 있으면 등장 효과를 걸 사람이 없어 화면이 통째로 빈다.
+            기본을 '효과 없음' 으로 두고 스크립트가 돌 때만 켠다 */}
+        <noscript>
+          <style>{`.rv{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
       </head>
       <body>
         <Toasts />
         <RegisterSW />
+        <Reveal />
         <AppBar />
         <main>{children}</main>
         <footer>

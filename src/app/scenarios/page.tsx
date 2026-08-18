@@ -20,8 +20,8 @@ export default async function ScenariosPage() {
   } catch {
     return (
       <div className="wrap sec">
-        <h2 className="ko ptitle">경우의 수를 계산하지 못했습니다</h2>
-        <p className="lede" style={{ marginTop: 10 }}>잠시 뒤 새로고침해 주세요.</p>
+        <h2 className="ko ptitle rv">경우의 수를 계산하지 못했습니다</h2>
+        <p className="lede rv" style={{ marginTop: 10 }}>잠시 뒤 새로고침해 주세요.</p>
       </div>
     );
   }
@@ -44,13 +44,13 @@ export default async function ScenariosPage() {
 
   return (
     <div className="wrap sec">
-      <h2 className="ko ptitle">플레이오프 경우의 수</h2>
-      <p className="lede" style={{ margin: '10px 0 var(--s5)' }}>
+      <h2 className="ko ptitle rv">플레이오프 경우의 수</h2>
+      <p className="lede rv" style={{ margin: '10px 0 var(--s5)' }}>
 {SEASON[ourGroup].label} 잔여 {sc.remaining.length}경기에서 나올 수 있는 모든 결과를 따져본 확률입니다.
       </p>
 
       {us && (
-        <div className="card" style={{ marginBottom: 'var(--s6)' }}>
+        <div className="card rv" style={{ marginBottom: 'var(--s6)' }}>
           <div className="oddsrow">
             <div>
               <div className="num" style={{ fontSize: 52, color: 'var(--flame-text)' }}>
@@ -83,7 +83,7 @@ export default async function ScenariosPage() {
         </div>
       )}
 
-      <div className="shead">
+      <div className="shead rv">
         <h2 className="ko">최종 순위 확률</h2>
       </div>
       <div className="bars">
@@ -114,7 +114,7 @@ export default async function ScenariosPage() {
         주황 막대가 <b>월즈 진출이 확정되는 순위</b>입니다. 아래로 갈수록 순위가 낮아집니다.
       </div>
 
-      <div className="shead">
+      <div className="shead rv">
         <h2 className="ko">잔여 경기 승수별</h2>
       </div>
       <div style={{ overflowX: 'auto' }}>
@@ -158,10 +158,10 @@ export default async function ScenariosPage() {
         </table>
       </div>
 
-      <div className="shead">
+      <div className="shead rv">
         <h2 className="ko">경기별 영향력</h2>
       </div>
-      <p className="lede" style={{ marginBottom: 'var(--s4)' }}>
+      <p className="lede rv" style={{ marginBottom: 'var(--s4)' }}>
         각 경기의 승패가 HLE의 {bands[0].label} 확률을 얼마나 흔드는지입니다. 차이가 큰 경기일수록 중요합니다.
       </p>
       <div style={{ overflowX: 'auto' }}>
@@ -199,10 +199,10 @@ export default async function ScenariosPage() {
         </table>
       </div>
 
-      <div className="shead">
+      <div className="shead rv">
         <h2 className="ko">잔여 일정</h2>
       </div>
-      <div className="plist">
+      <div className="plist rv">
         {sc.remaining.map((m) => (
           <div className="prow" key={m.id} style={{ cursor: 'default' }}>
             <span className="bd">{m.a === OUR_TAG || m.b === OUR_TAG ? 'HLE' : SEASON[ourGroup].label}</span>

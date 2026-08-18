@@ -7,7 +7,7 @@ import LiveNow from '@/components/LiveNow';
 import RosterRail from '@/components/Roster';
 import { getSeason } from '@/lib/season';
 import { getPlayerStats } from '@/lib/naver';
-import { getChampionStats } from '@/lib/leaguepedia';
+import { getChampionStats, getContracts } from '@/lib/leaguepedia';
 import { OUR_TAG, SEASON } from '@/lib/lck2026';
 import { LEGEND_BANDS, RISE_BANDS, countIn, worldsRanks } from '@/lib/scenarios';
 
@@ -17,19 +17,24 @@ export default async function Home() {
   // 선수 기록은 순위·일정과 별개 출처라 나란히 시작한다. 실패해도 던지지 않고 null 이 온다
   const statsPromise = getPlayerStats();
   const champsPromise = getChampionStats();
+  const contractsPromise = getContracts();
   let bundle;
   try {
     bundle = await getSeason();
   } catch {
     return (
       <div className="wrap sec">
-        <h2 className="ko ptitle">지금 순위·일정을 불러오지 못했습니다</h2>
-        <p className="lede" style={{ marginTop: 10 }}>잠시 뒤 새로고침해 주세요.</p>
+        <h2 className="ko ptitle rv">지금 순위·일정을 불러오지 못했습니다</h2>
+        <p className="lede rv" style={{ marginTop: 10 }}>잠시 뒤 새로고침해 주세요.</p>
       </div>
     );
   }
 
-  const [stats, champions] = await Promise.all([statsPromise, champsPromise]);
+  const [stats, champions, contracts] = await Promise.all([
+    statsPromise,
+    champsPromise,
+    contractsPromise,
+  ]);
   const { season, us, next, recent, ourGroup, scenarios } = bundle;
   const upcoming = season.matches
     .filter((m) => m.stage === 'regular' && m.state !== 'completed')
@@ -39,7 +44,16 @@ export default async function Home() {
   const bands = ourGroup === 'legend' ? LEGEND_BANDS : RISE_BANDS;
   const bandOf = (r: number) => bands.find((b) => b.ranks.includes(r));
   const opp = next ? sidesOf(next).them : null;
-  const oppRow = opp ? group.find((t) => t.code === opp.code) : undefined;
+  /* 상대를 우리 그룹에서만 찾으면 다른 그룹 팀일 때 전적이 통째로 빈다.
+     두 그룹을 모두 뒤지고 어느 그룹인지도 함께 들고 온다 */
+  const findTeam = (code: string) => {
+    for (const g of ['legend', 'rise'] as const) {
+      const row = season[g].find((t) => t.code === code);
+      if (row) return { row, g };
+    }
+    return null;
+  };
+  const oppTeam = opp ? findTeam(opp.code) : null;
   // MSI 우승으로 플레이오프 진출 = 월즈 확정. 팬이 가장 궁금해하는 단일 지표라 이걸 앞세운다.
   // rank[] 는 경우의 수 '개수'라 백분율로 환산해야 한다
   const wRanks = worldsRanks(bands);
@@ -76,9 +90,14 @@ export default async function Home() {
               <div className="crest us">{OUR_TAG}</div>
               <div>
                 <b>한화생명e스포츠</b>
+                {/* 한 줄로 두면 좁은 화면에서 아무 데서나 접힌다. 두 줄로 나눠
+                    어디서 끊길지 우리가 정한다 */}
                 <span className="cap">
-                  {us.w}승 {us.l}패 · {SEASON[ourGroup].label} {us.rank}위 ({us.diff >= 0 ? '+' : ''}
-                  {us.diff})
+                  {us.w}승 {us.l}패 · {us.diff >= 0 ? '+' : ''}
+                  {us.diff}
+                </span>
+                <span className="cap grp">
+                  {SEASON[ourGroup].label} {us.rank}위
                 </span>
               </div>
             </div>
@@ -91,9 +110,19 @@ export default async function Home() {
             <div className="t r">
               <div>
                 <b>{opp.name}</b>
-                <span className="cap">
-                  {oppRow ? `${oppRow.w}승 ${oppRow.l}패 · ${oppRow.rank}위` : next.blockName}
-                </span>
+                {oppTeam ? (
+                  <>
+                    <span className="cap">
+                      {oppTeam.row.w}승 {oppTeam.row.l}패 · {oppTeam.row.diff >= 0 ? '+' : ''}
+                      {oppTeam.row.diff}
+                    </span>
+                    <span className="cap grp">
+                      {SEASON[oppTeam.g].label} {oppTeam.row.rank}위
+                    </span>
+                  </>
+                ) : (
+                  <span className="cap">{next.blockName}</span>
+                )}
               </div>
               <div className="crest them">{opp.code}</div>
             </div>
@@ -102,21 +131,21 @@ export default async function Home() {
       )}
 
       <div className="wrap sec">
-        <div className="shead">
+        <div className="shead rv">
           <h2 className="ko">중계 보기</h2>
         </div>
         <LiveNow />
 
         {us && (
           <>
-            <div className="shead">
+            <div className="shead rv">
               <h2 className="ko">플레이오프 가는 길</h2>
               <Link className="btn btn-ghost btn-sm" href="/scenarios">
                 <Waypoints size={14} />
                 경우의 수
               </Link>
             </div>
-            <div className="card">
+            <div className="card rv">
               <div className="oddsrow">
                 <div>
                   <div className="num" style={{ fontSize: 44 }}>
@@ -140,36 +169,36 @@ export default async function Home() {
           </>
         )}
 
-        <div className="shead">
+        <div className="shead rv">
           <h2 className="ko">최근 경기</h2>
           <Link className="btn btn-ghost btn-sm" href="/schedule">
             <ListOrdered size={14} />
             전체 결과
           </Link>
         </div>
-        <div className="g3">
+        <div className="g3 rv">
           {recent.map((m) => (
             <MatchCard key={m.id} m={m} />
           ))}
         </div>
 
-        <div className="shead">
+        <div className="shead rv">
           <h2 className="ko">선수단</h2>
           <Link className="btn btn-ghost btn-sm" href="/roster">
             <Users size={14} />
             전체 프로필
           </Link>
         </div>
-        <RosterRail stats={stats} champions={champions} />
+        <RosterRail stats={stats} champions={champions} contracts={contracts} />
 
-        <div className="shead">
+        <div className="shead rv">
           <h2 className="ko">다가오는 일정</h2>
           <Link className="btn btn-ghost btn-sm" href="/schedule">
             <CalendarDays size={14} />
             전체 일정
           </Link>
         </div>
-        <div className="g3">
+        <div className="g3 rv">
           {upcoming.map((m) => (
             <MatchCard key={m.id} m={m} />
           ))}

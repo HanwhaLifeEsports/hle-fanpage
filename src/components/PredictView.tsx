@@ -42,15 +42,15 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
 
   return (
     <div className="wrap sec">
-      <h2 className="ko ptitle">승부예측</h2>
-      <p className="lede" style={{ marginTop: 10 }}>
+      <h2 className="ko ptitle rv">승부예측</h2>
+      <p className="lede rv" style={{ marginTop: 10 }}>
         세트 스코어를 맞히면 3점, 승패만 맞히면 1점입니다. 경기가 끝나면 실제 결과와 대조해 자동으로
         채점됩니다.
       </p>
 
       {graded.length > 0 && (
-        <div className="card" style={{ marginTop: 'var(--s5)' }}>
-          <div className="statgrid">
+        <div className="card rv" style={{ marginTop: 'var(--s5)' }}>
+          <div className="statgrid rv">
             {(
               [
                 ['누적 점수', `${total}점`],
@@ -69,12 +69,12 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
         </div>
       )}
 
-      <div className="shead">
+      <div className="shead rv">
         <h2 className="ko">다가오는 경기</h2>
       </div>
 
       {open.length === 0 ? (
-        <div className="empty">
+        <div className="empty rv">
           <b>예측할 경기가 없습니다</b>
           <span>다음 일정이 나오면 여기에서 예측할 수 있습니다.</span>
         </div>
@@ -82,7 +82,7 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
         open.map((m) => {
           const mine = picks[m.id];
           return (
-            <div className="card" style={{ marginBottom: 'var(--s4)' }} key={m.id}>
+            <div className="card rv" style={{ marginBottom: 'var(--s4)' }} key={m.id}>
               <div className="oddsrow" style={{ alignItems: 'center', marginBottom: 'var(--s3)' }}>
                 <b style={{ fontSize: 16 }}>HLE vs {m.opponent}</b>
                 <span className="cap">
@@ -118,16 +118,16 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
         })
       )}
 
-      <div className="shead">
+      <div className="shead rv">
         <h2 className="ko">내 예측 기록</h2>
       </div>
       {graded.length === 0 ? (
-        <div className="empty">
+        <div className="empty rv">
           <b>아직 채점된 예측이 없습니다</b>
           <span>예측한 경기가 끝나면 결과가 여기에 쌓입니다.</span>
         </div>
       ) : (
-        <div className="plist">
+        <div className="plist rv">
           {graded
             .sort((x, y) => y.m.startTime.localeCompare(x.m.startTime))
             .map(({ m, pick, pts }) => (
