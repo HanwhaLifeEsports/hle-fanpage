@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -126,8 +127,29 @@ function NotifyButton({ permission, onAsk }: { permission: string; onAsk: () => 
 
 export function BottomTabs() {
   const path = usePathname();
+  const idx = TABS.findIndex((t) => isOn(path, t.href));
+
+  /* 탭이 바뀌는 동안만 빛줄기를 늘여 준다. 늘어났다 돌아오는 움직임이 있어야
+     "이동" 이 아니라 "흘러갔다" 로 보인다. 전환 시간과 같은 길이로 되돌린다. */
+  const [moving, setMoving] = useState(false);
+  useEffect(() => {
+    if (idx < 0) return;
+    setMoving(true);
+    const t = setTimeout(() => setMoving(false), 500);
+    return () => clearTimeout(t);
+  }, [idx]);
+
   return (
     <nav className="tabs">
+      {/* 지금 탭이 목록에 없는 화면(선수단 등)에서는 아무 칸도 가리키지 않으므로
+          빛줄기를 걸지 않는다 */}
+      {idx >= 0 && (
+        <span
+          className={`tabglow${moving ? ' move' : ''}`}
+          style={{ '--i': idx } as React.CSSProperties}
+          aria-hidden
+        />
+      )}
       {TABS.map((t) => (
         <Link key={t.href} href={t.href} className={isOn(path, t.href) ? 'on' : undefined}>
           <t.Icon />
