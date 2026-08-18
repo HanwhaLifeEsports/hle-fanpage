@@ -53,7 +53,11 @@ export type Band = 'upper' | 'lower';
 export interface BracketCell {
   name: string;
   slug: string;
-  /** 몇 번째 열인가 (0부터). 라운드가 진행될수록 오른쪽으로 간다 */
+  /**
+   * 몇 번째 열인가 (0부터). 응답의 열 번호가 아니라 의존 관계로 직접 계산한다.
+   * 원본은 승자조 결승을 5열, 결승을 7열에 두는데 실제로는 각각 2열·5열이면
+   * 충분하다 — 그대로 쓰면 가로로 두 열만큼 더 길어진다.
+   */
   col: number;
   band: Band;
   matches: BracketMatch[];
@@ -115,7 +119,9 @@ const isLower = (slug: string) => slug.startsWith('lower_bracket') || slug.start
  * 도착지 표기("→ 2라운드")도 같은 함수를 쓴다. 칸 이름과 도착지가 다르게 불리면
  * 어디로 가는지 알 수 없다.
  */
-export function cellLabel(slug: string, name: string): string {
+export function cellLabel(slug: string, name: string, stageSlug?: string): string {
+  // 플레이인의 마지막 경기는 진출자를 가리는 자리다. '2라운드' 보다 뜻이 분명하다
+  if (stageSlug === 'play_ins' && slug === 'round_2') return '최종전';
   if (slug === 'finals') return '결승';
   if (slug === 'upper_bracket_finals') return '승자조 결승';
   if (slug.endsWith('_finals')) return '패자조 결승';
@@ -151,18 +157,32 @@ const stageName = (name: string) =>
  *
  * 근거 2가 한 시즌 표본이라, 리그가 배치를 바꾸면 이 표기도 함께 고쳐야 한다.
  */
-export function slotSeed(stageSlug: string, cellSlug: string, teamIndex: number): string | null {
-  // 2025 플레이인 배치는 [레전드5위+라이즈3위], [라이즈2위+라이즈1위] 로 규칙성이
-  // 없었다. 자리마다 적을 근거가 없어 칸 단위로만 남긴다
-  if (stageSlug === 'play_ins') return null;
+export function slotSeed(
+  stageSlug: string,
+  cellSlug: string,
+  matchIndex: number,
+  teamIndex: number,
+): string | null {
+  if (stageSlug === 'play_ins') {
+    if (cellSlug !== 'round_1') return null;
+    // 2026 공개 대진 기준. 1경기는 그룹을 가로질러, 2경기는 라이즈끼리 붙는다.
+    // 2025 는 [레전드5+라이즈3], [라이즈2+라이즈1] 로 배치가 달랐다 —
+    // 시즌마다 바뀌므로 새 시즌 대진이 나오면 여기를 다시 확인해야 한다.
+    const PLAY_IN = [
+      ['레전드 그룹 5위', '라이즈 그룹 1위'],
+      ['라이즈 그룹 2위', '라이즈 그룹 3위'],
+    ];
+    return PLAY_IN[matchIndex]?.[teamIndex] ?? null;
+  }
   if (cellSlug === 'round_1') return teamIndex === 0 ? '레전드 그룹 3~4위' : '플레이인 통과';
   if (cellSlug === 'upper_bracket_round_2' && teamIndex === 0) return '레전드 그룹 1~2위';
   return null;
 }
 
 /** 라운드 전체에 무엇이 들어오는지. 자리마다 적을 수 없는 칸에 쓴다 */
-export function seedNote(stageSlug: string, cellSlug: string): string | null {
-  if (stageSlug === 'play_ins' && cellSlug === 'round_1') return '레전드 그룹 5위 · 라이즈 그룹 1~3위';
+export function seedNote(): string | null {
+  // 지금은 자리마다 적을 수 있어 쓰이지 않는다. 포맷이 바뀌어 자리를 특정할 수
+  // 없게 되면 다시 칸 단위 안내가 필요하다
   return null;
 }
 
@@ -188,7 +208,7 @@ interface RawTeam {
 function toTeam(
   t: RawTeam | null | undefined,
   cellOf: Map<string, string>,
-  seat: { stage: string; cell: string; index: number },
+  seat: { stage: string; cell: string; match: number; index: number },
 ): BracketTeam {
   if (!t || !t.code || t.code === 'TBD') {
     const o = t?.origin;
@@ -198,7 +218,7 @@ function toTeam(
       // slot 1 = 승자, 2 = 패자. 2025 데이터 18건으로 확인했다
       if (src) from = `${src} ${o.slot === 1 ? '승자' : '패자'}`;
     } else {
-      from = slotSeed(seat.stage, seat.cell, seat.index);
+      from = slotSeed(seat.stage, seat.cell, seat.match, seat.index);
     }
     return tbdTeam(from);
   }
@@ -236,7 +256,7 @@ export function buildBracket(stages: RawBracketStage[], matches: MatchRow[]): Br
       for (const col of sec.columns ?? []) {
         for (const cell of col.cells ?? []) {
           for (const m of cell.matches ?? []) {
-            if (m.structuralId) cellOf.set(m.structuralId, cellLabel(cell.slug, cell.name));
+            if (m.structuralId) cellOf.set(m.structuralId, cellLabel(cell.slug, cell.name, st.slug));
           }
         }
       }
@@ -252,8 +272,8 @@ export function buildBracket(stages: RawBracketStage[], matches: MatchRow[]): Br
               if (o?.type !== 'match') continue;
               const d = dest.get(o.structuralId) ?? {};
               // slot 1 = 승자, 2 = 패자 (2025 데이터 18건으로 확인)
-              if (o.slot === 1) d.win = cellLabel(cell.slug, cell.name);
-              else d.loss = cellLabel(cell.slug, cell.name);
+              if (o.slot === 1) d.win = cellLabel(cell.slug, cell.name, st.slug);
+              else d.loss = cellLabel(cell.slug, cell.name, st.slug);
               dest.set(o.structuralId, d);
             }
           }
@@ -262,27 +282,83 @@ export function buildBracket(stages: RawBracketStage[], matches: MatchRow[]): Br
     }
   }
 
+  // structuralId -> 그 경기가 속한 칸의 고유 키. 이름은 조마다 겹치므로("1라운드")
+  // 스테이지와 slug 를 붙여 쓴다
+  const keyOf = new Map<string, string>();
+  for (const st of stages) {
+    for (const sec of st.sections ?? []) {
+      for (const col of sec.columns ?? []) {
+        for (const cell of col.cells ?? []) {
+          for (const m of cell.matches ?? []) {
+            if (m.structuralId) keyOf.set(m.structuralId, `${st.slug}|${cell.slug}`);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 칸이 어느 칸 다음에 오는가. 여기서 열 번호를 계산한다.
+   *
+   * 응답의 columns[] 순서를 그대로 쓰면 대진표가 필요 이상으로 넓어진다.
+   * 실제 제약은 "앞선 경기가 끝나야 이 경기가 성립한다" 뿐이므로, 그 관계만
+   * 지키면서 왼쪽으로 최대한 당긴다.
+   */
+  const deps = new Map<string, Set<string>>();
+  for (const st of stages) {
+    for (const sec of st.sections ?? []) {
+      for (const col of sec.columns ?? []) {
+        for (const cell of col.cells ?? []) {
+          const key = `${st.slug}|${cell.slug}`;
+          const set = deps.get(key) ?? new Set<string>();
+          for (const m of cell.matches ?? []) {
+            for (const t of m.teams ?? []) {
+              const o = t?.origin;
+              if (o?.type !== 'match') continue;
+              const src = keyOf.get(o.structuralId);
+              if (src && src !== key) set.add(src);
+            }
+          }
+          deps.set(key, set);
+        }
+      }
+    }
+  }
+
+  const colCache = new Map<string, number>();
+  const colOf = (key: string, seen = new Set<string>()): number => {
+    const hit = colCache.get(key);
+    if (hit !== undefined) return hit;
+    // 순환은 있을 수 없지만, 있어도 무한히 돌지 않게 막는다
+    if (seen.has(key)) return 0;
+    seen.add(key);
+    let n = 0;
+    for (const d of deps.get(key) ?? []) n = Math.max(n, colOf(d, seen) + 1);
+    colCache.set(key, n);
+    return n;
+  };
+
   return stages
     .map((st) => {
       const cells: BracketCell[] = [];
       for (const sec of st.sections ?? []) {
         if (sec.type !== 'bracket') continue;
-        (sec.columns ?? []).forEach((col, ci) => {
+        (sec.columns ?? []).forEach((col) => {
           for (const cell of col.cells ?? []) {
             cells.push({
-              name: cellLabel(cell.slug, cell.name),
+              name: cellLabel(cell.slug, cell.name, st.slug),
               slug: cell.slug,
-              col: ci,
+              col: colOf(`${st.slug}|${cell.slug}`),
               band: isLower(cell.slug) ? 'lower' : 'upper',
-              matches: (cell.matches ?? []).map((m) => {
+              matches: (cell.matches ?? []).map((m, mi) => {
                 const d = (m.structuralId && dest.get(m.structuralId)) || {};
                 return {
                   id: m.id,
                   state: m.state,
                   startTime: when.get(m.id) ?? null,
                   teams: [
-                    toTeam(m.teams?.[0], cellOf, { stage: st.slug, cell: cell.slug, index: 0 }),
-                    toTeam(m.teams?.[1], cellOf, { stage: st.slug, cell: cell.slug, index: 1 }),
+                    toTeam(m.teams?.[0], cellOf, { stage: st.slug, cell: cell.slug, match: mi, index: 0 }),
+                    toTeam(m.teams?.[1], cellOf, { stage: st.slug, cell: cell.slug, match: mi, index: 1 }),
                   ] as [BracketTeam, BracketTeam],
                   // 다음 경기가 없는 자리는 빈칸으로 두지 않고 무슨 뜻인지 적는다.
                   // 플레이인 승자는 스테이지를 벗어나므로 응답에 도착지가 없다 —

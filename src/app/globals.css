@@ -575,13 +575,15 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 .bscroll::-webkit-scrollbar-button{display:none;width:0;height:0}
 
 /* 1행 승자조띠 · 2행 승자조 · 3행 패자조띠 · 4행 패자조 */
-.bgrid{display:grid;gap:0 var(--s3);align-items:start;width:max-content}
+/* 반 칸 격자다. 열 사이 gap 을 주면 반 칸 어긋남이 gap 만큼 더 벌어지므로
+   간격은 칸 안쪽 padding 으로 만든다 */
+.bgrid{display:grid;gap:0;align-items:start;width:max-content}
 .bband{font-size:11.5px;font-weight:700;letter-spacing:.1em;padding:6px 11px;border-radius:3px;
   margin-bottom:var(--s3);position:sticky;left:0}
 .bband.up{background:var(--win-soft);color:var(--win)}
 .bband.low{background:var(--tint-1);color:var(--mute);margin-top:var(--s5)}
 
-.bcell{min-width:0}
+.bcell{min-width:0;padding:0 5px}
 /* 시드 안내가 붙는 칸과 안 붙는 칸의 제목 높이를 맞춘다. 안 맞추면 같은 행의
    경기 카드가 서로 다른 높이에서 시작해 라운드가 어긋나 보인다 */
 .bcellname{font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--ink);

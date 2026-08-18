@@ -75,6 +75,17 @@ export default function Bracket({ stages, ourTag }: { stages: BracketStage[]; ou
         const hasLower = st.cells.some((c) => c.band === 'lower');
         // 띠가 있으면 1행 승자조띠 · 2행 승자조 · 3행 패자조띠 · 4행 패자조
         const rowOf = (band: string) => (!hasLower ? 1 : band === 'upper' ? 2 : 4);
+
+        /* 열을 반 칸 단위로 쪼갠다.
+           패자조를 승자조보다 반 칸 왼쪽에 놓으면 "여기서 떨어진 팀이 아래로 간다" 는
+           관계가 가로 위치로 드러난다. 같은 열에 딱 맞추면 두 조가 무관해 보이고,
+           한 칸을 통째로 밀면 대진표가 그만큼 길어진다. */
+        const half = (c: { col: number; band: string }) =>
+          c.band === 'upper' ? c.col * 2 + 1 : c.col * 2;
+        const halfCols = st.cells.reduce((n, c) => Math.max(n, half(c) + 1), 2);
+        /* 반 칸 폭. 12 반칸 x 83px = 996px 으로 본문 폭(1080 - 좌우 여백 48 -
+           스크롤 영역 여백 32 - 테두리 2 = 998px) 안에 딱 들어간다. 더 좁은 화면에서는
+           가로로 넘어가지만 넓은 화면에서는 스크롤이 아예 생기지 않는다. */
         return (
           <section key={st.slug} className="bstage">
             <div className="bhead">
@@ -83,7 +94,7 @@ export default function Bracket({ stages, ourTag }: { stages: BracketStage[]; ou
             </div>
 
             <div className="bscroll">
-              <div className="bgrid" style={{ gridTemplateColumns: `repeat(${st.cols}, 190px)` }}>
+              <div className="bgrid" style={{ gridTemplateColumns: `repeat(${halfCols}, 83px)` }}>
                 {hasLower && (
                   <>
                     <div className="bband up" style={{ gridColumn: '1 / -1', gridRow: 1 }}>
@@ -96,12 +107,12 @@ export default function Bracket({ stages, ourTag }: { stages: BracketStage[]; ou
                 )}
                 {st.cells.map((cell) => {
                   const name = cell.name; // bracket.ts 의 cellLabel 이 이미 다듬어 뒀다
-                  const note = seedNote(st.slug, cell.slug);
+                  const note = seedNote();
                   return (
                     <div
                       className={`bcell ${cell.band}`}
                       key={`${cell.band}-${cell.slug}`}
-                      style={{ gridColumn: cell.col + 1, gridRow: rowOf(cell.band) }}
+                      style={{ gridColumn: `${half(cell)} / span 2`, gridRow: rowOf(cell.band) }}
                     >
                       <div className="bcellname">
                         {name}
