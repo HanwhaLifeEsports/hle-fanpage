@@ -1,7 +1,17 @@
 import Image from 'next/image';
 import { fmtDate } from '@/lib/format';
 import { SEASON } from '@/lib/lck2026';
-import { type BracketMatch, type BracketStage, type BracketTeam, seedNote } from '@/lib/bracket';
+import { ChevronDown } from 'lucide-react';
+import {
+  seedNote,
+  type BracketMatch,
+  type BracketStage,
+  type BracketTeam,
+} from '@/lib/bracket';
+
+/** 이 스테이지 대진에 우리 팀이 올라와 있는가 */
+const hasOurTeam = (st: BracketStage, code: string) =>
+  st.cells.some((c) => c.matches.some((m) => m.teams.some((t) => t.code === code)));
 
 /**
  * 포스트시즌 대진표.
@@ -71,7 +81,12 @@ function Match({ m, ourTag, label }: { m: BracketMatch; ourTag: string; label: s
 export default function Bracket({ stages, ourTag }: { stages: BracketStage[]; ourTag: string }) {
   return (
     <>
-      {stages.map((st) => {
+      {stages.map((st, si) => {
+        const ours = hasOurTeam(st, ourTag);
+        /* 우리 팀이 없는 앞 스테이지는 접어 둔다. 플레이인은 우리가 갈 자리가 아닌데
+           본선보다 위에 펼쳐져 있으면 정작 볼 것이 아래로 밀린다.
+           마지막 스테이지(본선)는 항상 펼친다. */
+        const open = ours || si === stages.length - 1;
         const hasLower = st.cells.some((c) => c.band === 'lower');
         // 띠가 있으면 1행 승자조띠 · 2행 승자조 · 3행 패자조띠 · 4행 패자조
         const rowOf = (band: string) => (!hasLower ? 1 : band === 'upper' ? 2 : 4);
@@ -87,11 +102,14 @@ export default function Bracket({ stages, ourTag }: { stages: BracketStage[]; ou
            스크롤 영역 여백 32 - 테두리 2 = 998px) 안에 딱 들어간다. 더 좁은 화면에서는
            가로로 넘어가지만 넓은 화면에서는 스크롤이 아예 생기지 않는다. */
         return (
-          <section key={st.slug} className="bstage">
-            <div className="bhead">
+          <details key={st.slug} className="bstage" open={open}>
+            <summary className="bhead">
               <b>{st.name}</b>
-              <span>{SEASON.year} LCK 대진표</span>
-            </div>
+              <span className="bhx">
+                {SEASON.year} LCK 대진표
+                <ChevronDown size={15} aria-hidden />
+              </span>
+            </summary>
 
             <div className="bscroll">
               <div className="bgrid" style={{ gridTemplateColumns: `repeat(${halfCols}, 83px)` }}>
@@ -141,12 +159,16 @@ export default function Bracket({ stages, ourTag }: { stages: BracketStage[]; ou
                 <i className="ll" aria-hidden />
                 패자
               </span>
-              <span>
-                <i className="lm" aria-hidden />
-                {ourTag}
-              </span>
+              {/* 우리 팀이 이 대진에 없으면 주황을 쓸 일이 없다. 쓰이지 않는 색을
+                  범례에 두면 어디 있는지 찾게 된다 */}
+              {ours && (
+                <span>
+                  <i className="lm" aria-hidden />
+                  {ourTag}
+                </span>
+              )}
             </div>
-          </section>
+          </details>
         );
       })}
     </>

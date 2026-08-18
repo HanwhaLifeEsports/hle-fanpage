@@ -556,6 +556,14 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 /* ---------- 포스트시즌 대진표 ---------- */
 .bstage{margin:0 0 var(--s6)}
 
+/* 접었다 펴는 스테이지. details/summary 라 자바스크립트 없이 동작한다 */
+.bstage>summary{cursor:pointer;list-style:none}
+.bstage>summary::-webkit-details-marker{display:none}
+.bstage:not([open])>.bhead{border-radius:var(--r-card)}
+.bhx{display:inline-flex;align-items:center;gap:7px}
+.bhx svg{transition:transform .18s;opacity:.75}
+.bstage[open] .bhx svg{transform:rotate(180deg)}
+
 /* 스테이지 머리띠. 대진표가 어느 대회의 것인지 한눈에 잡아 준다.
    두 겹이다 — 아래는 승리 색 계열의 짙은 그라데이션, 위는 비스듬히 지나가는 흰 광택.
    광택을 완전한 흰색으로 두면 그 위 흰 글자가 사라지므로 22% 로만 얹는다. */
