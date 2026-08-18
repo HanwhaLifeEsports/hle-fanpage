@@ -6,7 +6,7 @@
  * 자리는 code 가 'TBD' 로 내려오므로, 진출이 확정되기 전에도 뼈대를 그릴 수 있다.
  *
  * 실측으로 확인한 것 (2026 스플릿 3):
- *  - 스테이지가 play_ins(플레이-인)와 regional_championship(지역별 챔피언십) 둘이다.
+ *  - 스테이지가 play_ins(플레이인)와 regional_championship(지역별 챔피언십) 둘이다.
  *    2025 는 뒤쪽 slug 가 playoffs 였다 — 해마다 바뀌므로 하드코딩하지 않고
  *    응답에 있는 이름을 그대로 쓴다.
  *  - 대진 경기 13개가 전부 getSchedule 에도 있고 id 가 같다. 날짜는 거기서 붙인다.
@@ -112,11 +112,12 @@ const cellName = (name: string) => name.replace('패자 대진', '하위권 대�
 /**
  * 스테이지 이름 정규화.
  *
- * 2026 응답은 본선을 "지역별 챔피언십" 이라 부른다(2025 는 "플레이오프"). 화면에서
- * 쓰는 말은 플레이오프이고, 사이트의 다른 곳(경우의 수, 순위 안내)도 전부 그렇게
- * 부른다. 한 사이트에서 같은 대회를 두 이름으로 부르면 다른 것으로 읽힌다.
+ * 2026 응답은 본선을 "지역별 챔피언십" 이라 부른다(2025 는 "플레이오프"). 앞 스테이지는
+ * "플레이-인" 으로 온다. 사이트의 다른 곳(경우의 수, 순위 안내)은 플레이오프·플레이인
+ * 이라고 쓴다. 한 사이트에서 같은 대회를 두 이름으로 부르면 다른 것으로 읽힌다.
  */
-const stageName = (name: string) => (name.includes('지역별') ? '플레이오프' : name);
+const stageName = (name: string) =>
+  name.includes('지역별') ? '플레이오프' : name.replace('플레이-인', '플레이인');
 
 /**
  * 미정 자리에 어느 순위가 들어오는가.
@@ -127,7 +128,7 @@ const stageName = (name: string) => (name.includes('지역별') ? '플레이오�
  * 대신 두 가지를 근거로 삼는다.
  *  1) LCK 포맷. lck2026.ts 의 SEASON 에 적어 둔 그대로다
  *  2) 2025 완료 대진과 최종 순위를 맞춰 본 결과. 본선 1라운드는 각 경기가
- *     '그룹 시드 + 플레이-인 통과' 한 쌍이었고(T1+DK, KT+BFX), 상위권 2라운드에는
+ *     '그룹 시드 + 플레이인 통과' 한 쌍이었고(T1+DK, KT+BFX), 상위권 2라운드에는
  *     상위 두 팀이 앉아 있었다(HLE, GEN). 높은 시드가 앞자리에 놓이는 통상 배치다
  *
  * 순위를 하나로 콕 집지 않고 범위로 적는다. 한 칸 안에서 어느 쪽이 3위이고
@@ -136,10 +137,10 @@ const stageName = (name: string) => (name.includes('지역별') ? '플레이오�
  * 근거 2가 한 시즌 표본이라, 리그가 배치를 바꾸면 이 표기도 함께 고쳐야 한다.
  */
 export function slotSeed(stageSlug: string, cellSlug: string, teamIndex: number): string | null {
-  // 2025 플레이-인 배치는 [레전드5위+라이즈3위], [라이즈2위+라이즈1위] 로 규칙성이
+  // 2025 플레이인 배치는 [레전드5위+라이즈3위], [라이즈2위+라이즈1위] 로 규칙성이
   // 없었다. 자리마다 적을 근거가 없어 칸 단위로만 남긴다
   if (stageSlug === 'play_ins') return null;
-  if (cellSlug === 'round_1') return teamIndex === 0 ? '레전드 그룹 3~4위' : '플레이-인 통과';
+  if (cellSlug === 'round_1') return teamIndex === 0 ? '레전드 그룹 3~4위' : '플레이인 통과';
   if (cellSlug === 'upper_bracket_round_2' && teamIndex === 0) return '레전드 그룹 1~2위';
   return null;
 }
@@ -269,7 +270,7 @@ export function buildBracket(stages: RawBracketStage[], matches: MatchRow[]): Br
                     toTeam(m.teams?.[1], cellOf, { stage: st.slug, cell: cell.slug, index: 1 }),
                   ] as [BracketTeam, BracketTeam],
                   // 다음 경기가 없는 자리는 빈칸으로 두지 않고 무슨 뜻인지 적는다.
-                  // 플레이-인 승자는 스테이지를 벗어나므로 응답에 도착지가 없다 —
+                  // 플레이인 승자는 스테이지를 벗어나므로 응답에 도착지가 없다 —
                   // 다음 스테이지의 decisionPoint 로 들어가기 때문이다.
                   winTo:
                     d.win ??

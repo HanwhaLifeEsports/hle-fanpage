@@ -14,7 +14,7 @@ import type { MatchRow, TeamRow } from './lolesports';
  * 월즈 진출 여부.
  *
  * HLE 는 2026 MSI 우승팀이라 **플레이오프에 오르기만 하면 월즈 진출이 확정**된다.
- * 플레이-인은 통과해야 플레이오프로 올라가므로 확정이 아니라 가능이다.
+ * 플레이인은 통과해야 플레이오프로 올라가므로 확정이 아니라 가능이다.
  */
 export type WorldsStatus = 'confirmed' | 'possible' | 'none';
 
@@ -35,11 +35,11 @@ export interface OutcomeBand {
 export const LEGEND_BANDS: OutcomeBand[] = [
   { label: '플레이오프 2라운드 직행', ranks: [1, 2], worlds: 'confirmed' },
   { label: '플레이오프 1라운드', ranks: [3, 4], worlds: 'confirmed' },
-  { label: '플레이-인', ranks: [5], worlds: 'possible' },
+  { label: '플레이인', ranks: [5], worlds: 'possible' },
 ];
 
 export const RISE_BANDS: OutcomeBand[] = [
-  { label: '플레이-인', ranks: [1, 2, 3], worlds: 'possible' },
+  { label: '플레이인', ranks: [1, 2, 3], worlds: 'possible' },
   { label: '시즌 종료', ranks: [4, 5], worlds: 'none' },
 ];
 

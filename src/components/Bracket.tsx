@@ -75,10 +75,10 @@ export default function Bracket({ stages, ourTag }: { stages: BracketStage[]; ou
                 {hasLower && (
                   <>
                     <div className="bband up" style={{ gridColumn: `1 / -1`, gridRow: 1 }}>
-                      승자조 — 이기면 계속 위로
+                      승자조
                     </div>
                     <div className="bband low" style={{ gridColumn: `1 / -1`, gridRow: 3 }}>
-                      패자조 — 한 번 지면 여기서 다시 올라온다
+                      패자조
                     </div>
                   </>
                 )}

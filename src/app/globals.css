@@ -568,11 +568,14 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 .bgrid{display:grid;gap:0 var(--s3);align-items:start;width:max-content}
 .bband{font-size:11.5px;font-weight:700;letter-spacing:.02em;padding:5px 9px;border-radius:2px;
   margin-bottom:var(--s3);position:sticky;left:0}
-.bband.up{background:var(--flame-soft);color:var(--flame-text)}
+.bband.up{background:var(--win-soft);color:var(--win)}
 .bband.low{background:var(--tint-1);color:var(--mute);margin-top:var(--s5)}
 
 .bcell{min-width:0}
-.bcellname{font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--mute);margin-bottom:6px}
+/* 시드 안내가 붙는 칸과 안 붙는 칸의 제목 높이를 맞춘다. 안 맞추면 같은 행의
+   경기 카드가 서로 다른 높이에서 시작해 라운드가 어긋나 보인다 */
+.bcellname{font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--mute);
+  margin-bottom:6px;min-height:32px}
 .bcellname .bseed{display:block;font-weight:400;color:var(--faint);font-size:11px;margin-top:2px}
 
 .bmatch{background:var(--surface-card);border:1px solid var(--hairline);border-radius:var(--r-card);
