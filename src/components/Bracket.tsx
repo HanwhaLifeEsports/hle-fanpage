@@ -135,11 +135,11 @@ export default function Bracket({ stages, ourTag }: { stages: BracketStage[]; ou
             <div className="blegend">
               <span>
                 <i className="lw" aria-hidden />
-                이기면 가는 곳
+                승자
               </span>
               <span>
                 <i className="ll" aria-hidden />
-                지면 가는 곳
+                패자
               </span>
               <span>
                 <i className="lm" aria-hidden />

@@ -80,8 +80,9 @@
   --video-bg:#000;                    /* 플레이어 바깥 레터박스 */
   --video-surface:#0B0B0C;            /* 영상이 아직 없을 때의 면 */
   --scrim-strong:rgba(0,0,0,.92);     /* 영상 위 버튼 hover */
-  /* 대진표 머리띠 — 어두운 면 위 흰 글자라 두 테마에서 같은 방향으로 어둡게 둔다 */
-  --bh-a:#241B3F; --bh-b:#3A2168;
+  /* 대진표 머리띠. 흰 글자를 얹으므로 두 테마에서 같은 방향으로 어둡게 둔다 —
+     라이트에서 밝게 뒤집으면 글자가 사라진다. 승리 색(--win) 계열을 짙게 눕힌 값이다 */
+  --bh-a:#1A1230; --bh-b:#4C2E9E; --bh-c:#8A3FB8;
   --r-card:8px; --r-lg:16px; --r-full:9999px;
   --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:72px;
   /* viewport-fit=cover 로 화면 끝까지 쓰기 때문에, 노치·둥근 모서리·홈 인디케이터를
@@ -555,12 +556,20 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 /* ---------- 포스트시즌 대진표 ---------- */
 .bstage{margin:0 0 var(--s6)}
 
-/* 스테이지 머리띠. 대진표가 어느 대회의 것인지 한눈에 잡아 준다 */
-.bhead{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4);
-  padding:11px 14px;border-radius:var(--r-card) var(--r-card) 0 0;
-  background:linear-gradient(100deg,var(--bh-a),var(--bh-b))}
-.bhead b{font-family:var(--display-ko);font-size:16px;letter-spacing:-.01em;color:var(--always-light)}
-.bhead span{font-size:11.5px;letter-spacing:.06em;color:rgba(255,255,255,.62)}
+/* 스테이지 머리띠. 대진표가 어느 대회의 것인지 한눈에 잡아 준다.
+   두 겹이다 — 아래는 승리 색 계열의 짙은 그라데이션, 위는 비스듬히 지나가는 흰 광택.
+   광택을 완전한 흰색으로 두면 그 위 흰 글자가 사라지므로 22% 로만 얹는다. */
+.bhead{position:relative;display:flex;align-items:baseline;justify-content:space-between;
+  gap:var(--s4);padding:13px 16px;border-radius:var(--r-card) var(--r-card) 0 0;overflow:hidden;
+  background:
+    linear-gradient(104deg,rgba(255,255,255,0) 24%,rgba(255,255,255,.22) 45%,rgba(255,255,255,0) 64%),
+    linear-gradient(100deg,var(--bh-a) 0%,var(--bh-b) 52%,var(--bh-c) 100%)}
+/* 아래쪽 밝은 실선 한 줄. 띠와 본문 사이를 끊어 준다 */
+.bhead::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;
+  background:linear-gradient(90deg,var(--bh-c),transparent)}
+.bhead b{position:relative;font-family:var(--display-ko);font-size:17px;letter-spacing:-.01em;
+  color:var(--always-light);text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.bhead span{position:relative;font-size:11.5px;letter-spacing:.06em;color:rgba(255,255,255,.7)}
 
 /* 좁은 화면에서는 가로로 넘긴다. 세로로 접으면 '어느 승자가 어디로 가는지'가 사라진다.
    기본 스크롤바는 끝에 화살표가 붙고 폭도 두꺼워 대진표 옆에서 튄다 — 얇은 막대로 바꾼다 */
