@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -52,6 +52,13 @@ function useNavLight(path: string) {
   const [box, setBox] = useState<{ x: number; w: number } | null>(null);
   const [off, setOff] = useState(false);
 
+  /* 값이 그대로면 새 객체를 만들지 않는다. 크기 관찰자는 자주 부르는데,
+     매번 새 객체를 넣으면 그때마다 '옮기는 중' 효과가 다시 켜진다 */
+  const point = useCallback((el: HTMLElement) => {
+    const next = { x: el.offsetLeft, w: el.offsetWidth };
+    setBox((cur) => (cur && cur.x === next.x && cur.w === next.w ? cur : next));
+  }, []);
+
   useEffect(() => {
     const nav = ref.current;
     if (!nav) return;
@@ -64,7 +71,7 @@ function useNavLight(path: string) {
         return;
       }
       setOff(false);
-      setBox({ x: el.offsetLeft, w: el.offsetWidth });
+      point(el);
     };
 
     measure();
@@ -72,9 +79,9 @@ function useNavLight(path: string) {
     ro.observe(nav);
     document.fonts?.ready.then(measure).catch(() => {});
     return () => ro.disconnect();
-  }, [path]);
+  }, [path, point]);
 
-  return { ref, box, off };
+  return { ref, box, off, point };
 }
 
 export function AppBar() {
@@ -102,7 +109,14 @@ export function AppBar() {
         </Link>
         <nav className="topnav" ref={light.ref}>
           {NAV.map((n) => (
-            <Link key={n.href} href={n.href} className={isOn(path, n.href) ? 'on' : undefined}>
+            <Link
+              key={n.href}
+              href={n.href}
+              className={isOn(path, n.href) ? 'on' : undefined}
+              /* 하단 탭과 같은 이유로 누른 자리를 바로 잰다. 경로가 바뀌기를
+                 기다리면 새 화면이 뜨는 순간에야 움직여 미끄러져 보이지 않는다 */
+              onClick={(e) => light.point(e.currentTarget)}
+            >
               {n.label}
             </Link>
           ))}
@@ -192,12 +206,15 @@ export function BottomTabs() {
   /* 탭 목록에 없는 화면(선수단 등)에서는 마지막으로 있던 자리에 흐리게 남긴다.
      그냥 사라지면 어디서 왔는지가 함께 사라져 갑작스럽다.
      처음부터 그런 화면으로 들어온 경우에는 남길 자리가 없으므로 걸지 않는다. */
-  const [lastIdx, setLastIdx] = useState<number | null>(idx >= 0 ? idx : null);
+  /* 누른 순간 바로 출발시킨다. 화면들이 force-dynamic 이라 usePathname 은 서버가
+     새 화면을 다 그린 뒤에야 바뀌는데, 그때까지 기다리면 눌러도 한참 가만히
+     있다가 새 화면이 나타나는 순간 함께 튄다 — 미끄러지는 것으로 안 보인다.
+     경로가 실제로 바뀌면 아래 effect 가 같은 값으로 덮어써 어긋날 일이 없다. */
+  const [shown, setShown] = useState<number | null>(idx >= 0 ? idx : null);
   useEffect(() => {
-    if (idx >= 0) setLastIdx(idx);
+    if (idx >= 0) setShown(idx);
   }, [idx]);
 
-  const shown = idx >= 0 ? idx : lastIdx;
   const dim = idx < 0;
 
   /* 탭이 바뀌는 동안만 빛줄기를 늘여 준다. 늘어났다 돌아오는 움직임이 있어야
@@ -219,8 +236,13 @@ export function BottomTabs() {
           aria-hidden
         />
       )}
-      {TABS.map((t) => (
-        <Link key={t.href} href={t.href} className={isOn(path, t.href) ? 'on' : undefined}>
+      {TABS.map((t, i) => (
+        <Link
+          key={t.href}
+          href={t.href}
+          className={isOn(path, t.href) ? 'on' : undefined}
+          onClick={() => setShown(i)}
+        >
           <t.Icon />
           {t.label}
         </Link>
