@@ -24,14 +24,30 @@ export interface ChampionRecord {
   /** DPM — 분당 챔피언 딜량 */
   dpm: number | null;
   /**
-   * 한 판에서 낸 가장 좋은 값.
+   * 가장 좋았던 한 판.
    *
    * 평균은 그 챔피언을 얼마나 안정적으로 다루는지를, 최고는 얼마나 터뜨릴 수
    * 있는지를 말한다. 둘이 크게 벌어지는 픽이 실제로 있어서 함께 둔다.
+   *
+   * 최고는 수치로 뽑는다. 안 죽은 판을 무조건 위로 올리지 않는다 — 그렇게 하면
+   * 1/0/14 같은 조용한 판이 KDA 24.00 짜리 캐리 판을 밀어낸다.
+   * 뽑힌 판이 마침 안 죽은 판이면 화면에서 Perfect 로 적는다.
    */
-  bestKda: number;
+  best: BestGame | null;
   bestDpm: number | null;
 }
+
+export interface BestGame {
+  kills: number;
+  deaths: number;
+  assists: number;
+  /** 데스가 0이면 킬+어시를 그대로 쓴다 */
+  kda: number;
+  perfect: boolean;
+}
+
+/** 어느 판이 더 좋은가. 데스가 0인 판은 킬+어시가 그 자리에 들어가 함께 비교된다 */
+const better = (a: BestGame, b: BestGame): BestGame => (a.kda >= b.kda ? a : b);
 
 /** 우리 선수 id → 챔피언 전적 (픽 많은 순) */
 export type ChampionMap = Record<string, ChampionRecord[]>;
@@ -96,7 +112,7 @@ export function foldPicks(
         killShare: null,
         csPerMin: null,
         dpm: null,
-        bestKda: 0,
+        best: null,
         bestDpm: null,
       },
       teamKills: 0,
@@ -114,8 +130,14 @@ export function foldPicks(
     a.rec.assists += r.assists;
 
     // 그 판 하나의 KDA. 데스가 0이면 나누지 않고 킬+어시를 그대로 본다
-    const gameKda = r.deaths === 0 ? r.kills + r.assists : (r.kills + r.assists) / r.deaths;
-    if (gameKda > a.rec.bestKda) a.rec.bestKda = gameKda;
+    const game: BestGame = {
+      kills: r.kills,
+      deaths: r.deaths,
+      assists: r.assists,
+      kda: r.deaths === 0 ? r.kills + r.assists : (r.kills + r.assists) / r.deaths,
+      perfect: r.deaths === 0,
+    };
+    a.rec.best = a.rec.best ? better(a.rec.best, game) : game;
     if (r.minutes !== null && r.minutes > 0) {
       const gameDpm = r.damage / r.minutes;
       if (a.rec.bestDpm === null || gameDpm > a.rec.bestDpm) a.rec.bestDpm = gameDpm;
