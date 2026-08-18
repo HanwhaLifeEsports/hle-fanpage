@@ -215,13 +215,25 @@ export default function RosterRail({
                           {c.dpm !== null && <span>DPM {Math.round(c.dpm)}</span>}
                         </div>
                         {/* 평균은 얼마나 안정적인지, 최고는 얼마나 터뜨릴 수 있는지를 말한다.
-                            한 판만 쓴 픽은 둘이 같으므로 그때는 적지 않는다 */}
-                        {c.wins + c.losses > 1 && (
-                          <div className="cstat best">
-                            <span>최고 KDA {c.bestKda.toFixed(2)}</span>
-                            {c.bestDpm !== null && <span>최고 DPM {Math.round(c.bestDpm)}</span>}
-                          </div>
-                        )}
+                            다만 표시값이 평균과 같으면 적지 않는다 — 한 판만 쓴 픽이 그렇고,
+                            우연히 같아지는 경우도 있어(제카 아리 누적 19.00 · 최고 19.00)
+                            같은 숫자가 두 번 뜨면 계산이 잘못된 것처럼 보인다 */}
+                        {(() => {
+                          const kdaSame = c.bestKda.toFixed(2) === c.kda.toFixed(2);
+                          const dpmSame =
+                            c.bestDpm === null || c.dpm === null
+                              ? true
+                              : Math.round(c.bestDpm) === Math.round(c.dpm);
+                          if (kdaSame && dpmSame) return null;
+                          return (
+                            <div className="cstat best">
+                              {!kdaSame && <span>최고 KDA {c.bestKda.toFixed(2)}</span>}
+                              {!dpmSame && c.bestDpm !== null && (
+                                <span>최고 DPM {Math.round(c.bestDpm)}</span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </li>
                     ))}
                   </ul>
