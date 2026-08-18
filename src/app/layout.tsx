@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import { Anton } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import { AppBar, BottomTabs } from '@/components/Chrome';
 import { Toasts } from '@/components/Shared';
@@ -106,6 +107,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           </div>
         </footer>
         <BottomTabs />
+        <Analytics />
       </body>
     </html>
   );
