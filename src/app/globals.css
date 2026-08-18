@@ -654,14 +654,19 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 .blegend .ll{background:var(--mute)}
 .blegend .lm{background:var(--flame)}
 
-/* 진출 확정 전 — 확률로 대신한다 */
-.bodds{display:grid;gap:8px;margin:0 0 var(--s5)}
+/* 진출 확정 전 — 확률로 대신한다.
+   클래스 이름을 od- 로 묶는다. 처음에 .ol/.ob/.ov/.hit 로 지었다가 이미 있던
+   모달 오버레이(.ov)와 카드(.hit)에 걸렸다. 퍼센트 글자가 화면 전체를 덮는
+   반투명 레이어가 되고, 50% 넘는 줄만 버튼처럼 보였다. */
+.bodds{display:grid;gap:9px;margin:0 0 var(--s5)}
 .bodd{display:flex;align-items:center;gap:var(--s3)}
-.bodd .ol{flex:1;font-size:13.5px;min-width:0}
-.bodd .ov{font-size:13.5px;font-variant-numeric:tabular-nums;flex:none;width:56px;text-align:right}
-.bodd .ob{flex:none;width:88px;height:6px;background:var(--tint-1);border-radius:var(--r-full);overflow:hidden}
-.bodd .ob i{display:block;height:100%;background:var(--bar-fill)}
-.bodd.hit .ov{color:var(--flame-text);font-weight:600}
-.bodd.hit .ob i{background:var(--flame)}
+.odname{flex:1;font-size:13.5px;min-width:0}
+/* 막대와 숫자를 붙여 둔다. 숫자가 화면 오른쪽 끝에 떨어져 있으면 어느 막대의
+   값인지 눈으로 잇기 어렵다 */
+.odbar{flex:none;width:96px;height:7px;background:var(--tint-1);border-radius:var(--r-full);overflow:hidden}
+.odbar i{display:block;height:100%;background:var(--bar-fill);border-radius:var(--r-full)}
+.odpct{font-size:13.5px;font-variant-numeric:tabular-nums;flex:none;width:52px;text-align:right;color:var(--body)}
+.bodd.odlead .odpct{color:var(--flame-text);font-weight:700}
+.bodd.odlead .odbar i{background:var(--flame)}
 /* 갈 수 없는 구간. 흐리게 두어 0 이 값이라는 것을 알린다 */
-.bodd.zero .ol,.bodd.zero .ov{color:var(--faint)}
+.bodd.odnone .odname,.bodd.odnone .odpct{color:var(--faint)}
