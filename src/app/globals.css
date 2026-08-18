@@ -23,6 +23,11 @@
   color-scheme:dark;
   --canvas:#08090A; --surface:#121315; --surface-card:#17181B; --surface-light:#fff;
   --flame:#FF6A13; --flame-deep:#D8500A; --flame-soft:rgba(255,106,19,.13);
+  /* 카드가 떠오를 때 아래에 깔리는 것. 어두운 면 위에서는 검은 그림자가 보이지
+     않으므로 빛을 얹는다. 라이트에서는 아래 두 블록이 검정으로 되돌린다.
+     사라질 때 쓸 짝(-0)을 따로 둔 것은 transparent 가 '투명한 검정' 이라
+     흰 그림자가 옅어지는 동안 잿빛으로 지나가기 때문이다 */
+  --lift:rgb(255 255 255/.22); --lift-0:rgb(255 255 255/0);
   --ink:#fff; --ink-dark:#0B0B0C;
   /* --ink 의 반대색. 글자색이 아니라 '--ink 를 배경으로 쓸 때 얹는 색'이다.
      --ink-dark 와 값이 같아 보이지만 다르다. --ink-dark 는 주황 면 위 글자라 고정이고
@@ -121,6 +126,7 @@
     --ink:#0B0B0C; --ink-inv:#fff;
     --body:rgba(0,0,0,.74); --mute:rgba(0,0,0,.52); --faint:rgba(0,0,0,.38);
     --hairline:rgba(0,0,0,.12);
+    --lift:rgb(0 0 0/.28); --lift-0:rgb(0 0 0/0);
     --note-ink:#5C5C5E;
     /* 흰 바닥에서는 밝은 액센트가 서지 않는다. 어두운 쪽으로 옮긴다 */
     --flame-text:#C4490A; --win:#6C46D9; --loss:#C4282D;
@@ -146,6 +152,7 @@
   --ink:#0B0B0C; --ink-inv:#fff;
   --body:rgba(0,0,0,.74); --mute:rgba(0,0,0,.52); --faint:rgba(0,0,0,.38);
   --hairline:rgba(0,0,0,.12);
+  --lift:rgb(0 0 0/.28); --lift-0:rgb(0 0 0/0);
   --note-ink:#5C5C5E;
   --flame-text:#C4490A; --win:#6C46D9; --loss:#C4282D;
   --win-soft:rgba(108,70,217,.13); --win-edge:rgba(108,70,217,.30);
@@ -338,6 +345,7 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
   .tabglow.move{transform:translateX(calc(var(--i,0) * 100%))}
   .navglow.move{transform:translateX(var(--x,0))}
   .navlight::before{animation:none}
+  .pcard:hover{animation:none}
 }
 
 @media(max-width:860px){.tabs{display:grid}body{padding-bottom:calc(64px + var(--safe-b))}}
@@ -456,7 +464,10 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .rail{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--s2)}
 @media(max-width:900px){.rail{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:560px){.rail{grid-template-columns:repeat(2,1fr)}}
-.pcard{background:var(--surface-card);cursor:pointer;border:0;padding:0;text-align:left;color:inherit;display:block;width:100%}
+.pcard{background:var(--surface-card);cursor:pointer;border:0;padding:0;text-align:left;color:inherit;display:block;width:100%;
+  /* 사이트의 다른 카드와 같은 값을 쓴다. 선수 카드만 다른 곡률이면 같은 목록의
+     다른 종류처럼 보인다. 사진이 모서리를 넘어가므로 여기서 함께 자른다 */
+  border-radius:var(--r-card);overflow:hidden}
 .pcard .ph{aspect-ratio:4/5;position:relative;background:linear-gradient(165deg,var(--photo-a),var(--photo-b));overflow:hidden}
 /* 사진이 있으면 바탕 그라디언트를 덮는다. 인물 사진은 세로가 길어 아래를 잘라야
    얼굴이 남으므로 object-position 을 위로 올린다. */
@@ -471,8 +482,23 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .pcard .pos{position:absolute;top:11px;left:11px;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--flame-text)}
 .pcard .tags{position:absolute;top:9px;right:9px;z-index:3;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
 .pcard .nm{position:absolute;left:11px;bottom:9px;font-family:var(--display);font-size:23px;letter-spacing:.02em;z-index:2}
-.pcard .mt{padding:9px 11px;display:flex;justify-content:space-between;align-items:center;gap:4px 8px;flex-wrap:wrap;border-top:2px solid transparent;transition:border-color .15s}
-.pcard:hover .mt{border-top-color:var(--flame)}
+.pcard .mt{padding:11px 11px 9px;display:flex;justify-content:space-between;align-items:center;gap:4px 8px;flex-wrap:wrap}
+
+/* 누를 수 있다는 신호를 밑줄 대신 움직임으로 준다. 한 번 떠올랐다 내려앉는다.
+   반복시키지 않는다 — 목록 위로 마우스가 지나가기만 해도 계속 흔들리면 산만하다.
+   hover:hover 로 감싼 것은 손가락 때문이다. 터치 기기는 누른 자리에 hover 가
+   남아 카드 하나가 계속 떠 있는 것처럼 보인다 */
+@media(hover:hover){
+  .pcard:hover{animation:cardpop .6s var(--ease)}
+}
+/* 크게 한 번, 작게 한 번. 두 번째가 없으면 떠올랐다 그냥 멈추는 것으로 보인다 */
+@keyframes cardpop{
+  0%{transform:translateY(0);box-shadow:0 0 0 var(--lift-0)}
+  32%{transform:translateY(-7px);box-shadow:0 10px 18px var(--lift)}
+  58%{transform:translateY(0)}
+  78%{transform:translateY(-2px)}
+  100%{transform:translateY(0);box-shadow:0 0 0 var(--lift-0)}
+}
 /* 카드 우측 아래 숫자 한 줄. 기록이 있으면 POM 포인트, 없으면 등번호가 들어간다 */
 .pcard .fig{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
 
