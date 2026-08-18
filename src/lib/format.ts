@@ -21,3 +21,18 @@ export function fmtContract(iso: string): string {
   const [y, m, d] = iso.split('-');
   return `${y}. ${Number(m)}. ${Number(d)}.`;
 }
+
+/**
+ * 한화생명 소속 기간. 'YYYY.M.D ~ YYYY.M.D' 로 짧게 적는다.
+ *
+ * '계약기간' 이라 부르지 않는다. 시작값은 나무위키의 입단일이라, 재계약을 한
+ * 사람은 이 폭이 한 계약이 아니라 팀에 있은 기간 전체다 — 제카는 2022 년
+ * 입단이고 지금 계약은 2027 년까지다. '계약' 이라 적으면 5 년짜리 계약이
+ * 있었다는 뜻이 된다.
+ *
+ * 끝을 모르면 열어 둔다. 만료일은 Leaguepedia 에서 오므로 못 가져올 수 있다.
+ */
+export function fmtSpan(from: string, to?: string | null): string {
+  const dot = (iso: string) => iso.split('-').map(Number).join('.');
+  return to ? `${dot(from)} ~ ${dot(to)}` : `${dot(from)} ~`;
+}

@@ -1,8 +1,9 @@
 import RosterRail from '@/components/Roster';
+import AwardsButton from '@/components/Awards';
 import { PLAYERS, STAFF } from '@/lib/lck2026';
 import { getPlayerStats } from '@/lib/naver';
 import { getChampionStats, getContracts } from '@/lib/leaguepedia';
-import { fmtContract } from '@/lib/format';
+import { fmtSpan } from '@/lib/format';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -53,11 +54,10 @@ export default async function RosterPage() {
             <div className="cap" style={{ marginTop: 2 }}>
               {s.ko} · {s.role}
             </div>
-            {contracts?.[s.id] && (
-              <p className="contract">
-                계약 만료 <b>{fmtContract(contracts[s.id])}</b>
-              </p>
-            )}
+            <div style={{ marginTop: 8 }}>
+              <AwardsButton id={s.id} name={s.nm} />
+            </div>
+            <p className="contract">한화생명 소속 {fmtSpan(s.since, contracts?.[s.id])}</p>
           </div>
         ))}
       </div>

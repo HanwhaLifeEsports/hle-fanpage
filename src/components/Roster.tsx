@@ -4,13 +4,14 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { PLAYERS, type Player } from '@/lib/lck2026';
 import { Star, X } from 'lucide-react';
+import AwardsButton from './Awards';
 import { patchState, toast, useApp } from '@/lib/useAppState';
 import type { PlayerStat, StatMap } from '@/lib/naver';
 import PhotoGallery from './PhotoGallery';
 import { cardFanPhoto, useFanPhotos, type FanPhoto } from '@/lib/photos';
 import type { ChampionMap } from '@/lib/champions';
 import type { ContractMap } from '@/lib/leaguepedia';
-import { fmtContract } from '@/lib/format';
+import { fmtSpan } from '@/lib/format';
 
 /**
  * 선수 사진 표시 스위치.
@@ -144,14 +145,10 @@ export default function RosterRail({
                 <span className="badge b-flame">{open.pos}</span>
                 <span className="badge b-soon">#{open.no}</span>
                 {open.joined2026 && <span className="badge b-new">2026 합류</span>}
+                {/* 배지 줄 끝에 둔다. 포지션·등번호와 같은 '이 선수가 누구인가' 줄이라
+                    기록보다 먼저 눈에 들어온다 */}
+                <AwardsButton id={open.id} name={open.nm} />
               </div>
-              {/* 계약 종료일만 적는다. Leaguepedia 는 시작일을 관리하지 않아,
-                  기간으로 적으려면 없는 값을 지어내야 한다 */}
-              {openContract && (
-                <p className="contract">
-                  계약 만료 <b>{fmtContract(openContract)}</b>
-                </p>
-              )}
               {openStat && (
                 <>
                   <h3 className="grouphead">2026 정규시즌 기록</h3>
@@ -268,6 +265,11 @@ export default function RosterRail({
                 {fav === open.id ? '최애 선수 해제' : '최애 선수로 지정'}
               </button>
               <div className="note">최애로 지정하면 이 선수 소식만 따로 알림을 받습니다.</div>
+              {/* 곁들이는 값이라 맨 아래에 가장 작게 둔다. 기록과 나란히 두면
+                  성적처럼 읽힌다.
+                  계약 종료일만 적는다 — Leaguepedia 는 시작일을 관리하지 않아
+                  기간으로 적으려면 없는 값을 지어내야 한다 */}
+              <p className="contract">한화생명 소속 {fmtSpan(open.since, openContract)}</p>
             </div>
           </div>
         </div>
