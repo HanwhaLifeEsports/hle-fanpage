@@ -12,12 +12,12 @@ export function fmtClock(iso: string) {
 }
 
 /**
- * 계약 종료일 표시. 'YYYY-MM-DD' -> '2027. 11. 15. 까지'
+ * 계약 만료일 표시. 'YYYY-MM-DD' -> '2027. 11. 15.'
  *
  * 연도를 줄이지 않는다. 계약은 몇 년 뒤 이야기라 '27.11.15' 로 적으면
  * 어느 해인지 한 번 더 생각해야 한다.
  */
 export function fmtContract(iso: string): string {
   const [y, m, d] = iso.split('-');
-  return `${y}. ${Number(m)}. ${Number(d)}. 까지`;
+  return `${y}. ${Number(m)}. ${Number(d)}.`;
 }

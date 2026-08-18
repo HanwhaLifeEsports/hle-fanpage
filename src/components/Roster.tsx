@@ -146,7 +146,7 @@ export default function RosterRail({
                   기간으로 적으려면 없는 값을 지어내야 한다 */}
               {openContract && (
                 <p className="contract">
-                  계약 <b>{fmtContract(openContract)}</b>
+                  계약 만료 <b>{fmtContract(openContract)}</b>
                 </p>
               )}
               {openStat && (

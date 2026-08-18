@@ -55,7 +55,7 @@ export default async function RosterPage() {
             </div>
             {contracts?.[s.id] && (
               <p className="contract">
-                계약 <b>{fmtContract(contracts[s.id])}</b>
+                계약 만료 <b>{fmtContract(contracts[s.id])}</b>
               </p>
             )}
           </div>
