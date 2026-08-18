@@ -167,6 +167,3 @@ export const AWARDS: Record<string, Awards> = {
     honors: [],
   },
 };
-
-/** 화면에 남기는 출처. 손으로 적은 값이라 언제 확인했는지까지 적는다 */
-export const AWARDS_SOURCE = '나무위키, Leaguepedia 대조 (2026-08-18 확인)';

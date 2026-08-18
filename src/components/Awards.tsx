@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Trophy, X } from 'lucide-react';
-import { AWARDS, AWARDS_SOURCE } from '@/lib/awards';
+import { AWARDS } from '@/lib/awards';
 
 /**
  * 트로피 하나와, 눌렀을 때 열리는 수상 목록.
@@ -99,9 +99,11 @@ export default function AwardsButton({ id, name }: { id: string; name: string })
                 </>
               )}
 
-              {/* 손으로 적은 값이라 언제 확인했는지까지 남긴다 */}
+              {/* 출처는 적지 않는다. 네이버·Leaguepedia 표기는 남의 데이터셋을 끌어
+                  쓰기 때문이지만 이건 공개된 사실이다.
+                  범위는 적는다 — 아카데미 우승이 왜 없는지 궁금해질 수 있다 */}
               <p className="note" style={{ marginBottom: 0 }}>
-                주요 대회 기준 · 출처: {AWARDS_SOURCE}
+                주요 대회 기준
               </p>
             </div>
           </div>
