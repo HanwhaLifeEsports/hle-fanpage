@@ -204,6 +204,11 @@ export default function RosterRail({
                           <span className="ckda">KDA {c.kda.toFixed(2)}</span>
                           <span className="cw">
                             {c.wins}승 {c.losses}패
+                            {/* 전승 강조는 2승부터. 1승 0패도 100% 인데 그것까지 세우면
+                                한 판 이긴 픽이 11승 2패와 같은 무게로 보인다 */}
+                            <em className={c.losses === 0 && c.wins >= 2 ? 'wr full' : 'wr'}>
+                              {Math.round((c.wins / (c.wins + c.losses)) * 100)}%
+                            </em>
                           </span>
                         </div>
                         <div className="cstat">
