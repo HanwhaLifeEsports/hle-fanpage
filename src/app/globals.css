@@ -312,11 +312,15 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .tabglow::before{box-shadow:0 3px 6px var(--flame), 0 8px 16px var(--flame-edge)}
 .tabglow.move{transform:translateX(calc(var(--i,0) * 100%)) scaleX(1.4)}
 
-/* 상단 내비 — 항목마다 글자 길이가 달라 실제로 잰 위치와 폭을 쓴다 */
-.navglow{left:0;bottom:0;width:var(--w,0);
+/* 상단 내비 — 항목마다 글자 길이가 달라 실제로 잰 위치와 폭을 쓴다.
+   위쪽 번짐을 전부 없앤다. 이 빛 바로 위가 글자 자리라 조금만 새어 나가도
+   메뉴 이름 밑이 물든다. 아래로는 헤더 경계까지 1px 뿐이라 잔광도 두지 않는다 */
+.navglow{left:0;bottom:0;width:var(--w,0);transform-origin:0 0;
   transform:translateX(var(--x,0));
   transition:transform .5s var(--ease),width .5s var(--ease),opacity .35s var(--ease)}
-.navglow::after{top:-18px}
+.navglow::after{display:none}
+/* 흐림 반경의 절반만큼 아래로 밀어 위쪽 가장자리를 0 에서 끊는다 */
+.navglow::before{box-shadow:0 2px 4px var(--flame), 0 4px 9px var(--flame-edge)}
 .navglow.move{transform:translateX(var(--x,0)) scaleY(1.6)}
 
 /* 목록에 없는 화면. 마지막 자리에 흐리게 남긴다 — 지금 여기가 아니라는 뜻이라
