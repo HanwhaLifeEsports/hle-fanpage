@@ -176,7 +176,7 @@ export default function RosterRail({
 
               {openChamps && openChamps.length > 0 && (
                 <>
-                  <h3 className="grouphead">많이 고른 챔피언</h3>
+                  <h3 className="grouphead">2026 LCK 챔피언 픽</h3>
                   {/* 손으로 적어 두지 않는다. 시즌 중에 계속 바뀌는 값이라
                       한 번 적어 두면 반드시 실제와 어긋난다 */}
                   <ul className="champs">
@@ -189,8 +189,10 @@ export default function RosterRail({
                       </li>
                     ))}
                   </ul>
+                  {/* 어느 경기까지 센 값인지 적는다. "2026 LCK" 만으로는 컵 대회와
+                      MSI 선발전이 포함된 것처럼 읽힌다 */}
                   <p className="note" style={{ marginBottom: 20 }}>
-                    2026 정규시즌 기준 · 기록 출처: Leaguepedia
+                    정규시즌 1~4라운드 · 기록 출처: Leaguepedia
                   </p>
                 </>
               )}

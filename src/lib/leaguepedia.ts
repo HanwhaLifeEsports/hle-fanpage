@@ -33,11 +33,14 @@ const UA = 'hle-fanpage/1.0 (fan site; protect@gumayu.si)';
 const TEAM = 'Hanwha Life Esports';
 
 /**
- * 정규시즌만 본다.
+ * 정규시즌 1~4라운드 전체를 본다 (Rounds 1-2 + Rounds 3-4).
  *
  * 같은 2026 시즌 아래 컵 대회(LCK/2026 Season/Cup)와 MSI 선발전
  * (Road to MSI)도 있지만 섞지 않는다. 프로필의 다른 기록(POM·KDA)이
  * 정규시즌 기준이라, 챔피언만 범위가 다르면 같은 화면에서 숫자가 어긋나 보인다.
+ *
+ * 화면에는 "2026 LCK 챔피언 픽" 으로 적고 각주에 "정규시즌 1~4라운드" 를 붙인다.
+ * 대회 이름만 적으면 컵과 선발전까지 센 것처럼 읽힌다.
  */
 const TOURNAMENTS = ['LCK/2026 Season/Rounds 1-2', 'LCK/2026 Season/Rounds 3-4'];
 
