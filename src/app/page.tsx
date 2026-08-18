@@ -23,8 +23,8 @@ export default async function Home() {
   } catch {
     return (
       <div className="wrap sec">
-        <h2 className="ko ptitle">지금 순위·일정을 불러오지 못했습니다</h2>
-        <p className="lede" style={{ marginTop: 10 }}>잠시 뒤 새로고침해 주세요.</p>
+        <h2 className="ko ptitle rv">지금 순위·일정을 불러오지 못했습니다</h2>
+        <p className="lede rv" style={{ marginTop: 10 }}>잠시 뒤 새로고침해 주세요.</p>
       </div>
     );
   }
@@ -102,21 +102,21 @@ export default async function Home() {
       )}
 
       <div className="wrap sec">
-        <div className="shead">
+        <div className="shead rv">
           <h2 className="ko">중계 보기</h2>
         </div>
         <LiveNow />
 
         {us && (
           <>
-            <div className="shead">
+            <div className="shead rv">
               <h2 className="ko">플레이오프 가는 길</h2>
               <Link className="btn btn-ghost btn-sm" href="/scenarios">
                 <Waypoints size={14} />
                 경우의 수
               </Link>
             </div>
-            <div className="card">
+            <div className="card rv">
               <div className="oddsrow">
                 <div>
                   <div className="num" style={{ fontSize: 44 }}>
@@ -140,20 +140,20 @@ export default async function Home() {
           </>
         )}
 
-        <div className="shead">
+        <div className="shead rv">
           <h2 className="ko">최근 경기</h2>
           <Link className="btn btn-ghost btn-sm" href="/schedule">
             <ListOrdered size={14} />
             전체 결과
           </Link>
         </div>
-        <div className="g3">
+        <div className="g3 rv">
           {recent.map((m) => (
             <MatchCard key={m.id} m={m} />
           ))}
         </div>
 
-        <div className="shead">
+        <div className="shead rv">
           <h2 className="ko">선수단</h2>
           <Link className="btn btn-ghost btn-sm" href="/roster">
             <Users size={14} />
@@ -162,14 +162,14 @@ export default async function Home() {
         </div>
         <RosterRail stats={stats} champions={champions} />
 
-        <div className="shead">
+        <div className="shead rv">
           <h2 className="ko">다가오는 일정</h2>
           <Link className="btn btn-ghost btn-sm" href="/schedule">
             <CalendarDays size={14} />
             전체 일정
           </Link>
         </div>
-        <div className="g3">
+        <div className="g3 rv">
           {upcoming.map((m) => (
             <MatchCard key={m.id} m={m} />
           ))}

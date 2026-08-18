@@ -41,7 +41,7 @@ function Card({
   // 판단은 cardFanPhoto 가 이미 끝냈다. 여기서는 무엇을 그릴지만 정한다
   const shot = !PHOTOS_ON ? null : fan ? { fan } : p.photo ? { official: p.photo } : null;
   return (
-    <button className="pcard" onClick={onOpen}>
+    <button className="pcard rv" onClick={onOpen}>
       <div className="ph">
         {/* 팬 사진은 저장소가 준 주소라 next/image 최적화 경로를 못 탄다.
             이미 4:5 900px 으로 잘려 들어온 값이라 최적화할 것도 없다. */}

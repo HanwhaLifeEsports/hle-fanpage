@@ -12,12 +12,12 @@ export default function BoardView({ nextKickoff }: { nextKickoff: string | null 
 
   return (
     <div className="wrap sec">
-      <h2 className="ko ptitle">커뮤니티</h2>
-      <p className="lede" style={{ margin: '10px 0 var(--s6)' }}>
+      <h2 className="ko ptitle rv">커뮤니티</h2>
+      <p className="lede rv" style={{ margin: '10px 0 var(--s6)' }}>
         경기 후기 · 짤 · 직관 모임 게시판과 경기 시간에만 열리는 실시간 응원 채팅을 준비하고 있습니다.
       </p>
 
-      <div className="empty">
+      <div className="empty rv">
         <b>계정 기능이 준비되면 문을 엽니다</b>
         <span>
           글쓰기와 채팅에는 로그인이 필요하고, 로그인에는 신고 처리와 개인정보 보관 체계가 먼저 갖춰져야 합니다.
@@ -33,19 +33,19 @@ export default function BoardView({ nextKickoff }: { nextKickoff: string | null 
         </div>
       </div>
 
-      <div className="shead">
+      <div className="shead rv">
         <h2 className="ko">그때까지는</h2>
       </div>
-      <div className="g3">
-        <Link className="card linkcard" href="/scenarios">
+      <div className="g3 rv">
+        <Link className="card linkcard rv" href="/scenarios">
           <b>플레이오프 경우의 수</b>
           <span>남은 경기를 전부 전개해 순위 확률과 경기별 영향력을 계산합니다.</span>
         </Link>
-        <Link className="card linkcard" href="/predict">
+        <Link className="card linkcard rv" href="/predict">
           <b>승부예측</b>
           <span>세트 스코어를 찍어두면 경기가 끝날 때 실제 결과로 자동 채점됩니다.</span>
         </Link>
-        <Link className="card linkcard" href="/">
+        <Link className="card linkcard rv" href="/">
           <b>중계 보기</b>
           <span>
             {nextKickoff

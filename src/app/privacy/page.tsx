@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 export default function Privacy() {
   return (
     <div className="wrap sec">
-      <h2 className="ko ptitle">개인정보 처리방침</h2>
-      <p className="lede" style={{ margin: '10px 0 var(--s6)' }}>
+      <h2 className="ko ptitle rv">개인정보 처리방침</h2>
+      <p className="lede rv" style={{ margin: '10px 0 var(--s6)' }}>
         이 사이트는 회원 가입이 없습니다. 서버에 남는 것은 팬 사진 기능에서 직접 올린 사진과 그에 딸린
         기록뿐이고, 나머지는 브라우저에만 저장됩니다. 아래는 그 범위를 구체적으로 적은 것입니다.
       </p>

@@ -56,7 +56,7 @@ export function MatchCard({ m }: { m: MatchRow }) {
 
   if (m.state !== 'completed') {
     return (
-      <div className="match">
+      <div className="match rv">
         <div className="top">
           <span className="badge b-soon">{m.blockName || '예정'}</span>
           <span className="when">{fmtDate(m.startTime)}</span>
@@ -75,7 +75,7 @@ export function MatchCard({ m }: { m: MatchRow }) {
 
   return (
     <div
-      className={`match spoil${hide ? ' hid' : ''}`}
+      className={`match spoil rv${hide ? ' hid' : ''}`}
       onClick={hide ? () => reveal(m.id) : undefined}
       role={hide ? 'button' : undefined}
     >

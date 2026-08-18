@@ -120,8 +120,8 @@ export default function MultiView() {
 
   return (
     <div className="wrap sec">
-      <h2 className="ko ptitle">멀티뷰</h2>
-      <p className="lede" style={{ margin: '10px 0 var(--s5)' }}>
+      <h2 className="ko ptitle rv">멀티뷰</h2>
+      <p className="lede rv" style={{ margin: '10px 0 var(--s5)' }}>
         치지직 채널을 최대 {MAX_DESKTOP}개까지 동시에 봅니다. 소리는 고른 화면 하나에서만 나오고,
         화면이 하나일 때는 PiP 와 전체화면을 쓸 수 있습니다.
       </p>
@@ -157,7 +157,7 @@ export default function MultiView() {
       )}
 
       {shown.length === 0 ? (
-        <div className="empty" style={{ marginTop: 'var(--s5)' }}>
+        <div className="empty rv" style={{ marginTop: 'var(--s5)' }}>
           <b>화면이 없습니다</b>
           <span>위에 치지직 주소를 붙여넣거나 채널 이름을 검색해 추가하세요.</span>
         </div>
