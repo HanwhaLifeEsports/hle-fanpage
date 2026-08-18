@@ -421,8 +421,10 @@ tr.me td:nth-child(2){color:var(--flame-text);font-weight:600}
 .grouplabel b{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.01em;white-space:nowrap}
 
 /* ---------- toggles / forms ---------- */
-.nrow{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:14px 0;border-bottom:1px solid var(--hairline)}
-.nrow:last-child{border-bottom:0}
+/* 한 설정 항목 = 행 + (있으면) 시간 선택지. 구분선은 덩어리가 갖는다 */
+.nitem{border-bottom:1px solid var(--hairline)}
+.nitem:last-child{border-bottom:0}
+.nrow{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:14px 0}
 .nrow .l b{display:block;font-size:14px;font-weight:600}
 .nrow .l span{font-size:13px;color:var(--mute)}
 .tg{width:46px;height:27px;border-radius:var(--r-full);background:var(--tint-track);position:relative;flex:none;cursor:pointer;border:0;transition:background .18s}
@@ -683,6 +685,9 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 .btkt{padding:0 9px 3px}
 .btkt .tkt{margin-top:4px;font-size:10.5px;gap:4px}
 
-/* 미리 알림 시간 선택. 항목 바로 아래에 들여 붙인다 */
-.leadrow{display:flex;gap:6px;flex-wrap:wrap;padding:0 0 12px 2px;margin-top:-4px}
+/* 미리 알림 시간 선택. 항목 바로 아래에 들여 붙인다.
+   알림이 꺼져 있어도 보여준다 — 안 보이면 이 설정이 있다는 것 자체를 알 수 없다 */
+.leadrow{display:flex;gap:6px;flex-wrap:wrap;padding:0 0 14px 2px}
 .leadrow .chip{font-size:12px;padding:5px 10px;cursor:pointer}
+.leadrow.off .chip{opacity:.45}
+.leadrow.off .chip:hover{opacity:1}

@@ -13,11 +13,13 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react';
  * 미리 알림으로 고를 수 있는 시간(분).
  *
  * 예매와 취소표는 '시작하는 순간' 이 중요한 알림이라, 다른 항목과 달리 몇 분 전에
- * 받을지 고를 수 있어야 한다. 취소표는 대기하다 새로고침을 눌러야 하는 성격이라
- * 0분(정각)도 실제로 쓸모가 있어 남겨 둔다.
+ * 받을지 고를 수 있어야 한다.
+ *
+ * 정각(0분)은 두지 않는다. 알림이 도착해 화면을 열 때쯤이면 이미 시작한 뒤라
+ * 미리 알림이라는 말이 무색해진다. 가장 짧은 값이 5분이다.
  */
-export const LEAD_CHOICES = [0, 10, 30, 60] as const;
-export const leadLabel = (m: number) => (m === 0 ? '정각' : `${m}분 전`);
+export const LEAD_CHOICES = [5, 10, 30, 60] as const;
+export const leadLabel = (m: number) => `${m}분 전`;
 
 export const PREFS = [
   { k: 'd1', g: 'match', t: '내일 경기 있음', d: '전일 저녁 8시', def: false },

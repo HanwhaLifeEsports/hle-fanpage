@@ -38,10 +38,14 @@ export default function MePage() {
     seq.forEach((s, i) => setTimeout(() => toast(...s), i * 900));
   };
 
-  /* lead 가 있는 항목은 몇 분 전에 받을지 고를 수 있다. 켜져 있을 때만 보여준다 —
-     꺼진 항목의 시간 선택지는 누를 수 없는 채로 자리만 차지한다. */
+  /* lead 가 있는 항목은 몇 분 전에 받을지 고를 수 있다.
+     켜져 있을 때만 보여줬더니 기본이 꺼짐이라 설정이 있다는 것 자체를 알 수 없었다.
+     늘 보여주되 꺼져 있으면 흐리게 두고, 시간을 고르면 알림도 함께 켠다 —
+     시간을 고르는 행동은 그 알림을 받겠다는 뜻이다. */
   const Row = ({ k, t, d, lead }: { k: string; t: string; d: string; lead?: number }) => (
-    <>
+    /* 구분선은 이 덩어리가 갖는다. .nrow 에 두면 시간 선택지가 선 아래로 나와
+       다음 항목에 붙어 보인다 */
+    <div className="nitem">
       <div className="nrow">
         <div className="l">
           <b>{t}</b>
@@ -60,21 +64,24 @@ export default function MePage() {
           }}
         />
       </div>
-      {lead !== undefined && prefs[k] && (
-        <div className="leadrow" role="group" aria-label={`${t} 미리 알림`}>
+      {lead !== undefined && (
+        <div className={`leadrow${prefs[k] ? '' : ' off'}`} role="group" aria-label={`${t} 미리 알림`}>
           {LEAD_CHOICES.map((m) => (
             <button
               key={m}
-              className={`chip${(leads[k] ?? lead) === m ? ' on' : ''}`}
-              aria-pressed={(leads[k] ?? lead) === m}
-              onClick={() => setLead(k, m)}
+              className={`chip${prefs[k] && (leads[k] ?? lead) === m ? ' on' : ''}`}
+              aria-pressed={prefs[k] && (leads[k] ?? lead) === m}
+              onClick={() => {
+                setLead(k, m);
+                if (!prefs[k]) setPref(k, true);
+              }}
             >
               {leadLabel(m)}
             </button>
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 
   return (
