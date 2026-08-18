@@ -129,24 +129,33 @@ export function BottomTabs() {
   const path = usePathname();
   const idx = TABS.findIndex((t) => isOn(path, t.href));
 
+  /* 탭 목록에 없는 화면(선수단 등)에서는 마지막으로 있던 자리에 흐리게 남긴다.
+     그냥 사라지면 어디서 왔는지가 함께 사라져 갑작스럽다.
+     처음부터 그런 화면으로 들어온 경우에는 남길 자리가 없으므로 걸지 않는다. */
+  const [lastIdx, setLastIdx] = useState<number | null>(idx >= 0 ? idx : null);
+  useEffect(() => {
+    if (idx >= 0) setLastIdx(idx);
+  }, [idx]);
+
+  const shown = idx >= 0 ? idx : lastIdx;
+  const dim = idx < 0;
+
   /* 탭이 바뀌는 동안만 빛줄기를 늘여 준다. 늘어났다 돌아오는 움직임이 있어야
      "이동" 이 아니라 "흘러갔다" 로 보인다. 전환 시간과 같은 길이로 되돌린다. */
   const [moving, setMoving] = useState(false);
   useEffect(() => {
-    if (idx < 0) return;
+    if (shown === null || dim) return;
     setMoving(true);
     const t = setTimeout(() => setMoving(false), 500);
     return () => clearTimeout(t);
-  }, [idx]);
+  }, [shown, dim]);
 
   return (
     <nav className="tabs">
-      {/* 지금 탭이 목록에 없는 화면(선수단 등)에서는 아무 칸도 가리키지 않으므로
-          빛줄기를 걸지 않는다 */}
-      {idx >= 0 && (
+      {shown !== null && (
         <span
-          className={`tabglow${moving ? ' move' : ''}`}
-          style={{ '--i': idx } as React.CSSProperties}
+          className={`tabglow${moving ? ' move' : ''}${dim ? ' dim' : ''}`}
+          style={{ '--i': shown } as React.CSSProperties}
           aria-hidden
         />
       )}
