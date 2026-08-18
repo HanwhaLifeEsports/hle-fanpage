@@ -22,15 +22,7 @@ import { fmtContract } from '@/lib/format';
  */
 const PHOTOS_ON = process.env.NEXT_PUBLIC_PLAYER_PHOTOS !== 'off';
 
-/**
- * 챔피언 목록의 기본 표시 개수.
- *
- * 2026 정규시즌 기준 한 선수가 쓴 챔피언은 평균 14종(최소 13, 최대 21)이다.
- * 6개만 보이면 절반도 못 보여주고, 8번째 픽을 찾는 사람에게는 "기록이 없다" 로
- * 읽힌다. 전부 펼치면 21줄이라 모달이 그만큼 길어진다.
- * 10개면 자주 쓰는 픽은 다 들어오고 한 판짜리 꼬리만 접힌다.
- */
-const CHAMPS_SHOWN = 10;
+
 
 function Card({
   p,
@@ -96,13 +88,7 @@ export default function RosterRail({
 }) {
   const { fav } = useApp();
   const [open, setOpen] = useState<Player | null>(null);
-  /* 챔피언 목록을 다 펼쳤는가. 선수를 바꾸면 다시 접는다 — 앞 선수에서 펼쳐 둔
-     상태가 그대로 남으면 다음 선수 프로필이 갑자기 길어진다 */
-  const [allChamps, setAllChamps] = useState(false);
-  const openPlayer = (p: Player) => {
-    setOpen(p);
-    setAllChamps(false);
-  };
+  const openPlayer = (p: Player) => setOpen(p);
   const openStat = open ? stats?.[open.naverId] : undefined;
   const openChamps = open ? champions?.[open.id] : undefined;
   const openContract = open ? contracts?.[open.id] : undefined;
@@ -208,21 +194,37 @@ export default function RosterRail({
                   <h3 className="grouphead">2026 LCK 정규시즌 챔피언 픽</h3>
                   {/* 손으로 적어 두지 않는다. 시즌 중에 계속 바뀌는 값이라
                       한 번 적어 두면 반드시 실제와 어긋난다 */}
+                  {/* 자르지 않는다. 잘라 두면 뒤쪽 픽을 찾는 사람에게 "기록이 없다" 로
+                      읽힌다 — 카나비의 쉬바나가 8번째라 안 보이던 일이 있었다 */}
                   <ul className="champs">
-                    {(allChamps ? openChamps : openChamps.slice(0, CHAMPS_SHOWN)).map((c) => (
+                    {openChamps.map((c) => (
                       <li key={c.key}>
-                        <span className="cn">{c.name}</span>
-                        <span className="cw">
-                          {c.wins}승 {c.losses}패
-                        </span>
+                        <div className="ctop">
+                          <span className="cn">{c.name}</span>
+                          <span className="ckda">KDA {c.kda.toFixed(2)}</span>
+                          <span className="cw">
+                            {c.wins}승 {c.losses}패
+                          </span>
+                        </div>
+                        <div className="cstat">
+                          <span>
+                            {c.kills} / {c.deaths} / {c.assists}
+                          </span>
+                          {c.killShare !== null && <span>킬 관여 {Math.round(c.killShare * 100)}%</span>}
+                          {c.csPerMin !== null && <span>분당 CS {c.csPerMin.toFixed(1)}</span>}
+                          {c.dpm !== null && <span>분당 딜량 {Math.round(c.dpm)}</span>}
+                        </div>
+                        {/* 평균은 얼마나 안정적인지, 최고는 얼마나 터뜨릴 수 있는지를 말한다.
+                            한 판만 쓴 픽은 둘이 같으므로 그때는 적지 않는다 */}
+                        {c.wins + c.losses > 1 && (
+                          <div className="cstat best">
+                            <span>최고 KDA {c.bestKda.toFixed(2)}</span>
+                            {c.bestDpm !== null && <span>최고 분당 딜량 {Math.round(c.bestDpm)}</span>}
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>
-                  {openChamps.length > CHAMPS_SHOWN && (
-                    <button className="moretog" onClick={() => setAllChamps(!allChamps)}>
-                      {allChamps ? '접기' : `전체 ${openChamps.length}개 보기`}
-                    </button>
-                  )}
                   <p className="note" style={{ marginBottom: 20 }}>
                     1~4라운드 · 기록 출처: Leaguepedia
                   </p>

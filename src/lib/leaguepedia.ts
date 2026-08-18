@@ -22,7 +22,7 @@
  */
 
 import { championLocalizer } from './ddragon';
-import { foldPicks, type ChampionMap, type PickRow } from './champions';
+import { foldPicks, gameMinutes, type ChampionMap, type PickRow } from './champions';
 import { PLAYERS, STAFF } from './lck2026';
 
 const API = 'https://lol.fandom.com/api.php';
@@ -125,6 +125,14 @@ interface RawRow {
   Link: string;
   Champion: string;
   PlayerWin: string;
+  Kills: string;
+  Deaths: string;
+  Assists: string;
+  CS: string;
+  DamageToChampions: string;
+  TeamKills: string;
+  /** ScoreboardGames 쪽 값. "38:51" */
+  Gamelength: string;
 }
 
 /** 인용부호를 넣으면 쿼리가 깨진다. 대회 이름은 우리가 정한 상수뿐이지만 습관을 지킨다 */
@@ -141,17 +149,35 @@ export async function fetchChampionStats(): Promise<ChampionMap> {
     limit: '500',
     tables: 'ScoreboardPlayers=SP,ScoreboardGames=SG',
     join_on: 'SP.GameId=SG.GameId',
-    fields: 'SP.Link,SP.Champion,SP.PlayerWin',
+    fields:
+      'SP.Link,SP.Champion,SP.PlayerWin,SP.Kills,SP.Deaths,SP.Assists,SP.CS,' +
+      'SP.DamageToChampions,SP.TeamKills,SG.Gamelength',
     where,
   });
 
   if (res.error) throw new Error(`leaguepedia ${res.error.code}: ${res.error.info}`);
 
-  const rows: PickRow[] = (res.cargoquery ?? []).map((r: { title: RawRow }) => ({
-    link: r.title.Link,
-    champion: r.title.Champion,
-    win: r.title.PlayerWin === 'Yes',
-  }));
+  /** 숫자 칸이 빈 문자열로 오는 판이 있다. 0 으로 읽으면 평균이 내려가므로 구분한다 */
+  const num = (v: string | undefined) => {
+    const n = Number(v);
+    return v !== undefined && v !== '' && Number.isFinite(n) ? n : null;
+  };
+
+  const rows: PickRow[] = (res.cargoquery ?? []).map((row: { title: RawRow }) => {
+    const r = row.title;
+    return {
+      link: r.Link,
+      champion: r.Champion,
+      win: r.PlayerWin === 'Yes',
+      kills: num(r.Kills) ?? 0,
+      deaths: num(r.Deaths) ?? 0,
+      assists: num(r.Assists) ?? 0,
+      cs: num(r.CS) ?? 0,
+      damage: num(r.DamageToChampions) ?? 0,
+      teamKills: num(r.TeamKills),
+      minutes: gameMinutes(r.Gamelength),
+    };
+  });
 
   const linkToId: Record<string, string> = {};
   for (const p of PLAYERS) linkToId[p.lpName] = p.id;
