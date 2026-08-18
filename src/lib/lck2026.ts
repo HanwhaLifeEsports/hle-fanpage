@@ -128,6 +128,40 @@ export const SEASON = {
 /* 선수 — 2026 한화생명e스포츠 (실제 로스터)                            */
 /* ------------------------------------------------------------------ */
 
+/**
+ * 선수 사진.
+ *
+ * 이 사이트에서 가장 조심해야 하는 자산이다. 촬영자의 저작권과 선수의 초상권이
+ * 겹쳐 있고, 구단 2차 창작 가이드라인은 영상만 다루고 사진은 다루지 않는다.
+ * 그래서 파일 경로만 두지 않고 "어디서 왔고 무슨 근거로 쓰는지"를 같이 적는다.
+ * 근거를 적을 수 없는 사진은 넣지 않는다.
+ *
+ * 파일 목록과 출처는 public/players/README.md 에도 표로 남긴다.
+ *
+ * [현재 등록된 사진 없음]
+ * 처음 넣었던 사진은 basis 를 'self'(운영자 직접 촬영)로 적었는데 실제 경위가
+ * 그와 달라 내렸다. 근거가 확실하지 않은 사진은 싣지 않는다는 것이 이 타입의
+ * 존재 이유이고, 그 타입이 실제로 걸러낸 첫 사례다.
+ * 지금은 팬 사진(src/lib/photos)만 뜬다.
+ */
+export interface PlayerPhoto {
+  src: string;
+  /** next/image 가 로딩 전에 자리를 잡으려면 원본 크기가 필요하다 */
+  width: number;
+  height: number;
+  /**
+   * 무슨 근거로 쓰는가.
+   *  self        직접 촬영. 저작권은 우리에게 있고 초상권만 남는다
+   *  permission  촬영자 또는 구단에게 사용 허락을 받았다
+   *  unverified  아직 확인하지 못했다 — 배포 전에 반드시 해소할 것
+   */
+  basis: 'self' | 'permission' | 'unverified';
+  /** 화면과 문서에 표시할 출처 문구 */
+  credit: string;
+  /** 근거를 확인한 날짜 */
+  checkedAt: string;
+}
+
 export interface Player {
   id: string;
   nm: string;
@@ -143,25 +177,40 @@ export interface Player {
    * 값은 /service/v1/ranking/lck_2026/player 응답의 playerId 에서 확인한다.
    */
   naverId: string;
-  /** 대표 챔피언 — 2026 시즌 경기에서 반복해 고른 픽 */
-  champs: string[];
+  /**
+   * Leaguepedia 선수 문서 이름 — 챔피언 전적을 붙이는 연결 키 (src/lib/leaguepedia.ts).
+   *
+   * 닉네임과 다를 수 있다. 동명이인이 있으면 문서 이름에 괄호가 붙는다
+   * (Zeka -> "Zeka (Kim Geon-woo)"). 값은 ScoreboardPlayers.Link 에서 확인한다.
+   */
+  lpName: string;
+  photo?: PlayerPhoto;
   /** 2026 시즌 합류 여부 */
   joined2026?: boolean;
 }
 
 export const PLAYERS: Player[] = [
-  // 등번호는 실제 값. naverId 는 2026-08-17 응답 기준으로 확인했다
-  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', champs: ['잭스', '그웬', '케넨'] },
-  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', champs: ['비에고', '자르반 4세', '리 신'], joined2026: true },
-  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', champs: ['아지르', '오리아나', '실라스'] },
-  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', naverId: '10320', champs: ['징크스', '제리', '칼리스타'], joined2026: true },
-  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', champs: ['노틸러스', '레나타', '알리스타'] },
+  // 등번호는 실제 값. naverId 와 lpName 은 각 API 응답에서 확인했다 (2026-08-18)
+  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', lpName: 'Zeus' },
+  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', lpName: 'Kanavi', joined2026: true },
+  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', lpName: 'Zeka (Kim Geon-woo)' },
+  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', naverId: '10320', lpName: 'Gumayusi', joined2026: true },
+  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', lpName: 'Delight' },
 ];
 
-export const STAFF = [
-  { role: '감독', nm: 'Homme', ko: '윤성영' },
-  { role: '코치', nm: 'Mowgli', ko: '이재하' },
-  { role: '코치', nm: 'Sin', ko: '연형모' },
+export interface Staff {
+  id: string;
+  role: string;
+  nm: string;
+  ko: string;
+  /** Leaguepedia 문서 이름 — 계약 종료일을 붙이는 연결 키 */
+  lpName: string;
+}
+
+export const STAFF: Staff[] = [
+  { id: 'homme', role: '감독', nm: 'Homme', ko: '윤성영', lpName: 'Homme' },
+  { id: 'mowgli', role: '코치', nm: 'Mowgli', ko: '이재하', lpName: 'Mowgli' },
+  { id: 'sin', role: '코치', nm: 'Sin', ko: '연형모', lpName: 'Sin (Yeon Hyeong-mo)' },
 ];
 
 /* ------------------------------------------------------------------ */

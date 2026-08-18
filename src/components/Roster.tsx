@@ -1,25 +1,64 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { PLAYERS, type Player } from '@/lib/lck2026';
 import { Star, X } from 'lucide-react';
 import { patchState, toast, useApp } from '@/lib/useAppState';
 import type { PlayerStat, StatMap } from '@/lib/naver';
+import PhotoGallery from './PhotoGallery';
+import { cardFanPhoto, useFanPhotos, type FanPhoto } from '@/lib/photos';
+import type { ChampionMap } from '@/lib/champions';
+import type { ContractMap } from '@/lib/leaguepedia';
+import { fmtContract } from '@/lib/format';
+
+/**
+ * 선수 사진 표시 스위치.
+ *
+ * 사진은 이 사이트에서 가장 되돌릴 가능성이 높은 기능이다. 저작권이 우리에게 있어도
+ * 초상권은 선수 쪽에 남아 있어서, 요청이 오면 즉시 내려야 한다. 그때 코드를 고치고
+ * 리뷰를 거치는 대신 환경변수 하나로 끌 수 있게 둔다.
+ * 치지직 자체 플레이어(NEXT_PUBLIC_CHZZK_PLAYER)와 같은 방식이다.
+ */
+const PHOTOS_ON = process.env.NEXT_PUBLIC_PLAYER_PHOTOS !== 'off';
+
+
 
 function Card({
   p,
   st,
+  fan,
   onOpen,
   fav,
 }: {
   p: Player;
   st?: PlayerStat;
+  /** 카드에 걸릴 팬 사진. 없으면 공식 사진으로 떨어진다 (cardFanPhoto) */
+  fan: FanPhoto | null;
   onOpen: () => void;
   fav: boolean;
 }) {
+  // 판단은 cardFanPhoto 가 이미 끝냈다. 여기서는 무엇을 그릴지만 정한다
+  const shot = !PHOTOS_ON ? null : fan ? { fan } : p.photo ? { official: p.photo } : null;
   return (
     <button className="pcard" onClick={onOpen}>
       <div className="ph">
+        {/* 팬 사진은 저장소가 준 주소라 next/image 최적화 경로를 못 탄다.
+            이미 4:5 900px 으로 잘려 들어온 값이라 최적화할 것도 없다. */}
+        {shot?.fan && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="pimg" src={shot.fan.url} alt="" />
+        )}
+        {shot?.official && (
+          <Image
+            className="pimg"
+            src={shot.official.src}
+            alt=""
+            width={shot.official.width}
+            height={shot.official.height}
+            sizes="(max-width:560px) 50vw, (max-width:900px) 33vw, 220px"
+          />
+        )}
         <span className="pos">{p.pos}</span>
         <div className="tags">
           {fav && <span className="badge b-flame">최애</span>}
@@ -38,10 +77,23 @@ function Card({
   );
 }
 
-export default function RosterRail({ stats }: { stats?: StatMap | null }) {
+export default function RosterRail({
+  stats,
+  champions,
+  contracts,
+}: {
+  stats?: StatMap | null;
+  champions?: ChampionMap | null;
+  contracts?: ContractMap | null;
+}) {
   const { fav } = useApp();
   const [open, setOpen] = useState<Player | null>(null);
+  const openPlayer = (p: Player) => setOpen(p);
   const openStat = open ? stats?.[open.naverId] : undefined;
+  const openChamps = open ? champions?.[open.id] : undefined;
+  const openContract = open ? contracts?.[open.id] : undefined;
+  // 구독은 여기서 한 번만. 카드마다 걸면 선수 수만큼 리렌더가 붙는다
+  const fanPhotos = useFanPhotos();
 
   const toggleFav = (id: string) => {
     const next = fav === id ? null : id;
@@ -62,8 +114,9 @@ export default function RosterRail({ stats }: { stats?: StatMap | null }) {
             key={p.id}
             p={p}
             st={stats?.[p.naverId]}
+            fan={cardFanPhoto(fanPhotos, p.id, !!p.photo)}
             fav={fav === p.id}
-            onOpen={() => setOpen(p)}
+            onOpen={() => openPlayer(p)}
           />
         ))}
       </div>
@@ -81,11 +134,24 @@ export default function RosterRail({ stats }: { stats?: StatMap | null }) {
               </button>
             </div>
             <div className="modal-b">
+              {/* 사진 자리는 하나다. 운영자 사진을 따로 크게 띄우고 그 아래 갤러리를
+                  또 두면, 같은 선수인데 카드와 모달의 얼굴이 달라 보인다.
+                  운영자 사진은 갤러리의 첫 칸으로 들어간다. */}
+              {PHOTOS_ON && (
+                <PhotoGallery playerId={open.id} playerName={open.nm} official={open.photo} />
+              )}
               <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
                 <span className="badge b-flame">{open.pos}</span>
                 <span className="badge b-soon">#{open.no}</span>
                 {open.joined2026 && <span className="badge b-new">2026 합류</span>}
               </div>
+              {/* 계약 종료일만 적는다. Leaguepedia 는 시작일을 관리하지 않아,
+                  기간으로 적으려면 없는 값을 지어내야 한다 */}
+              {openContract && (
+                <p className="contract">
+                  계약 만료 <b>{fmtContract(openContract)}</b>
+                </p>
+              )}
               {openStat && (
                 <>
                   <h3 className="grouphead">2026 정규시즌 기록</h3>
@@ -123,14 +189,77 @@ export default function RosterRail({ stats }: { stats?: StatMap | null }) {
                 </>
               )}
 
-              <h3 className="grouphead">대표 챔피언</h3>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-                {open.champs.map((c) => (
-                  <span className="chip" key={c}>
-                    {c}
-                  </span>
-                ))}
-              </div>
+              {openChamps && openChamps.length > 0 && (
+                <>
+                  <h3 className="grouphead">2026 LCK 정규시즌 챔피언 픽</h3>
+                  {/* 손으로 적어 두지 않는다. 시즌 중에 계속 바뀌는 값이라
+                      한 번 적어 두면 반드시 실제와 어긋난다 */}
+                  {/* 자르지 않는다. 잘라 두면 뒤쪽 픽을 찾는 사람에게 "기록이 없다" 로
+                      읽힌다 — 카나비의 쉬바나가 8번째라 안 보이던 일이 있었다 */}
+                  <ul className="champs">
+                    {openChamps.map((c) => (
+                      <li key={c.key}>
+                        <div className="ctop">
+                          <span className="cn">{c.name}</span>
+                          <span className="ckda">KDA {c.kda.toFixed(2)}</span>
+                          <span className="cw">
+                            {c.wins}승 {c.losses}패
+                            {/* 전승 강조는 2승부터. 1승 0패도 100% 인데 그것까지 세우면
+                                한 판 이긴 픽이 11승 2패와 같은 무게로 보인다 */}
+                            <em className={c.losses === 0 && c.wins >= 2 ? 'wr full' : 'wr'}>
+                              {Math.round((c.wins / (c.wins + c.losses)) * 100)}%
+                            </em>
+                          </span>
+                        </div>
+                        <div className="cstat">
+                          <span>
+                            {c.kills} / {c.deaths} / {c.assists}
+                          </span>
+                          {c.killShare !== null && <span>킬 관여 {Math.round(c.killShare * 100)}%</span>}
+                          {c.csPerMin !== null && <span>분당 CS {c.csPerMin.toFixed(1)}</span>}
+                          {c.dpm !== null && <span>DPM {Math.round(c.dpm)}</span>}
+                        </div>
+                        {/* 가장 좋았던 판. 안 죽은 판은 KDA 대신 Perfect 로 적는다 —
+                            나눌 수 없는 값을 킬+어시로 바꿔 적으면 다른 판의 KDA 와
+                            같은 눈금처럼 보인다.
+                            표시값이 평균과 같아지면 적지 않는다. 맞는 값이어도 같은
+                            숫자가 두 번 뜨면 계산이 잘못된 것처럼 보인다 */}
+                        {(() => {
+                          const bg = c.best;
+                          const showKda =
+                            bg !== null && (bg.perfect || bg.kda.toFixed(2) !== c.kda.toFixed(2));
+                          const showDpm =
+                            c.bestDpm !== null &&
+                            c.dpm !== null &&
+                            Math.round(c.bestDpm) !== Math.round(c.dpm);
+                          if (!showKda && !showDpm) return null;
+                          return (
+                            <div className="cstat best">
+                              {showKda && bg && (
+                                <span>
+                                  최고{' '}
+                                  {bg.perfect ? (
+                                    <b className="perfect">Perfect</b>
+                                  ) : (
+                                    `KDA ${bg.kda.toFixed(2)}`
+                                  )}{' '}
+                                  ({bg.kills}/{bg.deaths}/{bg.assists})
+                                </span>
+                              )}
+                              {showDpm && c.bestDpm !== null && (
+                                <span>최고 DPM {Math.round(c.bestDpm)}</span>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="note" style={{ marginBottom: 20 }}>
+                    1~4라운드 · 기록 출처: Leaguepedia
+                  </p>
+                </>
+              )}
               <button
                 className={`btn ${fav === open.id ? 'btn-ghost' : 'btn-primary'} btn-block`}
                 onClick={() => toggleFav(open.id)}

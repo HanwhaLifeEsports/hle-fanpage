@@ -5,7 +5,7 @@ import './globals.css';
 import { AppBar, BottomTabs } from '@/components/Chrome';
 import { Toasts } from '@/components/Shared';
 import RegisterSW from '@/components/RegisterSW';
-import { SITE_DESC, SITE_NAME, SITE_URL } from '@/lib/site';
+import { ABUSE_CONTACT, SITE_DESC, SITE_NAME, SITE_URL } from '@/lib/site';
 
 // 라틴 초대형 디스플레이 전용. 한글은 자체 호스팅한 Freesentation (globals.css)
 const anton = Anton({ weight: '400', subsets: ['latin'], variable: '--font-anton', display: 'swap' });
@@ -80,9 +80,13 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
                 LCK 어느 곳과도 제휴하거나 후원받지 않으며, 광고 · 후원 · 판매 등 어떠한 방식으로도 수익을
                 만들지 않습니다.
               </span>
+              {/* 저작권법 제103조 제4항은 중단 요구를 받을 수령인을 "이용자가 쉽게 알 수 있도록"
+                  공지할 것을 요구한다. 처리방침 안쪽에만 두면 쉽게 알 수 있다고 보기 어려워
+                  모든 화면에 걸리는 푸터에도 적는다. */}
               <span>
                 일정과 순위는 LCK 공식 기록을 실시간으로 반영합니다. 권리자의 요청이 있을 경우 해당 콘텐츠를
-                즉시 삭제합니다.
+                즉시 삭제합니다. 저작권 · 초상권 관련 요청은{' '}
+                <a href={ABUSE_CONTACT.href}>{ABUSE_CONTACT.label}</a> 로 받습니다.
               </span>
             </div>
             <nav>

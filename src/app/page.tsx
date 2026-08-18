@@ -7,6 +7,7 @@ import LiveNow from '@/components/LiveNow';
 import RosterRail from '@/components/Roster';
 import { getSeason } from '@/lib/season';
 import { getPlayerStats } from '@/lib/naver';
+import { getChampionStats } from '@/lib/leaguepedia';
 import { OUR_TAG, SEASON } from '@/lib/lck2026';
 import { LEGEND_BANDS, RISE_BANDS, countIn, worldsRanks } from '@/lib/scenarios';
 
@@ -15,6 +16,7 @@ export const dynamic = 'force-dynamic';
 export default async function Home() {
   // 선수 기록은 순위·일정과 별개 출처라 나란히 시작한다. 실패해도 던지지 않고 null 이 온다
   const statsPromise = getPlayerStats();
+  const champsPromise = getChampionStats();
   let bundle;
   try {
     bundle = await getSeason();
@@ -27,7 +29,7 @@ export default async function Home() {
     );
   }
 
-  const stats = await statsPromise;
+  const [stats, champions] = await Promise.all([statsPromise, champsPromise]);
   const { season, us, next, recent, ourGroup, scenarios } = bundle;
   const upcoming = season.matches
     .filter((m) => m.stage === 'regular' && m.state !== 'completed')
@@ -158,7 +160,7 @@ export default async function Home() {
             전체 프로필
           </Link>
         </div>
-        <RosterRail stats={stats} />
+        <RosterRail stats={stats} champions={champions} />
 
         <div className="shead">
           <h2 className="ko">다가오는 일정</h2>

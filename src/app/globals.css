@@ -379,8 +379,16 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 @media(max-width:560px){.rail{grid-template-columns:repeat(2,1fr)}}
 .pcard{background:var(--surface-card);cursor:pointer;border:0;padding:0;text-align:left;color:inherit;display:block;width:100%}
 .pcard .ph{aspect-ratio:4/5;position:relative;background:linear-gradient(165deg,var(--photo-a),var(--photo-b));overflow:hidden}
-.pcard .ph::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,var(--shade))}
-.pcard .no{position:absolute;right:10px;bottom:4px;font-family:var(--display);font-size:72px;line-height:.8;color:var(--tint-ghost)}
+/* 사진이 있으면 바탕 그라디언트를 덮는다. 인물 사진은 세로가 길어 아래를 잘라야
+   얼굴이 남으므로 object-position 을 위로 올린다. */
+.pcard .ph .pimg{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:50% 12%}
+/* 아래를 어둡게(라이트에서는 밝게) 깔아야 그 위 이름이 읽힌다.
+   사진보다 위, 이름(z 2)보다 아래. */
+.pcard .ph::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,transparent 45%,var(--shade))}
+/* 등번호 워터마크는 그늘 위에 있어야 한다.
+   ::before 에 z-index 를 주기 전에는 pseudo 가 먼저 그려져서 이 숫자가 자연히 위였다.
+   이제는 명시하지 않으면 그늘(z 1) 아래로 내려가 rgba(...,.07) 짜리가 완전히 묻힌다. */
+.pcard .no{position:absolute;right:10px;bottom:4px;z-index:2;font-family:var(--display);font-size:72px;line-height:.8;color:var(--tint-ghost)}
 .pcard .pos{position:absolute;top:11px;left:11px;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--flame-text)}
 .pcard .tags{position:absolute;top:9px;right:9px;z-index:3;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
 .pcard .nm{position:absolute;left:11px;bottom:9px;font-family:var(--display);font-size:23px;letter-spacing:.02em;z-index:2}
@@ -388,6 +396,103 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .pcard:hover .mt{border-top-color:var(--flame)}
 /* 카드 우측 아래 숫자 한 줄. 기록이 있으면 POM 포인트, 없으면 등번호가 들어간다 */
 .pcard .fig{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+
+/* 챔피언 전적. 첫 줄은 이름·KDA·승패, 둘째 줄은 세부 지표 */
+.champs{list-style:none;margin:0 0 4px;padding:0}
+.champs li{padding:8px 0;border-bottom:1px solid var(--hairline)}
+.champs li:last-child{border-bottom:0}
+.champs .ctop{display:flex;align-items:baseline;gap:var(--s3)}
+.champs .cn{font-size:14px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 승패를 세운다. 이 목록에서 먼저 읽혀야 하는 값은 그 픽으로 이겼는지다 */
+.champs .ckda{font-size:12.5px;color:var(--mute);font-variant-numeric:tabular-nums;flex:none}
+.champs .cw{font-size:13px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;
+  flex:none;width:104px;text-align:right;white-space:nowrap}
+.champs .wr{font-style:normal;font-weight:600;font-size:12px;color:var(--mute);margin-left:7px}
+/* 전승은 이 목록에서 유일하게 눈에 띄어야 하는 값이다 */
+.champs .wr.full{color:var(--win)}
+/* 세부 지표. 줄이 길어 좁은 화면에서는 접힌다 */
+.champs .cstat{display:flex;flex-wrap:wrap;gap:2px 10px;margin-top:3px;
+  font-size:11.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+/* 최고 기록은 한 단계 더 물러나게 둔다. 평균이 먼저 읽혀야 한다 */
+.champs .cstat.best{margin-top:1px;opacity:.8}
+/* 안 죽은 판. 이 목록에서 유일하게 등급이 다른 값이라 색으로 구분한다 */
+.champs .perfect{color:var(--win);font-weight:700;letter-spacing:.01em}
+
+/* ---------- 팬 사진 ---------- */
+.gwrap{margin:0 0 var(--s5)}
+.ghead{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-bottom:10px}
+.ghead .grouphead{margin:0;display:flex;align-items:baseline;gap:6px}
+
+/* 3열 격자. 칸은 선수 카드와 같은 4:5 라 카드에 걸렸을 때 잘리는 곳이 없다.
+   틈을 좁게 두는 편이 한 화면에 더 많이 들어와 고르기 쉽다 */
+.ggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.gtile{position:relative;display:block;margin:0;padding:0;border:0;background:transparent;cursor:pointer}
+.gtile img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--photo-b)}
+.gtile .hcount{position:absolute;left:5px;bottom:5px;display:inline-flex;align-items:center;gap:3px;
+  background:var(--glass);color:var(--always-light);font-size:11px;line-height:1;
+  padding:3px 6px;border-radius:var(--r-full);font-variant-numeric:tabular-nums}
+.gtile .hcount.on{color:var(--flame)}
+/* 지금 선수 카드에 걸려 있는 사진. 하트 자리와 겹치지 않게 반대쪽 위에 둔다 */
+.gtile .rtag{position:absolute;left:5px;top:5px;background:var(--flame);color:var(--on-flame);
+  font-size:10px;font-weight:700;letter-spacing:.02em;line-height:1;padding:3px 5px;border-radius:2px}
+
+/* 확대 보기 */
+.gbig{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--photo-b)}
+.gbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px}
+
+.heart{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;padding:0;
+  color:var(--mute);font-size:13px;font-variant-numeric:tabular-nums;cursor:pointer;transition:color .15s}
+.heart:hover{color:var(--ink)}
+.heart.on{color:var(--flame-text)}
+
+.iconbtn{width:26px;height:26px;border:0;background:transparent;color:var(--faint);
+  display:grid;place-items:center;cursor:pointer;transition:color .15s}
+.iconbtn:hover{color:var(--ink)}
+.greport{display:inline-flex;align-items:center;gap:6px}
+
+/* ---------- 크롭 ---------- */
+.cropper{display:flex;flex-direction:column;gap:var(--s4)}
+/* 크기 제한은 max-width 로만 건다. max-height 를 걸면 aspect-ratio 가 깨져
+   창이 4:5 가 아니게 되고, 그 창을 4:5 캔버스에 그리면 사진이 눌린다 */
+.cropdrop{width:100%;max-width:300px;margin:0 auto;aspect-ratio:4/5;border:1px dashed var(--hairline);
+  border-radius:var(--r-card);background:transparent;color:var(--mute);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:border-color .15s,color .15s}
+.cropdrop:hover{border-color:var(--tint-edge);color:var(--ink)}
+.cropdrop b{font-size:15px;color:var(--ink)}
+
+/* 사진 전체를 펼쳐 놓는 무대. 사진은 contain 으로 담기므로 여기에 높이를 걸어도
+   비율이 안 깨진다. 잘리는 범위는 이 위에 얹는 .cropsel 이 정한다 */
+.cropstage{position:relative;width:100%;height:320px;overflow:hidden;
+  border-radius:var(--r-card);background:var(--video-bg);touch-action:none;user-select:none}
+.cropstage img{pointer-events:none}
+
+/* 바깥을 덮는 그늘은 box-shadow 로 만든다. 패널 네 장을 따로 두지 않아도 된다 */
+.cropsel{position:absolute;cursor:move;box-shadow:0 0 0 9999px rgba(0,0,0,.55);
+  outline:1px solid var(--always-light);outline-offset:-1px}
+.crophandle{position:absolute;width:22px;height:22px;background:transparent;cursor:nwse-resize}
+.crophandle::after{content:'';position:absolute;width:11px;height:11px;
+  border:2px solid var(--always-light);border-radius:1px}
+.h-nw{left:-11px;top:-11px}       .h-nw::after{right:0;bottom:0;border-right:0;border-bottom:0}
+.h-ne{right:-11px;top:-11px}      .h-ne::after{left:0;bottom:0;border-left:0;border-bottom:0}
+.h-sw{left:-11px;bottom:-11px}    .h-sw::after{right:0;top:0;border-right:0;border-top:0}
+.h-se{right:-11px;bottom:-11px}   .h-se::after{left:0;top:0;border-left:0;border-top:0}
+.h-ne,.h-sw{cursor:nesw-resize}
+
+.croptools{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.croptools .cap{flex:1;min-width:180px;font-size:12px;line-height:1.5}
+.cropwarn{display:flex;align-items:center;gap:6px;margin:0;font-size:12.5px;color:var(--flame-text)}
+
+.croplaw{border-left:2px solid var(--flame);padding:2px 0 2px 14px;font-size:12.5px;color:var(--body);line-height:1.65}
+/* 제목만 블록. 목록 안의 강조는 문장 중간이라 줄을 바꾸면 안 된다 */
+.croplaw > b{display:block;color:var(--ink);font-size:13px;margin-bottom:4px}
+.croplaw ul{margin:0;padding-left:16px}
+.croplaw li{margin-top:2px}
+
+.cropagree{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--body);cursor:pointer;line-height:1.5}
+.cropagree input{margin-top:2px;accent-color:var(--flame);flex:none}
+
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* ---------- lists ---------- */
 .plist{border-top:1px solid var(--hairline)}
@@ -698,3 +803,12 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 .leadrow .chip{font-size:12px;padding:5px 10px;cursor:pointer}
 .leadrow.off .chip{opacity:.45}
 .leadrow.off .chip:hover{opacity:1}
+/* 계약 종료일. 선수 모달과 코칭스태프 카드에 함께 쓴다 */
+.contract{margin:0 0 16px;font-size:12.5px;color:var(--mute)}
+.contract b{color:var(--body);font-weight:600;font-variant-numeric:tabular-nums}
+.card .contract{margin:8px 0 0}
+
+/* 목록 더 보기 토글. 목록 바로 아래에 붙는다 */
+.moretog{display:block;width:100%;margin-top:2px;padding:8px 0;border:0;background:transparent;
+  color:var(--mute);font-size:12.5px;cursor:pointer;transition:color .15s}
+.moretog:hover{color:var(--ink)}
