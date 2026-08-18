@@ -1,4 +1,5 @@
 import RosterRail from '@/components/Roster';
+import AwardsButton from '@/components/Awards';
 import { PLAYERS, STAFF } from '@/lib/lck2026';
 import { getPlayerStats } from '@/lib/naver';
 import { getChampionStats, getContracts } from '@/lib/leaguepedia';
@@ -53,10 +54,11 @@ export default async function RosterPage() {
             <div className="cap" style={{ marginTop: 2 }}>
               {s.ko} · {s.role}
             </div>
+            <div style={{ marginTop: 8 }}>
+              <AwardsButton id={s.id} name={s.nm} />
+            </div>
             {contracts?.[s.id] && (
-              <p className="contract">
-                계약 만료 <b>{fmtContract(contracts[s.id])}</b>
-              </p>
+              <p className="contract">계약 만료 {fmtContract(contracts[s.id])}</p>
             )}
           </div>
         ))}
