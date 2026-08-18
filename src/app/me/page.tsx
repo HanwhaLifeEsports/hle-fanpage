@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { Bell, Eye, RotateCcw } from 'lucide-react';
 import { PLAYERS } from '@/lib/lck2026';
-import { PREFS, patchState, resetState, toast, useApp, useNotify } from '@/lib/useAppState';
+import { LEAD_CHOICES, PREFS, leadLabel, patchState, resetState, toast, useApp, useNotify } from '@/lib/useAppState';
 
 export default function MePage() {
-  const { prefs, fav, setPref } = useApp();
+  const { prefs, leads, fav, setPref, setLead } = useApp();
   const { permission, ask } = useNotify();
   const [iosHint, setIosHint] = useState(false);
 
@@ -38,25 +38,43 @@ export default function MePage() {
     seq.forEach((s, i) => setTimeout(() => toast(...s), i * 900));
   };
 
-  const Row = ({ k, t, d }: { k: string; t: string; d: string }) => (
-    <div className="nrow">
-      <div className="l">
-        <b>{t}</b>
-        <span>{d}</span>
+  /* lead 가 있는 항목은 몇 분 전에 받을지 고를 수 있다. 켜져 있을 때만 보여준다 —
+     꺼진 항목의 시간 선택지는 누를 수 없는 채로 자리만 차지한다. */
+  const Row = ({ k, t, d, lead }: { k: string; t: string; d: string; lead?: number }) => (
+    <>
+      <div className="nrow">
+        <div className="l">
+          <b>{t}</b>
+          <span>{d}</span>
+        </div>
+        <button
+          className={`tg${prefs[k] ? ' on' : ''}`}
+          aria-label={t}
+          onClick={() => {
+            setPref(k, !prefs[k]);
+            if (k === 'spoiler')
+              toast(
+                !prefs[k] ? '스포일러 차단 켜짐' : '스포일러 차단 꺼짐',
+                !prefs[k] ? '경기 결과가 가려집니다. 탭하면 볼 수 있어요.' : '경기 결과가 바로 표시됩니다.',
+              );
+          }}
+        />
       </div>
-      <button
-        className={`tg${prefs[k] ? ' on' : ''}`}
-        aria-label={t}
-        onClick={() => {
-          setPref(k, !prefs[k]);
-          if (k === 'spoiler')
-            toast(
-              !prefs[k] ? '스포일러 차단 켜짐' : '스포일러 차단 꺼짐',
-              !prefs[k] ? '경기 결과가 가려집니다. 탭하면 볼 수 있어요.' : '경기 결과가 바로 표시됩니다.',
-            );
-        }}
-      />
-    </div>
+      {lead !== undefined && prefs[k] && (
+        <div className="leadrow" role="group" aria-label={`${t} 미리 알림`}>
+          {LEAD_CHOICES.map((m) => (
+            <button
+              key={m}
+              className={`chip${(leads[k] ?? lead) === m ? ' on' : ''}`}
+              aria-pressed={(leads[k] ?? lead) === m}
+              onClick={() => setLead(k, m)}
+            >
+              {leadLabel(m)}
+            </button>
+          ))}
+        </div>
+      )}
+    </>
   );
 
   return (
@@ -98,7 +116,7 @@ export default function MePage() {
       <div className="card" style={{ marginBottom: 'var(--s5)' }}>
         <h3 className="grouphead">경기</h3>
         {PREFS.filter((p) => p.g === 'match').map((p) => (
-          <Row key={p.k} k={p.k} t={p.t} d={p.d} />
+          <Row key={p.k} k={p.k} t={p.t} d={p.d} lead={'lead' in p ? p.lead : undefined} />
         ))}
       </div>
 
