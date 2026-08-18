@@ -80,6 +80,8 @@
   --video-bg:#000;                    /* 플레이어 바깥 레터박스 */
   --video-surface:#0B0B0C;            /* 영상이 아직 없을 때의 면 */
   --scrim-strong:rgba(0,0,0,.92);     /* 영상 위 버튼 hover */
+  /* 대진표 머리띠 — 어두운 면 위 흰 글자라 두 테마에서 같은 방향으로 어둡게 둔다 */
+  --bh-a:#241B3F; --bh-b:#3A2168;
   --r-card:8px; --r-lg:16px; --r-full:9999px;
   --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:72px;
   /* viewport-fit=cover 로 화면 끝까지 쓰기 때문에, 노치·둥근 모서리·홈 인디케이터를
@@ -553,9 +555,17 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 /* ---------- 포스트시즌 대진표 ---------- */
 .bstage{margin:0 0 var(--s6)}
 
+/* 스테이지 머리띠. 대진표가 어느 대회의 것인지 한눈에 잡아 준다 */
+.bhead{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4);
+  padding:11px 14px;border-radius:var(--r-card) var(--r-card) 0 0;
+  background:linear-gradient(100deg,var(--bh-a),var(--bh-b))}
+.bhead b{font-family:var(--display-ko);font-size:16px;letter-spacing:-.01em;color:var(--always-light)}
+.bhead span{font-size:11.5px;letter-spacing:.06em;color:rgba(255,255,255,.62)}
+
 /* 좁은 화면에서는 가로로 넘긴다. 세로로 접으면 '어느 승자가 어디로 가는지'가 사라진다.
    기본 스크롤바는 끝에 화살표가 붙고 폭도 두꺼워 대진표 옆에서 튄다 — 얇은 막대로 바꾼다 */
-.bscroll{overflow-x:auto;margin:0 calc(var(--gut) * -1);padding:0 var(--gut) 10px;
+.bscroll{overflow-x:auto;padding:var(--s4) var(--s4) 12px;background:var(--surface);
+  border:1px solid var(--hairline);border-top:0;border-radius:0 0 var(--r-card) var(--r-card);
   scrollbar-width:thin;scrollbar-color:var(--tint-4) transparent;overscroll-behavior-x:contain}
 .bscroll::-webkit-scrollbar{height:6px}
 .bscroll::-webkit-scrollbar-track{background:transparent}
@@ -564,9 +574,9 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 /* 크롬은 이 버튼이 있어야 끝 화살표가 사라진다 */
 .bscroll::-webkit-scrollbar-button{display:none;width:0;height:0}
 
-/* 1행 승자조 제목 · 2행 승자조 · 3행 패자조 제목 · 4행 패자조 */
+/* 1행 승자조띠 · 2행 승자조 · 3행 패자조띠 · 4행 패자조 */
 .bgrid{display:grid;gap:0 var(--s3);align-items:start;width:max-content}
-.bband{font-size:11.5px;font-weight:700;letter-spacing:.02em;padding:5px 9px;border-radius:2px;
+.bband{font-size:11.5px;font-weight:700;letter-spacing:.1em;padding:6px 11px;border-radius:3px;
   margin-bottom:var(--s3);position:sticky;left:0}
 .bband.up{background:var(--win-soft);color:var(--win)}
 .bband.low{background:var(--tint-1);color:var(--mute);margin-top:var(--s5)}
@@ -574,36 +584,56 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 .bcell{min-width:0}
 /* 시드 안내가 붙는 칸과 안 붙는 칸의 제목 높이를 맞춘다. 안 맞추면 같은 행의
    경기 카드가 서로 다른 높이에서 시작해 라운드가 어긋나 보인다 */
-.bcellname{font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--mute);
-  margin-bottom:6px;min-height:32px}
-.bcellname .bseed{display:block;font-weight:400;color:var(--faint);font-size:11px;margin-top:2px}
+.bcellname{font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--ink);
+  margin-bottom:7px;min-height:32px}
+.bcellname .bseed{display:block;font-weight:400;color:var(--faint);font-size:11px;margin-top:3px}
 
 .bmatch{background:var(--surface-card);border:1px solid var(--hairline);border-radius:var(--r-card);
-  padding:8px 9px;margin-bottom:8px}
+  overflow:hidden;margin-bottom:9px}
 .bmatch.live{border-color:var(--live-edge)}
-.bteam{display:flex;align-items:center;gap:7px;padding:3px 0}
+/* 끝난 경기는 테두리를 세워 진행 중인 대진과 구분한다 */
+.bmatch.done{border-color:var(--tint-edge)}
+
+/* 카드 제목줄 — 어떤 경기이고 언제인지 */
+.bmhead{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:6px 9px;background:var(--tint-1);border-bottom:1px solid var(--hairline)}
+.bml{font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--body);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bmwhen{font-size:10.5px;color:var(--mute);flex:none;font-variant-numeric:tabular-nums}
+.bmatch.live .bmhead{background:var(--live);border-bottom-color:transparent}
+.bmatch.live .bml,.bmatch.live .bmwhen{color:var(--always-light)}
+
+.bmbody{padding:3px 9px}
+.bteam{display:flex;align-items:center;gap:8px;padding:5px 0}
 .bteam + .bteam{border-top:1px solid var(--hairline)}
-.bemblem{width:22px;height:22px;object-fit:contain;flex:none;border-radius:2px;background:var(--tint-2)}
+.bemblem{width:26px;height:26px;object-fit:contain;flex:none;border-radius:50%;
+  background:var(--tint-2);padding:2px}
 .bcode{flex:1;font-size:13px;font-weight:600;letter-spacing:.02em;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bscore{font-size:14px;font-variant-numeric:tabular-nums;color:var(--mute);flex:none}
+.bscore{font-size:15px;font-variant-numeric:tabular-nums;color:var(--faint);flex:none;min-width:12px;text-align:right}
 /* 진 쪽을 흐리게 하지 않고 이긴 쪽을 세운다. 흐리게 하면 미정 칸과 헷갈린다 */
-.bteam.won .bcode,.bteam.won .bscore{color:var(--ink)}
-.bteam.won .bscore{font-weight:700}
+.bteam.won .bcode{color:var(--ink)}
+.bteam.won .bscore{color:var(--win);font-weight:700}
 /* 미정 자리의 출처는 팀 코드보다 길어서 크기를 줄이고 줄바꿈을 허용한다 */
 .bteam.tbd .bcode{color:var(--faint);font-weight:400;font-size:11.5px;letter-spacing:0;
   line-height:1.3;white-space:normal}
 .bteam.me .bcode{color:var(--flame-text)}
-.bwhen{font-size:11px;color:var(--faint);margin-top:5px;font-variant-numeric:tabular-nums}
-.bwhen b{color:var(--live)}
+.bteam.me .bemblem{background:var(--flame-soft)}
 
 /* 이기면 어디로, 지면 어디로. 선을 긋는 대신 글로 적는다 */
-.bgoes{display:flex;flex-direction:column;gap:2px;margin-top:6px;padding-top:6px;
+.bgoes{display:flex;flex-direction:column;gap:2px;padding:6px 9px 7px;
   border-top:1px dashed var(--hairline);font-size:11px;line-height:1.35}
 .bgoes b{font-style:normal;margin-right:3px}
-.bgoes .gw{color:var(--flame-text)}
+.bgoes .gw{color:var(--win)}
 .bgoes .gl{color:var(--mute)}
 .bgoes .gl.out{color:var(--faint)}
+
+.blegend{display:flex;flex-wrap:wrap;gap:var(--s4);margin-top:10px;font-size:11.5px;color:var(--mute)}
+.blegend span{display:inline-flex;align-items:center;gap:5px}
+.blegend i{width:9px;height:9px;border-radius:2px;flex:none}
+.blegend .lw{background:var(--win)}
+.blegend .ll{background:var(--mute)}
+.blegend .lm{background:var(--flame)}
 
 /* 진출 확정 전 — 확률로 대신한다 */
 .bodds{display:grid;gap:8px;margin:0 0 var(--s5)}

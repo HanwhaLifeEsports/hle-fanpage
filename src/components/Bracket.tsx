@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { fmtDate } from '@/lib/format';
-import { seedNote, type BracketMatch, type BracketStage, type BracketTeam } from '@/lib/bracket';
+import { SEASON } from '@/lib/lck2026';
+import { type BracketMatch, type BracketStage, type BracketTeam, seedNote } from '@/lib/bracket';
 
 /**
  * 포스트시즌 대진표.
@@ -22,7 +23,7 @@ function Side({ t, ourTag }: { t: BracketTeam; ourTag: string }) {
       {t.tbd ? (
         <span className="bemblem" aria-hidden />
       ) : (
-        <Image className="bemblem" src={t.image} alt="" width={22} height={22} unoptimized />
+        <Image className="bemblem" src={t.image} alt="" width={26} height={26} unoptimized />
       )}
       {/* 미정 자리에는 무엇이 들어오는지를 적는다. '미정' 만 늘어놓으면
           대진표를 봐도 흐름을 알 수 없다 */}
@@ -32,14 +33,22 @@ function Side({ t, ourTag }: { t: BracketTeam; ourTag: string }) {
   );
 }
 
-function Match({ m, ourTag }: { m: BracketMatch; ourTag: string }) {
+function Match({ m, ourTag, label }: { m: BracketMatch; ourTag: string; label: string }) {
   return (
-    <div className={`bmatch${m.state === 'inProgress' ? ' live' : ''}`}>
-      <Side t={m.teams[0]} ourTag={ourTag} />
-      <Side t={m.teams[1]} ourTag={ourTag} />
-      <div className="bwhen">
-        {m.startTime ? fmtDate(m.startTime) : '일정 미정'}
-        {m.state === 'inProgress' && <b> 진행 중</b>}
+    <div
+      className={`bmatch${m.state === 'inProgress' ? ' live' : ''}${
+        m.state === 'completed' ? ' done' : ''
+      }`}
+    >
+      <div className="bmhead">
+        <span className="bml">{label}</span>
+        <span className="bmwhen">
+          {m.state === 'inProgress' ? 'LIVE' : m.startTime ? fmtDate(m.startTime) : '일정 미정'}
+        </span>
+      </div>
+      <div className="bmbody">
+        <Side t={m.teams[0]} ourTag={ourTag} />
+        <Side t={m.teams[1]} ourTag={ourTag} />
       </div>
       {(m.winTo || m.lossTo) && (
         <div className="bgoes">
@@ -64,42 +73,67 @@ export default function Bracket({ stages, ourTag }: { stages: BracketStage[]; ou
     <>
       {stages.map((st) => {
         const hasLower = st.cells.some((c) => c.band === 'lower');
+        // 띠가 있으면 1행 승자조띠 · 2행 승자조 · 3행 패자조띠 · 4행 패자조
+        const rowOf = (band: string) => (!hasLower ? 1 : band === 'upper' ? 2 : 4);
         return (
           <section key={st.slug} className="bstage">
-            <h3 className="grouphead">{st.name}</h3>
+            <div className="bhead">
+              <b>{st.name}</b>
+              <span>{SEASON.year} LCK 대진표</span>
+            </div>
+
             <div className="bscroll">
-              <div
-                className="bgrid"
-                style={{ gridTemplateColumns: `repeat(${st.cols}, 178px)` }}
-              >
+              <div className="bgrid" style={{ gridTemplateColumns: `repeat(${st.cols}, 190px)` }}>
                 {hasLower && (
                   <>
-                    <div className="bband up" style={{ gridColumn: `1 / -1`, gridRow: 1 }}>
+                    <div className="bband up" style={{ gridColumn: '1 / -1', gridRow: 1 }}>
                       승자조
                     </div>
-                    <div className="bband low" style={{ gridColumn: `1 / -1`, gridRow: 3 }}>
+                    <div className="bband low" style={{ gridColumn: '1 / -1', gridRow: 3 }}>
                       패자조
                     </div>
                   </>
                 )}
-                {st.cells.map((cell) => (
-                  <div
-                    className="bcell"
-                    key={`${cell.band}-${cell.slug}`}
-                    style={{ gridColumn: cell.col + 1, gridRow: cell.band === 'upper' ? 2 : 4 }}
-                  >
-                    <div className="bcellname">
-                      {cell.name}
-                      {seedNote(st.slug, cell.slug) && (
-                        <span className="bseed">{seedNote(st.slug, cell.slug)}</span>
-                      )}
+                {st.cells.map((cell) => {
+                  const name = cell.name; // bracket.ts 의 cellLabel 이 이미 다듬어 뒀다
+                  const note = seedNote(st.slug, cell.slug);
+                  return (
+                    <div
+                      className={`bcell ${cell.band}`}
+                      key={`${cell.band}-${cell.slug}`}
+                      style={{ gridColumn: cell.col + 1, gridRow: rowOf(cell.band) }}
+                    >
+                      <div className="bcellname">
+                        {name}
+                        {note && <span className="bseed">{note}</span>}
+                      </div>
+                      {cell.matches.map((m, i) => (
+                        <Match
+                          key={m.id}
+                          m={m}
+                          ourTag={ourTag}
+                          label={cell.matches.length > 1 ? `${name} ${i + 1}경기` : name}
+                        />
+                      ))}
                     </div>
-                    {cell.matches.map((m) => (
-                      <Match key={m.id} m={m} ourTag={ourTag} />
-                    ))}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+            </div>
+
+            <div className="blegend">
+              <span>
+                <i className="lw" aria-hidden />
+                이기면 가는 곳
+              </span>
+              <span>
+                <i className="ll" aria-hidden />
+                지면 가는 곳
+              </span>
+              <span>
+                <i className="lm" aria-hidden />
+                {ourTag}
+              </span>
             </div>
           </section>
         );

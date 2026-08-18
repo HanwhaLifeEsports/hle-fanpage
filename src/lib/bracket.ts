@@ -101,13 +101,28 @@ export interface RawBracketStage {
 const isLower = (slug: string) => slug.startsWith('lower_bracket') || slug.startsWith('losers_bracket');
 
 /**
- * 칸 이름 정규화.
+ * 칸 이름.
  *
- * 위 slug 불일치가 이름에도 그대로 나타나서, 같은 패자조를 어떤 칸은
- * "하위권 대진 - 2라운드", 어떤 칸은 "패자 대진 - 3라운드" 로 부른다.
- * 화면에서 한 조가 두 이름으로 불리면 다른 조로 읽힌다. 많이 쓰인 쪽으로 맞춘다.
+ * 응답의 이름을 그대로 쓰지 않는다. 두 가지 문제가 있다.
+ *  - 같은 패자조를 어떤 칸은 "하위권 대진 - 2라운드", 어떤 칸은 "패자 대진 -
+ *    3라운드" 로 부른다 (slug 가 lower_bracket / losers_bracket 으로 갈리는 탓).
+ *    화면에서 한 조가 두 이름으로 불리면 다른 조로 읽힌다
+ *  - 조 이름은 화면의 띠가 이미 말해 주므로 칸에서는 라운드만 있으면 된다
+ *
+ * 다만 결승은 접두어를 그냥 떼면 승자조 결승 · 패자조 결승 · 진짜 결승이 전부
+ * "결승" 이 되어 한 대진표에 같은 이름이 셋 생긴다. 그래서 따로 붙인다.
+ *
+ * 도착지 표기("→ 2라운드")도 같은 함수를 쓴다. 칸 이름과 도착지가 다르게 불리면
+ * 어디로 가는지 알 수 없다.
  */
-const cellName = (name: string) => name.replace('패자 대진', '하위권 대진');
+export function cellLabel(slug: string, name: string): string {
+  if (slug === 'finals') return '결승';
+  if (slug === 'upper_bracket_finals') return '승자조 결승';
+  if (slug.endsWith('_finals')) return '패자조 결승';
+  const round = slug.match(/round_(\d+)$/);
+  if (round) return `${round[1]}라운드`;
+  return name.replace('패자 대진', '하위권 대진').replace(/^(상위권|하위권) 대진 - /, '');
+}
 
 /**
  * 스테이지 이름 정규화.
@@ -221,7 +236,7 @@ export function buildBracket(stages: RawBracketStage[], matches: MatchRow[]): Br
       for (const col of sec.columns ?? []) {
         for (const cell of col.cells ?? []) {
           for (const m of cell.matches ?? []) {
-            if (m.structuralId) cellOf.set(m.structuralId, cellName(cell.name));
+            if (m.structuralId) cellOf.set(m.structuralId, cellLabel(cell.slug, cell.name));
           }
         }
       }
@@ -237,8 +252,8 @@ export function buildBracket(stages: RawBracketStage[], matches: MatchRow[]): Br
               if (o?.type !== 'match') continue;
               const d = dest.get(o.structuralId) ?? {};
               // slot 1 = 승자, 2 = 패자 (2025 데이터 18건으로 확인)
-              if (o.slot === 1) d.win = cellName(cell.name);
-              else d.loss = cellName(cell.name);
+              if (o.slot === 1) d.win = cellLabel(cell.slug, cell.name);
+              else d.loss = cellLabel(cell.slug, cell.name);
               dest.set(o.structuralId, d);
             }
           }
@@ -255,7 +270,7 @@ export function buildBracket(stages: RawBracketStage[], matches: MatchRow[]): Br
         (sec.columns ?? []).forEach((col, ci) => {
           for (const cell of col.cells ?? []) {
             cells.push({
-              name: cellName(cell.name),
+              name: cellLabel(cell.slug, cell.name),
               slug: cell.slug,
               col: ci,
               band: isLower(cell.slug) ? 'lower' : 'upper',
