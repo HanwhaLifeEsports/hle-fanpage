@@ -212,14 +212,14 @@ export default function RosterRail({
                           </span>
                           {c.killShare !== null && <span>킬 관여 {Math.round(c.killShare * 100)}%</span>}
                           {c.csPerMin !== null && <span>분당 CS {c.csPerMin.toFixed(1)}</span>}
-                          {c.dpm !== null && <span>분당 딜량 {Math.round(c.dpm)}</span>}
+                          {c.dpm !== null && <span>DPM {Math.round(c.dpm)}</span>}
                         </div>
                         {/* 평균은 얼마나 안정적인지, 최고는 얼마나 터뜨릴 수 있는지를 말한다.
                             한 판만 쓴 픽은 둘이 같으므로 그때는 적지 않는다 */}
                         {c.wins + c.losses > 1 && (
                           <div className="cstat best">
                             <span>최고 KDA {c.bestKda.toFixed(2)}</span>
-                            {c.bestDpm !== null && <span>최고 분당 딜량 {Math.round(c.bestDpm)}</span>}
+                            {c.bestDpm !== null && <span>최고 DPM {Math.round(c.bestDpm)}</span>}
                           </div>
                         )}
                       </li>

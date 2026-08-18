@@ -21,7 +21,7 @@ export interface ChampionRecord {
   killShare: number | null;
   /** 분당 CS. 경기 시간을 못 읽은 판은 빼고 센다 */
   csPerMin: number | null;
-  /** 분당 챔피언 딜량 */
+  /** DPM — 분당 챔피언 딜량 */
   dpm: number | null;
   /**
    * 한 판에서 낸 가장 좋은 값.
