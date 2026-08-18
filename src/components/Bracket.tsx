@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { fmtDate } from '@/lib/format';
 import { SEASON } from '@/lib/lck2026';
 import { ChevronDown } from 'lucide-react';
+import TicketLine from './Ticket';
 import {
   seedNote,
   type BracketMatch,
@@ -60,6 +61,11 @@ function Match({ m, ourTag, label }: { m: BracketMatch; ourTag: string; label: s
         <Side t={m.teams[0]} ourTag={ourTag} />
         <Side t={m.teams[1]} ourTag={ourTag} />
       </div>
+      {m.startTime && (
+        <div className="btkt">
+          <TicketLine startTime={m.startTime} />
+        </div>
+      )}
       {(m.winTo || m.lossTo) && (
         <div className="bgoes">
           {m.winTo && (

@@ -16,6 +16,8 @@ export const PREFS = [
   { k: 'onair', g: 'match', t: '방송 시작', d: '치지직·SOOP 송출이 실제로 켜지면', def: true },
   { k: 'set', g: 'match', t: '세트 결과', d: '세트마다 스코어 속보', def: false },
   { k: 'result', g: 'match', t: '경기 결과', d: '경기 종료 직후', def: true },
+  { k: 'ticket', g: 'match', t: '예매 오픈', d: '현장 관람 티켓이 열릴 때 (경기 9일 전)', def: false },
+  { k: 'cancelTicket', g: 'match', t: '취소표', d: '경기 전날까지 매일 오후 3시 · 당일은 수시', def: false },
   { k: 'spoiler', g: 'etc', t: '스포일러 차단', d: '결과를 가린 채 알림 · 앱에서도 스코어를 가립니다', def: true },
   { k: 'player', g: 'etc', t: '최애 선수 소식', d: '지정한 선수 관련 알림', def: true },
 ] as const;
