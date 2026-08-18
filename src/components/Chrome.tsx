@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -38,9 +38,59 @@ const TABS = [
 
 const isOn = (path: string, href: string) => (href === '/' ? path === '/' : path.startsWith(href));
 
+/**
+ * 상단 내비게이션의 빛줄기.
+ *
+ * 하단 탭은 5칸 균등 그리드라 20% 씩 밀면 되지만, 여기는 글자 길이가 제각각이라
+ * 실제 위치를 재야 한다. 폭까지 함께 전환해야 다음 항목에 정확히 맞는다.
+ *
+ * 다시 재는 때가 세 번이다 — 경로가 바뀔 때, 창 크기가 바뀔 때, 그리고 서체가
+ * 늦게 붙을 때. 서체가 바뀌면 글자 폭이 달라져 빛줄기가 어긋난 채로 남는다.
+ */
+function useNavLight(path: string) {
+  const ref = useRef<HTMLElement | null>(null);
+  const [box, setBox] = useState<{ x: number; w: number } | null>(null);
+  const [off, setOff] = useState(false);
+
+  useEffect(() => {
+    const nav = ref.current;
+    if (!nav) return;
+
+    const measure = () => {
+      const el = nav.querySelector<HTMLElement>('a.on');
+      // 목록에 없는 화면이면 마지막 자리를 그대로 두고 흐리게만 바꾼다
+      if (!el) {
+        setOff(true);
+        return;
+      }
+      setOff(false);
+      setBox({ x: el.offsetLeft, w: el.offsetWidth });
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(nav);
+    document.fonts?.ready.then(measure).catch(() => {});
+    return () => ro.disconnect();
+  }, [path]);
+
+  return { ref, box, off };
+}
+
 export function AppBar() {
   const path = usePathname();
   const { permission, ask } = useNotify();
+  const light = useNavLight(path);
+
+  /* 자리를 옮기는 동안만 늘인다. 하단 탭과 같은 방식이다 */
+  const [moving, setMoving] = useState(false);
+  useEffect(() => {
+    if (!light.box || light.off) return;
+    setMoving(true);
+    const t = setTimeout(() => setMoving(false), 500);
+    return () => clearTimeout(t);
+  }, [light.box, light.off]);
+
   return (
     <header className="appbar">
       <div className="hbar">
@@ -50,12 +100,22 @@ export function AppBar() {
           </div>
           <div className="wordmark">HLE FAN</div>
         </Link>
-        <nav className="topnav">
+        <nav className="topnav" ref={light.ref}>
           {NAV.map((n) => (
             <Link key={n.href} href={n.href} className={isOn(path, n.href) ? 'on' : undefined}>
               {n.label}
             </Link>
           ))}
+          {/* 재기 전에는 그리지 않는다. 0 에서 제자리로 날아오는 것처럼 보인다 */}
+          {light.box && (
+            <span
+              className={`navlight navglow${moving ? ' move' : ''}${light.off ? ' dim' : ''}`}
+              style={
+                { '--x': `${light.box.x}px`, '--w': `${light.box.w}px` } as React.CSSProperties
+              }
+              aria-hidden
+            />
+          )}
         </nav>
         <div className="hbar-act">
           <ThemeToggle />
@@ -154,7 +214,7 @@ export function BottomTabs() {
     <nav className="tabs">
       {shown !== null && (
         <span
-          className={`tabglow${moving ? ' move' : ''}${dim ? ' dim' : ''}`}
+          className={`navlight tabglow${moving ? ' move' : ''}${dim ? ' dim' : ''}`}
           style={{ '--i': shown } as React.CSSProperties}
           aria-hidden
         />

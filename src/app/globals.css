@@ -259,9 +259,10 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
   display:grid;place-items:center;cursor:pointer;flex:none;transition:color .15s}
 .tmode:hover{color:var(--ink)}
 .tmode:focus-visible{outline:2px solid var(--flame);outline-offset:2px;border-radius:var(--r-full)}
-.topnav{display:flex;gap:var(--s5)}
+.topnav{display:flex;gap:var(--s5);position:relative}
 .topnav a{color:var(--body);font-size:14px;font-weight:500;padding:19px 0;border-bottom:2px solid transparent}
-.topnav a.on{color:var(--ink);border-bottom-color:var(--flame)}
+/* 밑줄은 빛줄기가 대신한다. 둘 다 있으면 선이 겹쳐 두 줄로 보인다 */
+.topnav a.on{color:var(--ink)}
 @media(max-width:860px){.topnav{display:none}}
 
 .tabs{position:fixed;bottom:0;left:0;right:0;z-index:60;height:58px;display:none;grid-template-columns:repeat(5,1fr);
@@ -270,45 +271,55 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .tabs a{color:var(--mute);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:600}
 .tabs a.on{color:var(--flame-text)}
 
-/* 선택된 탭 아래를 지나는 빛줄기.
-   5칸 균등 그리드라 한 칸이 정확히 20% 다. --i 가 몇 번째 칸인지 알려주고
-   translateX 로 옮긴다 — left 를 바꾸면 레이아웃을 다시 계산하지만 transform 은
-   그리기만 다시 한다. */
-.tabglow{position:absolute;top:-1px;left:0;width:20%;height:2px;pointer-events:none;
-  transform:translateX(calc(var(--i,0) * 100%));
-  transition:transform .5s var(--ease)}
+/* 선택된 항목 아래를 지나는 네온 빛줄기.
+   모양은 .navlight 가, 위치는 .tabglow(하단 탭) / .navglow(상단 내비)가 맡는다.
+   두 곳이 같은 빛이어야 화면 폭이 바뀌어도 같은 사이트로 읽힌다. */
+.navlight{position:absolute;height:2px;pointer-events:none}
 
 /* 빛줄기 본체. 양끝을 투명하게 두어 막대가 아니라 빛으로 보이게 한다.
    background-size 를 200% 로 잡고 위치를 흘려 파동을 만든다 */
-.tabglow::before{content:'';position:absolute;inset:0;border-radius:2px;
+.navlight::before{content:'';position:absolute;inset:0;border-radius:2px;
   background:linear-gradient(90deg,
     transparent 0%, var(--flame) 18%, #FFC08F 38%, var(--flame) 58%, #FFC08F 76%, transparent 100%);
   background-size:200% 100%;
   box-shadow:0 0 6px var(--flame), 0 0 16px var(--flame-edge);
   animation:tabwave 2.4s linear infinite}
 
-/* 아래로 번지는 잔광. 네온사인이 벽에 남기는 빛이다 */
-.tabglow::after{content:'';position:absolute;left:14%;right:14%;top:0;height:20px;
+/* 번지는 잔광. 네온사인이 벽에 남기는 빛이다 */
+.navlight::after{content:'';position:absolute;left:14%;right:14%;height:20px;
   background:radial-gradient(64% 100% at 50% 0%, var(--flame-soft), transparent 72%)}
 
-/* 옮겨가는 동안만 늘어난다. 늘어났다 돌아와야 흘러간 것처럼 보인다 */
+/* 하단 탭 — 5칸 균등 그리드라 한 칸이 정확히 20% 다. left 를 바꾸면 레이아웃을
+   다시 계산하지만 transform 은 그리기만 다시 한다 */
+.tabglow{top:-1px;left:0;width:20%;
+  transform:translateX(calc(var(--i,0) * 100%));
+  transition:transform .5s var(--ease)}
+.tabglow::after{top:0}
 .tabglow.move{transform:translateX(calc(var(--i,0) * 100%)) scaleX(1.4)}
 
-/* 탭 목록에 없는 화면. 마지막 자리에 흐리게 남긴다 — 지금 여기가 아니라는 뜻이라
-   파동은 멈춘다. 켜져 있는 것처럼 계속 흐르면 어느 탭인지 헷갈린다 */
-.tabglow.dim{opacity:.28;transition:transform .5s var(--ease),opacity .35s var(--ease)}
-.tabglow.dim::before{animation:none;box-shadow:none}
-.tabglow.dim::after{opacity:0}
+/* 상단 내비 — 항목마다 글자 길이가 달라 실제로 잰 위치와 폭을 쓴다 */
+.navglow{left:0;bottom:0;width:var(--w,0);
+  transform:translateX(var(--x,0));
+  transition:transform .5s var(--ease),width .5s var(--ease),opacity .35s var(--ease)}
+.navglow::after{top:-18px}
+.navglow.move{transform:translateX(var(--x,0)) scaleY(1.6)}
+
+/* 목록에 없는 화면. 마지막 자리에 흐리게 남긴다 — 지금 여기가 아니라는 뜻이라
+   파동은 멈춘다. 켜져 있는 것처럼 계속 흐르면 어느 항목인지 헷갈린다 */
+.navlight.dim{opacity:.28;transition:transform .5s var(--ease),opacity .35s var(--ease)}
+.navlight.dim::before{animation:none;box-shadow:none}
+.navlight.dim::after{opacity:0}
 
 @keyframes tabwave{from{background-position:0 0}to{background-position:-200% 0}}
 
 /* 동작을 줄여 달라고 한 사람에게는 파동도 늘어남도 없다. 위치만 바뀐다 */
 @media(prefers-reduced-motion:reduce){
-  .tabglow{transition:none}
+  .navlight{transition:none}
   .tabglow.move{transform:translateX(calc(var(--i,0) * 100%))}
-  .tabglow::before{animation:none}
+  .navglow.move{transform:translateX(var(--x,0))}
+  .navlight::before{animation:none}
 }
-.tabs svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9}
+
 @media(max-width:860px){.tabs{display:grid}body{padding-bottom:calc(64px + var(--safe-b))}}
 
 /* ---------- sections ---------- */
