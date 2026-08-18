@@ -658,7 +658,15 @@ label.fl{display:block;font-size:12px;font-weight:600;color:var(--mute);margin:0
 
 /* ---------- modal / toast ---------- */
 .ov{position:fixed;inset:0;z-index:100;background:var(--scrim);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:var(--s4)}
-.modal{background:var(--surface);border:1px solid var(--hairline);border-radius:var(--r-lg);max-width:520px;width:100%;max-height:86vh;overflow-y:auto}
+.modal{background:var(--surface);border:1px solid var(--hairline);border-radius:var(--r-lg);max-width:520px;width:100%;max-height:86vh;overflow-y:auto;
+  /* 홈이 회색 홈을 파고 위아래 화살표가 붙은 기본 스크롤바는 창틀처럼 보인다.
+     바탕은 비우고 막대만 남긴다. 대진표(.bscroll)와 같은 처리다 */
+  scrollbar-width:thin;scrollbar-color:var(--tint-4) transparent}
+.modal::-webkit-scrollbar{width:6px}
+.modal::-webkit-scrollbar-track{background:transparent}
+.modal::-webkit-scrollbar-thumb{background:var(--tint-4);border-radius:var(--r-full)}
+.modal::-webkit-scrollbar-thumb:hover{background:var(--tint-edge)}
+.modal::-webkit-scrollbar-button{display:none;width:0;height:0}
 .modal-h{display:flex;justify-content:space-between;align-items:center;padding:var(--s5) var(--s5) var(--s3);gap:var(--s4)}
 .modal-b{padding:0 var(--s5) var(--s5)}
 .x{background:var(--tint-2);border:0;color:var(--ink);width:32px;height:32px;border-radius:50%;cursor:pointer;flex:none;

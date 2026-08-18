@@ -1,6 +1,9 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Ticket as TicketIcon } from 'lucide-react';
 import { fmtDate } from '@/lib/format';
-import { TICKET_URL, cancelLabel, ddayLabel, ticketInfo } from '@/lib/ticket';
+import { TICKET_URL, TICKET_URL_MOBILE, cancelLabel, ddayLabel, ticketInfo } from '@/lib/ticket';
 
 /**
  * 경기 카드에 붙는 예매 한 줄.
@@ -16,18 +19,30 @@ import { TICKET_URL, cancelLabel, ddayLabel, ticketInfo } from '@/lib/ticket';
  *
  * 이미 시작한 경기에는 아무것도 붙이지 않는다. 지난 예매일은 알 필요가 없다.
  *
- * 클릭 핸들러를 두지 않는다. 이 컴포넌트는 서버에서도 그려지는데(대진표) 서버
- * 컴포넌트는 이벤트 핸들러를 넘길 수 없다. 예매 줄이 붙는 카드에는 클릭 동작이
- * 없으므로 전파를 막을 이유도 없다.
+ * 클릭 핸들러는 두지 않는다. 예매 줄이 붙는 카드에는 클릭 동작이 없으므로
+ * 전파를 막을 이유가 없다.
  */
 export default function TicketLine({ startTime }: { startTime: string }) {
+  /* 좁은 화면에서는 다른 예매처로 보낸다.
+     서버가 그릴 때는 넓은 쪽으로 두고 붙은 뒤에 바꾼다. 폭은 서버가 알 수 없어
+     추측하면 하이드레이션이 어긋난다. 주소는 눈에 보이는 값이 아니라 이 순서로
+     바뀌어도 화면이 깜빡이지 않는다 */
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 860px)');
+    const sync = () => setNarrow(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
   const t = ticketInfo(startTime);
   if (t.phase === 'past') return null;
 
   return (
     <a
       className={`tkt${t.phase === 'open' ? ' on' : ''}`}
-      href={TICKET_URL}
+      href={narrow ? TICKET_URL_MOBILE : TICKET_URL}
       target="_blank"
       rel="noopener noreferrer"
     >

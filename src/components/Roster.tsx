@@ -11,7 +11,7 @@ import PhotoGallery from './PhotoGallery';
 import { cardFanPhoto, useFanPhotos, type FanPhoto } from '@/lib/photos';
 import type { ChampionMap } from '@/lib/champions';
 import type { ContractMap } from '@/lib/leaguepedia';
-import { fmtContract } from '@/lib/format';
+import { fmtSpan } from '@/lib/format';
 
 /**
  * 선수 사진 표시 스위치.
@@ -269,7 +269,7 @@ export default function RosterRail({
                   성적처럼 읽힌다.
                   계약 종료일만 적는다 — Leaguepedia 는 시작일을 관리하지 않아
                   기간으로 적으려면 없는 값을 지어내야 한다 */}
-              {openContract && <p className="contract">계약 만료 {fmtContract(openContract)}</p>}
+              <p className="contract">한화생명 소속 {fmtSpan(open.since, openContract)}</p>
             </div>
           </div>
         </div>

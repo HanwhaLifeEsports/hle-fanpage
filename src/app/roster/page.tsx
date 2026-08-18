@@ -3,7 +3,7 @@ import AwardsButton from '@/components/Awards';
 import { PLAYERS, STAFF } from '@/lib/lck2026';
 import { getPlayerStats } from '@/lib/naver';
 import { getChampionStats, getContracts } from '@/lib/leaguepedia';
-import { fmtContract } from '@/lib/format';
+import { fmtSpan } from '@/lib/format';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -57,9 +57,7 @@ export default async function RosterPage() {
             <div style={{ marginTop: 8 }}>
               <AwardsButton id={s.id} name={s.nm} />
             </div>
-            {contracts?.[s.id] && (
-              <p className="contract">계약 만료 {fmtContract(contracts[s.id])}</p>
-            )}
+            <p className="contract">한화생명 소속 {fmtSpan(s.since, contracts?.[s.id])}</p>
           </div>
         ))}
       </div>

@@ -184,6 +184,8 @@ export interface Player {
    * (Zeka -> "Zeka (Kim Geon-woo)"). 값은 ScoreboardPlayers.Link 에서 확인한다.
    */
   lpName: string;
+  /** 한화생명 입단일. 나무위키 소속 이력 (2026-08-18 확인) */
+  since: string;
   photo?: PlayerPhoto;
   /** 2026 시즌 합류 여부 */
   joined2026?: boolean;
@@ -191,11 +193,11 @@ export interface Player {
 
 export const PLAYERS: Player[] = [
   // 등번호는 실제 값. naverId 와 lpName 은 각 API 응답에서 확인했다 (2026-08-18)
-  { id: 'zeus', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', lpName: 'Zeus' },
-  { id: 'kanavi', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', lpName: 'Kanavi', joined2026: true },
-  { id: 'zeka', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', lpName: 'Zeka (Kim Geon-woo)' },
-  { id: 'gumayusi', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', naverId: '10320', lpName: 'Gumayusi', joined2026: true },
-  { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', lpName: 'Delight' },
+  { id: 'zeus', since: '2024-11-20', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', lpName: 'Zeus' },
+  { id: 'kanavi', since: '2025-11-23', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', lpName: 'Kanavi', joined2026: true },
+  { id: 'zeka', since: '2022-11-25', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', lpName: 'Zeka (Kim Geon-woo)' },
+  { id: 'gumayusi', since: '2025-11-23', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', naverId: '10320', lpName: 'Gumayusi', joined2026: true },
+  { id: 'delight', since: '2023-11-22', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', lpName: 'Delight' },
 ];
 
 export interface Staff {
@@ -205,12 +207,14 @@ export interface Staff {
   ko: string;
   /** Leaguepedia 문서 이름 — 계약 종료일을 붙이는 연결 키 */
   lpName: string;
+  /** 한화생명 입단일. 나무위키 소속 이력 (2026-08-18 확인) */
+  since: string;
 }
 
 export const STAFF: Staff[] = [
-  { id: 'homme', role: '감독', nm: 'Homme', ko: '윤성영', lpName: 'Homme' },
-  { id: 'mowgli', role: '코치', nm: 'Mowgli', ko: '이재하', lpName: 'Mowgli' },
-  { id: 'sin', role: '코치', nm: 'Sin', ko: '연형모', lpName: 'Sin (Yeon Hyeong-mo)' },
+  { id: 'homme', since: '2025-11-27', role: '감독', nm: 'Homme', ko: '윤성영', lpName: 'Homme' },
+  { id: 'mowgli', since: '2022-11-30', role: '코치', nm: 'Mowgli', ko: '이재하', lpName: 'Mowgli' },
+  { id: 'sin', since: '2025-12-15', role: '코치', nm: 'Sin', ko: '연형모', lpName: 'Sin (Yeon Hyeong-mo)' },
 ];
 
 /* ------------------------------------------------------------------ */

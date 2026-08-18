@@ -22,6 +22,17 @@ export const TICKET_LEAD_HOURS = 216;
 export const CANCEL_HOUR_KST = 15;
 
 export const TICKET_URL = 'https://nol.yanolja.com/ticket/genre/sports/lck';
+
+/**
+ * 좁은 화면에서 여는 예매처.
+ *
+ * 화면 폭으로 고른다. 기기 종류를 정확히 알 수는 없지만, 이 링크를 누르는 사람이
+ * 실제로 겪는 것은 '지금 이 화면에서 예매가 되는가' 이므로 폭이 맞는 기준이다.
+ *
+ * 두 주소가 서로 다른 예매처라는 점은 알고 있다. 폭에 따라 다른 곳으로 보내면
+ * 같은 경기를 두 사람이 다른 창구에서 찾게 된다.
+ */
+export const TICKET_URL_MOBILE = 'https://tickets.interpark.com/search?keyword=lck';
 export const TICKET_SELLER = 'NOL 티켓';
 
 export type TicketPhase =
