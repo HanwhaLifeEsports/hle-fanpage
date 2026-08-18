@@ -33,13 +33,13 @@ export interface OutcomeBand {
 
 /** 레전드 그룹 진출 규정 (2026 스플릿 3) */
 export const LEGEND_BANDS: OutcomeBand[] = [
-  { label: '플레이오프 2라운드 직행', ranks: [1, 2], worlds: 'confirmed' },
-  { label: '플레이오프 1라운드', ranks: [3, 4], worlds: 'confirmed' },
-  { label: '플레이인', ranks: [5], worlds: 'possible' },
+  { label: '플레이오프 2라운드 진출', ranks: [1, 2], worlds: 'confirmed' },
+  { label: '플레이오프 1라운드 진출', ranks: [3, 4], worlds: 'confirmed' },
+  { label: '플레이인 진출', ranks: [5], worlds: 'possible' },
 ];
 
 export const RISE_BANDS: OutcomeBand[] = [
-  { label: '플레이인', ranks: [1, 2, 3], worlds: 'possible' },
+  { label: '플레이인 진출', ranks: [1, 2, 3], worlds: 'possible' },
   { label: '시즌 종료', ranks: [4, 5], worlds: 'none' },
 ];
 

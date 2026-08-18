@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { Waypoints } from 'lucide-react';
 import MatchFilter from '@/components/MatchFilter';
 import Standings from '@/components/Standings';
 import Bracket from '@/components/Bracket';
@@ -88,9 +90,11 @@ export default async function SchedulePage() {
                   </div>
                 ))}
               </div>
-              <div className="note" style={{ marginBottom: 'var(--s5)' }}>
-                남은 {scenarios.remaining.length}경기의 모든 결과를 세어 계산했습니다.
-                <a href="/scenarios"> 경우의 수 자세히 보기</a>
+              <div style={{ marginBottom: 'var(--s5)' }}>
+                <Link className="btn btn-ghost btn-sm" href="/scenarios">
+                  <Waypoints size={14} />
+                  경우의 수 바로가기
+                </Link>
               </div>
             </>
           )}
