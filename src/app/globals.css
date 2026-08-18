@@ -355,12 +355,18 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
 .vs .t{display:flex;align-items:center;gap:12px;min-width:0}
 .vs .t.r{justify-content:flex-end;text-align:right}
 .vs .t b{font-size:15px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 전적과 순위를 각각 한 줄씩. 한 줄로 붙이면 좁은 화면에서 아무 데서나 접힌다 */
+.vs .t .cap{display:block;white-space:nowrap;font-variant-numeric:tabular-nums}
+.vs .t .cap.grp{font-size:12px;color:var(--faint);margin-top:1px}
 .crest{width:42px;height:42px;border-radius:var(--r-card);display:grid;place-items:center;font-family:var(--display);font-size:14px;flex:none}
 .crest.us{background:var(--flame);color:var(--ink-dark)}
 .crest.them{background:var(--tint-2);color:var(--body)}
 .vs .m{text-align:center}
 .vs .m b{font-family:var(--display);font-size:24px;letter-spacing:.05em;display:block}
-@media(max-width:600px){.vs .t b{font-size:13px}.crest{width:36px;height:36px;font-size:12px}}
+@media(max-width:600px){.vs .t b{font-size:13px}.crest{width:36px;height:36px;font-size:12px}
+  .vs .t .cap{font-size:12px}.vs .t .cap.grp{font-size:11px}
+  /* 좁아지면 엠블럼과 글자 사이를 줄여 두 줄이 들어갈 폭을 만든다 */
+  .vs .t{gap:8px}.vsrow{gap:var(--s2)}}
 
 /* ---------- match cards ---------- */
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3)}

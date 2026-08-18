@@ -39,7 +39,16 @@ export default async function Home() {
   const bands = ourGroup === 'legend' ? LEGEND_BANDS : RISE_BANDS;
   const bandOf = (r: number) => bands.find((b) => b.ranks.includes(r));
   const opp = next ? sidesOf(next).them : null;
-  const oppRow = opp ? group.find((t) => t.code === opp.code) : undefined;
+  /* 상대를 우리 그룹에서만 찾으면 다른 그룹 팀일 때 전적이 통째로 빈다.
+     두 그룹을 모두 뒤지고 어느 그룹인지도 함께 들고 온다 */
+  const findTeam = (code: string) => {
+    for (const g of ['legend', 'rise'] as const) {
+      const row = season[g].find((t) => t.code === code);
+      if (row) return { row, g };
+    }
+    return null;
+  };
+  const oppTeam = opp ? findTeam(opp.code) : null;
   // MSI 우승으로 플레이오프 진출 = 월즈 확정. 팬이 가장 궁금해하는 단일 지표라 이걸 앞세운다.
   // rank[] 는 경우의 수 '개수'라 백분율로 환산해야 한다
   const wRanks = worldsRanks(bands);
@@ -76,9 +85,14 @@ export default async function Home() {
               <div className="crest us">{OUR_TAG}</div>
               <div>
                 <b>한화생명e스포츠</b>
+                {/* 한 줄로 두면 좁은 화면에서 아무 데서나 접힌다. 두 줄로 나눠
+                    어디서 끊길지 우리가 정한다 */}
                 <span className="cap">
-                  {us.w}승 {us.l}패 · {SEASON[ourGroup].label} {us.rank}위 ({us.diff >= 0 ? '+' : ''}
-                  {us.diff})
+                  {us.w}승 {us.l}패 · {us.diff >= 0 ? '+' : ''}
+                  {us.diff}
+                </span>
+                <span className="cap grp">
+                  {SEASON[ourGroup].label} {us.rank}위
                 </span>
               </div>
             </div>
@@ -91,9 +105,19 @@ export default async function Home() {
             <div className="t r">
               <div>
                 <b>{opp.name}</b>
-                <span className="cap">
-                  {oppRow ? `${oppRow.w}승 ${oppRow.l}패 · ${oppRow.rank}위` : next.blockName}
-                </span>
+                {oppTeam ? (
+                  <>
+                    <span className="cap">
+                      {oppTeam.row.w}승 {oppTeam.row.l}패 · {oppTeam.row.diff >= 0 ? '+' : ''}
+                      {oppTeam.row.diff}
+                    </span>
+                    <span className="cap grp">
+                      {SEASON[oppTeam.g].label} {oppTeam.row.rank}위
+                    </span>
+                  </>
+                ) : (
+                  <span className="cap">{next.blockName}</span>
+                )}
               </div>
               <div className="crest them">{opp.code}</div>
             </div>
