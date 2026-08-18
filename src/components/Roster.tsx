@@ -22,6 +22,16 @@ import { fmtContract } from '@/lib/format';
  */
 const PHOTOS_ON = process.env.NEXT_PUBLIC_PLAYER_PHOTOS !== 'off';
 
+/**
+ * 챔피언 목록의 기본 표시 개수.
+ *
+ * 2026 정규시즌 기준 한 선수가 쓴 챔피언은 평균 14종(최소 13, 최대 21)이다.
+ * 6개만 보이면 절반도 못 보여주고, 8번째 픽을 찾는 사람에게는 "기록이 없다" 로
+ * 읽힌다. 전부 펼치면 21줄이라 모달이 그만큼 길어진다.
+ * 10개면 자주 쓰는 픽은 다 들어오고 한 판짜리 꼬리만 접힌다.
+ */
+const CHAMPS_SHOWN = 10;
+
 function Card({
   p,
   st,
@@ -86,6 +96,13 @@ export default function RosterRail({
 }) {
   const { fav } = useApp();
   const [open, setOpen] = useState<Player | null>(null);
+  /* 챔피언 목록을 다 펼쳤는가. 선수를 바꾸면 다시 접는다 — 앞 선수에서 펼쳐 둔
+     상태가 그대로 남으면 다음 선수 프로필이 갑자기 길어진다 */
+  const [allChamps, setAllChamps] = useState(false);
+  const openPlayer = (p: Player) => {
+    setOpen(p);
+    setAllChamps(false);
+  };
   const openStat = open ? stats?.[open.naverId] : undefined;
   const openChamps = open ? champions?.[open.id] : undefined;
   const openContract = open ? contracts?.[open.id] : undefined;
@@ -113,7 +130,7 @@ export default function RosterRail({
             st={stats?.[p.naverId]}
             fan={cardFanPhoto(fanPhotos, p.id, !!p.photo)}
             fav={fav === p.id}
-            onOpen={() => setOpen(p)}
+            onOpen={() => openPlayer(p)}
           />
         ))}
       </div>
@@ -192,7 +209,7 @@ export default function RosterRail({
                   {/* 손으로 적어 두지 않는다. 시즌 중에 계속 바뀌는 값이라
                       한 번 적어 두면 반드시 실제와 어긋난다 */}
                   <ul className="champs">
-                    {openChamps.slice(0, 6).map((c) => (
+                    {(allChamps ? openChamps : openChamps.slice(0, CHAMPS_SHOWN)).map((c) => (
                       <li key={c.key}>
                         <span className="cn">{c.name}</span>
                         <span className="cw">
@@ -201,6 +218,11 @@ export default function RosterRail({
                       </li>
                     ))}
                   </ul>
+                  {openChamps.length > CHAMPS_SHOWN && (
+                    <button className="moretog" onClick={() => setAllChamps(!allChamps)}>
+                      {allChamps ? '접기' : `전체 ${openChamps.length}개 보기`}
+                    </button>
+                  )}
                   <p className="note" style={{ marginBottom: 20 }}>
                     1~4라운드 · 기록 출처: Leaguepedia
                   </p>
