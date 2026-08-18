@@ -81,10 +81,15 @@ export default async function SchedulePage() {
               </p>
               <div className="bodds">
                 {odds.map((o) => (
-                  <div className={`bodd${o.pct >= 50 ? ' hit' : ''}`} key={o.label}>
+                  <div
+                    className={`bodd${o.pct >= 50 ? ' hit' : ''}${o.pct === 0 ? ' zero' : ''}`}
+                    key={o.label}
+                  >
                     <span className="ol">{o.label}</span>
                     <span className="ob">
-                      <i style={{ width: `${Math.max(o.pct, 0.6)}%` }} />
+                      {/* 0% 는 막대를 아예 그리지 않는다. 최소 폭을 주면 얇은 조각이
+                          남아 렌더가 깨진 것처럼 보인다 */}
+                      <i style={{ width: o.pct === 0 ? 0 : `${Math.max(o.pct, 1)}%` }} />
                     </span>
                     <span className="ov">{o.pct.toFixed(1)}%</span>
                   </div>

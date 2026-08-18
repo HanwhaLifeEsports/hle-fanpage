@@ -45,7 +45,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="ko" className={anton.variable}>
+    /* suppressHydrationWarning 은 아래 FOUC 방지 스크립트 때문이다. 그 스크립트가
+       하이드레이션 전에 <html> 에 data-theme 을 붙이는데, 서버가 그린 HTML 에는
+       그 속성이 없어 React 가 불일치로 잡는다. 의도된 차이이고 이 요소의 속성에만
+       적용되므로 자식 트리의 진짜 불일치는 그대로 잡힌다. */
+    <html lang="ko" className={anton.variable} suppressHydrationWarning>
       <head>
         {/* 본문 서체는 첫 화면에 바로 필요하다 */}
         <link rel="preload" href="/fonts/freesentation-400.woff2" as="font" type="font/woff2" crossOrigin="" />

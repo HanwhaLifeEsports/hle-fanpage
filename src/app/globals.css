@@ -655,3 +655,5 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 .bodd .ob i{display:block;height:100%;background:var(--bar-fill)}
 .bodd.hit .ov{color:var(--flame-text);font-weight:600}
 .bodd.hit .ob i{background:var(--flame)}
+/* 갈 수 없는 구간. 흐리게 두어 0 이 값이라는 것을 알린다 */
+.bodd.zero .ol,.bodd.zero .ov{color:var(--faint)}
