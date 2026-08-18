@@ -198,10 +198,19 @@ export const PLAYERS: Player[] = [
   { id: 'delight', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', lpName: 'Delight' },
 ];
 
-export const STAFF = [
-  { role: '감독', nm: 'Homme', ko: '윤성영' },
-  { role: '코치', nm: 'Mowgli', ko: '이재하' },
-  { role: '코치', nm: 'Sin', ko: '연형모' },
+export interface Staff {
+  id: string;
+  role: string;
+  nm: string;
+  ko: string;
+  /** Leaguepedia 문서 이름 — 계약 종료일을 붙이는 연결 키 */
+  lpName: string;
+}
+
+export const STAFF: Staff[] = [
+  { id: 'homme', role: '감독', nm: 'Homme', ko: '윤성영', lpName: 'Homme' },
+  { id: 'mowgli', role: '코치', nm: 'Mowgli', ko: '이재하', lpName: 'Mowgli' },
+  { id: 'sin', role: '코치', nm: 'Sin', ko: '연형모', lpName: 'Sin (Yeon Hyeong-mo)' },
 ];
 
 /* ------------------------------------------------------------------ */

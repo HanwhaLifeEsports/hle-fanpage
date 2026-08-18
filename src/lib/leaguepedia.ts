@@ -23,7 +23,7 @@
 
 import { championLocalizer } from './ddragon';
 import { foldPicks, type ChampionMap, type PickRow } from './champions';
-import { PLAYERS } from './lck2026';
+import { PLAYERS, STAFF } from './lck2026';
 
 const API = 'https://lol.fandom.com/api.php';
 
@@ -161,6 +161,57 @@ export async function fetchChampionStats(): Promise<ChampionMap> {
 }
 
 /* ------------------------------------------------------------------ */
+/* 계약 종료일                                                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * 선수·코칭스태프의 계약 종료일. 우리 id -> 'YYYY-MM-DD'.
+ *
+ * Contracts 표는 종료일만 관리한다. 시작일은 어디에도 없다.
+ * 팀 합류일로 대신할 수 있을 것 같지만 그러면 안 된다 — 재계약하면 합류일과
+ * 계약 시작일이 달라져서, 있지도 않은 기간을 지어내는 셈이 된다.
+ * 아는 것만 적는다.
+ *
+ * 한 사람에게 행이 여러 개 있다 (계약을 갱신할 때마다 쌓인다).
+ * 가장 늦은 종료일이 현재 계약이다.
+ */
+export type ContractMap = Record<string, string>;
+
+interface RawContract {
+  Player: string;
+  ContractEnd: string;
+  IsRemoval: string;
+}
+
+export async function fetchContracts(): Promise<ContractMap> {
+  await login();
+
+  const res = await call({
+    action: 'cargoquery',
+    limit: '200',
+    tables: 'Contracts',
+    fields: 'Contracts.Player,Contracts.ContractEnd,Contracts.IsRemoval',
+    where: `Contracts.Team=${quote(TEAM)}`,
+  });
+  if (res.error) throw new Error(`leaguepedia ${res.error.code}: ${res.error.info}`);
+
+  const linkToId: Record<string, string> = {};
+  for (const p of PLAYERS) linkToId[p.lpName] = p.id;
+  for (const s of STAFF) linkToId[s.lpName] = s.id;
+
+  const out: ContractMap = {};
+  for (const row of (res.cargoquery ?? []) as { title: RawContract }[]) {
+    const r = row.title;
+    // 방출 기록은 계약이 아니다
+    if (r.IsRemoval === '1') continue;
+    const id = linkToId[r.Player];
+    if (!id || !r.ContractEnd) continue;
+    if (!out[id] || r.ContractEnd > out[id]) out[id] = r.ContractEnd;
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------------ */
 /* 캐시                                                                */
 /* ------------------------------------------------------------------ */
 
@@ -173,6 +224,29 @@ const TTL_MS = 30 * 60 * 1000;
 
 let cache: { at: number; map: ChampionMap } | null = null;
 let inflight: Promise<ChampionMap> | null = null;
+
+/** 계약은 오프시즌에만 바뀐다. 같은 TTL 로 충분하다 */
+let cCache: { at: number; map: ContractMap } | null = null;
+let cInflight: Promise<ContractMap> | null = null;
+
+/** 실패하면 null. 계약 정보가 없다고 프로필이 못 뜰 이유는 없다 */
+export async function getContracts(): Promise<ContractMap | null> {
+  if (cCache && Date.now() - cCache.at < TTL_MS) return cCache.map;
+  cInflight ??= fetchContracts()
+    .then((map) => {
+      cCache = { at: Date.now(), map };
+      return map;
+    })
+    .finally(() => {
+      cInflight = null;
+    });
+  try {
+    return await cInflight;
+  } catch {
+    loggedIn = false;
+    return cCache?.map ?? null;
+  }
+}
 
 /** 실패하면 null. 챔피언을 못 가져왔다고 프로필이 못 뜰 이유는 없다 */
 export async function getChampionStats(): Promise<ChampionMap | null> {
