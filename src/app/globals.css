@@ -80,6 +80,9 @@
   --video-bg:#000;                    /* 플레이어 바깥 레터박스 */
   --video-surface:#0B0B0C;            /* 영상이 아직 없을 때의 면 */
   --scrim-strong:rgba(0,0,0,.92);     /* 영상 위 버튼 hover */
+  /* 대진표 머리띠. 흰 글자를 얹으므로 두 테마에서 같은 방향으로 어둡게 둔다 —
+     라이트에서 밝게 뒤집으면 글자가 사라진다. 승리 색(--win) 계열을 짙게 눕힌 값이다 */
+  --bh-a:#1A1230; --bh-b:#4C2E9E; --bh-c:#8A3FB8;
   --r-card:8px; --r-lg:16px; --r-full:9999px;
   --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:72px;
   /* viewport-fit=cover 로 화면 끝까지 쓰기 때문에, 노치·둥근 모서리·홈 인디케이터를
@@ -419,8 +422,10 @@ tr.me td:nth-child(2){color:var(--flame-text);font-weight:600}
 .grouplabel b{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.01em;white-space:nowrap}
 
 /* ---------- toggles / forms ---------- */
-.nrow{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:14px 0;border-bottom:1px solid var(--hairline)}
-.nrow:last-child{border-bottom:0}
+/* 한 설정 항목 = 행 + (있으면) 시간 선택지. 구분선은 덩어리가 갖는다 */
+.nitem{border-bottom:1px solid var(--hairline)}
+.nitem:last-child{border-bottom:0}
+.nrow{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:14px 0}
 .nrow .l b{display:block;font-size:14px;font-weight:600}
 .nrow .l span{font-size:13px;color:var(--mute)}
 .tg{width:46px;height:27px;border-radius:var(--r-full);background:var(--tint-track);position:relative;flex:none;cursor:pointer;border:0;transition:background .18s}
@@ -556,3 +561,140 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 .bar .bt i{display:block;height:100%;background:var(--bar-fill);border-radius:var(--r-full)}
 .bar .bv{font-size:14px;text-align:right;font-weight:400}
 @media(max-width:560px){.bar{grid-template-columns:104px 1fr 56px;gap:10px}}
+
+/* ---------- 포스트시즌 대진표 ---------- */
+.bstage{margin:0 0 var(--s6)}
+
+/* 접었다 펴는 스테이지. details/summary 라 자바스크립트 없이 동작한다 */
+.bstage>summary{cursor:pointer;list-style:none}
+.bstage>summary::-webkit-details-marker{display:none}
+.bstage:not([open])>.bhead{border-radius:var(--r-card)}
+.bhx{display:inline-flex;align-items:center;gap:7px}
+.bhx svg{transition:transform .18s;opacity:.75}
+.bstage[open] .bhx svg{transform:rotate(180deg)}
+
+/* 스테이지 머리띠. 대진표가 어느 대회의 것인지 한눈에 잡아 준다.
+   두 겹이다 — 아래는 승리 색 계열의 짙은 그라데이션, 위는 비스듬히 지나가는 흰 광택.
+   광택을 완전한 흰색으로 두면 그 위 흰 글자가 사라지므로 22% 로만 얹는다. */
+.bhead{position:relative;display:flex;align-items:baseline;justify-content:space-between;
+  gap:var(--s4);padding:13px 16px;border-radius:var(--r-card) var(--r-card) 0 0;overflow:hidden;
+  background:
+    linear-gradient(104deg,rgba(255,255,255,0) 24%,rgba(255,255,255,.22) 45%,rgba(255,255,255,0) 64%),
+    linear-gradient(100deg,var(--bh-a) 0%,var(--bh-b) 52%,var(--bh-c) 100%)}
+/* 아래쪽 밝은 실선 한 줄. 띠와 본문 사이를 끊어 준다 */
+.bhead::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;
+  background:linear-gradient(90deg,var(--bh-c),transparent)}
+.bhead b{position:relative;font-family:var(--display-ko);font-size:17px;letter-spacing:-.01em;
+  color:var(--always-light);text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.bhead span{position:relative;font-size:11.5px;letter-spacing:.06em;color:rgba(255,255,255,.7)}
+
+/* 좁은 화면에서는 가로로 넘긴다. 세로로 접으면 '어느 승자가 어디로 가는지'가 사라진다.
+   기본 스크롤바는 끝에 화살표가 붙고 폭도 두꺼워 대진표 옆에서 튄다 — 얇은 막대로 바꾼다 */
+.bscroll{overflow-x:auto;padding:var(--s4) var(--s4) 12px;background:var(--surface);
+  border:1px solid var(--hairline);border-top:0;border-radius:0 0 var(--r-card) var(--r-card);
+  scrollbar-width:thin;scrollbar-color:var(--tint-4) transparent;overscroll-behavior-x:contain}
+.bscroll::-webkit-scrollbar{height:6px}
+.bscroll::-webkit-scrollbar-track{background:transparent}
+.bscroll::-webkit-scrollbar-thumb{background:var(--tint-4);border-radius:var(--r-full)}
+.bscroll::-webkit-scrollbar-thumb:hover{background:var(--tint-edge)}
+/* 크롬은 이 버튼이 있어야 끝 화살표가 사라진다 */
+.bscroll::-webkit-scrollbar-button{display:none;width:0;height:0}
+
+/* 1행 승자조띠 · 2행 승자조 · 3행 패자조띠 · 4행 패자조 */
+/* 반 칸 격자다. 열 사이 gap 을 주면 반 칸 어긋남이 gap 만큼 더 벌어지므로
+   간격은 칸 안쪽 padding 으로 만든다 */
+.bgrid{display:grid;gap:0;align-items:start;width:max-content}
+.bband{font-size:11.5px;font-weight:700;letter-spacing:.1em;padding:6px 11px;border-radius:3px;
+  margin-bottom:var(--s3);position:sticky;left:0}
+.bband.up{background:var(--win-soft);color:var(--win)}
+.bband.low{background:var(--tint-1);color:var(--mute);margin-top:var(--s5)}
+
+.bcell{min-width:0;padding:0 5px}
+/* 시드 안내가 붙는 칸과 안 붙는 칸의 제목 높이를 맞춘다. 안 맞추면 같은 행의
+   경기 카드가 서로 다른 높이에서 시작해 라운드가 어긋나 보인다 */
+.bcellname{font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--ink);
+  margin-bottom:7px;min-height:32px}
+.bcellname .bseed{display:block;font-weight:400;color:var(--faint);font-size:11px;margin-top:3px}
+
+.bmatch{background:var(--surface-card);border:1px solid var(--hairline);border-radius:var(--r-card);
+  overflow:hidden;margin-bottom:9px}
+.bmatch.live{border-color:var(--live-edge)}
+/* 끝난 경기는 테두리를 세워 진행 중인 대진과 구분한다 */
+.bmatch.done{border-color:var(--tint-edge)}
+
+/* 카드 제목줄 — 어떤 경기이고 언제인지 */
+.bmhead{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:6px 9px;background:var(--tint-1);border-bottom:1px solid var(--hairline)}
+.bml{font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--body);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bmwhen{font-size:10.5px;color:var(--mute);flex:none;font-variant-numeric:tabular-nums}
+.bmatch.live .bmhead{background:var(--live);border-bottom-color:transparent}
+.bmatch.live .bml,.bmatch.live .bmwhen{color:var(--always-light)}
+
+.bmbody{padding:3px 9px}
+.bteam{display:flex;align-items:center;gap:8px;padding:5px 0}
+.bteam + .bteam{border-top:1px solid var(--hairline)}
+.bemblem{width:26px;height:26px;object-fit:contain;flex:none;border-radius:50%;
+  background:var(--tint-2);padding:2px}
+.bcode{flex:1;font-size:13px;font-weight:600;letter-spacing:.02em;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bscore{font-size:15px;font-variant-numeric:tabular-nums;color:var(--faint);flex:none;min-width:12px;text-align:right}
+/* 진 쪽을 흐리게 하지 않고 이긴 쪽을 세운다. 흐리게 하면 미정 칸과 헷갈린다 */
+.bteam.won .bcode{color:var(--ink)}
+.bteam.won .bscore{color:var(--win);font-weight:700}
+/* 미정 자리의 출처는 팀 코드보다 길어서 크기를 줄이고 줄바꿈을 허용한다 */
+.bteam.tbd .bcode{color:var(--faint);font-weight:400;font-size:11.5px;letter-spacing:0;
+  line-height:1.3;white-space:normal}
+.bteam.me .bcode{color:var(--flame-text)}
+.bteam.me .bemblem{background:var(--flame-soft)}
+
+/* 이기면 어디로, 지면 어디로. 선을 긋는 대신 글로 적는다 */
+.bgoes{display:flex;flex-direction:column;gap:2px;padding:6px 9px 7px;
+  border-top:1px dashed var(--hairline);font-size:11px;line-height:1.35}
+.bgoes b{font-style:normal;margin-right:3px}
+.bgoes .gw{color:var(--win)}
+.bgoes .gl{color:var(--mute)}
+.bgoes .gl.out{color:var(--faint)}
+
+.blegend{display:flex;flex-wrap:wrap;gap:var(--s4);margin-top:10px;font-size:11.5px;color:var(--mute)}
+.blegend span{display:inline-flex;align-items:center;gap:5px}
+.blegend i{width:9px;height:9px;border-radius:2px;flex:none}
+.blegend .lw{background:var(--win)}
+.blegend .ll{background:var(--mute)}
+.blegend .lm{background:var(--flame)}
+
+/* 진출 확정 전 — 확률로 대신한다.
+   클래스 이름을 od- 로 묶는다. 처음에 .ol/.ob/.ov/.hit 로 지었다가 이미 있던
+   모달 오버레이(.ov)와 카드(.hit)에 걸렸다. 퍼센트 글자가 화면 전체를 덮는
+   반투명 레이어가 되고, 50% 넘는 줄만 버튼처럼 보였다. */
+.bodds{display:grid;gap:9px;margin:0 0 var(--s5)}
+.bodd{display:flex;align-items:center;gap:var(--s3)}
+.odname{flex:1;font-size:13.5px;min-width:0}
+/* 막대와 숫자를 붙여 둔다. 숫자가 화면 오른쪽 끝에 떨어져 있으면 어느 막대의
+   값인지 눈으로 잇기 어렵다 */
+.odbar{flex:none;width:96px;height:7px;background:var(--tint-1);border-radius:var(--r-full);overflow:hidden}
+.odbar i{display:block;height:100%;background:var(--bar-fill);border-radius:var(--r-full)}
+.odpct{font-size:13.5px;font-variant-numeric:tabular-nums;flex:none;width:52px;text-align:right;color:var(--body)}
+.bodd.odlead .odpct{color:var(--flame-text);font-weight:700}
+.bodd.odlead .odbar i{background:var(--flame)}
+/* 갈 수 없는 구간. 흐리게 두어 0 이 값이라는 것을 알린다 */
+.bodd.odnone .odname,.bodd.odnone .odpct{color:var(--faint)}
+
+/* 예매 한 줄. 경기 카드와 대진표 카드에 함께 쓴다 */
+.tkt{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--mute);
+  text-decoration:none;margin-top:7px;transition:color .15s}
+.tkt:hover{color:var(--ink)}
+.tkt b{color:var(--flame-text);font-weight:700;font-variant-numeric:tabular-nums}
+/* 예매가 열려 있으면 지금 할 수 있는 일이라 눈에 띄게 둔다 */
+.tkt.on{color:var(--flame-text)}
+.tkt.on b{color:var(--ink)}
+/* 대진표 카드는 폭이 좁아 한 단계 작게 */
+.btkt{padding:0 9px 3px}
+.btkt .tkt{margin-top:4px;font-size:10.5px;gap:4px}
+
+/* 미리 알림 시간 선택. 항목 바로 아래에 들여 붙인다.
+   알림이 꺼져 있어도 보여준다 — 안 보이면 이 설정이 있다는 것 자체를 알 수 없다 */
+.leadrow{display:flex;gap:6px;flex-wrap:wrap;padding:0 0 14px 2px}
+.leadrow .chip{font-size:12px;padding:5px 10px;cursor:pointer}
+.leadrow.off .chip{opacity:.45}
+.leadrow.off .chip:hover{opacity:1}

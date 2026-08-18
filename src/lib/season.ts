@@ -58,7 +58,7 @@ async function build(): Promise<SeasonBundle> {
   const season = await fetchSeason();
   const ourGroup = season.legend.some((t) => t.code === OUR_TAG) ? 'legend' : 'rise';
   const group = ourGroup === 'legend' ? season.legend : season.rise;
-  // 레전드는 2위까지 PO 직행, 라이즈는 3위까지 플레이-인 진출이 상위 시드선
+  // 레전드는 2위까지 PO 직행, 라이즈는 3위까지 플레이인 진출이 상위 시드선
   const seedCut = ourGroup === 'legend' ? 2 : 3;
   return {
     season,

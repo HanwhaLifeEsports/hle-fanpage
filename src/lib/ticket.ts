@@ -1,0 +1,97 @@
+/**
+ * 현장 관람 티켓 예매.
+ *
+ * 예매일은 API 가 주지 않는다. LoL Esports 도 네이버도 티켓 관련 필드가 아예 없다.
+ * 대신 LCK 가 규칙으로 공지했다 — 2026-03-20 티켓팅 개편 공지에서 오픈 시점을
+ * 경기 시작 48시간 전에서 **216시간(9일) 전**으로 바꿨다. 예매처는 NOL 티켓이다.
+ *
+ * 그래서 이 값은 '가져온 데이터' 가 아니라 '규칙에서 계산한 값' 이다. 두 가지가
+ * 따라온다.
+ *  - 규칙이 또 바뀌면 화면이 조용히 틀린다. 상수를 한 곳에 두고 출처를 적어 둔다
+ *  - 플레이오프·결승은 따로 공지되는 경우가 있다. 시각을 단정하는 대신 예매처
+ *    링크를 늘 함께 두어 사용자가 직접 확인할 수 있게 한다
+ *
+ * 예매를 놓치면 되돌릴 수 없는 종류의 정보라, 확실하지 않은 것을 확실한 것처럼
+ * 보이게 하지 않는 편이 중요하다.
+ */
+
+/** 경기 시작 216시간(9일) 전에 열린다 (2026-03-20 LCK 티켓팅 개편 공지) */
+export const TICKET_LEAD_HOURS = 216;
+
+/** 취소표가 풀리는 시각. 경기 전날까지 매일 이 시각이다 */
+export const CANCEL_HOUR_KST = 15;
+
+export const TICKET_URL = 'https://nol.yanolja.com/ticket/genre/sports/lck';
+export const TICKET_SELLER = 'NOL 티켓';
+
+export type TicketPhase =
+  /** 아직 안 열림 */
+  | 'before'
+  /** 열려 있음 (경기 전) */
+  | 'open'
+  /** 경기가 시작했거나 끝남 */
+  | 'past';
+
+export interface TicketInfo {
+  openAt: Date;
+  phase: TicketPhase;
+  /** 예매 시작까지 남은 날 수. 이미 열렸으면 null */
+  dday: number | null;
+  /**
+   * 다음 취소표 시각. 경기 당일이거나 더 남은 회차가 없으면 null.
+   *
+   * 경기 당일은 시각이 앞당겨지기도 해서 값을 만들지 않는다. 15:00 이라고 적어
+   * 두면 그보다 일찍 풀린 표를 놓친다.
+   */
+  cancelAt: Date | null;
+  /** 오늘이 경기 날인가 */
+  matchDay: boolean;
+}
+
+/**
+ * 한국 시간 기준으로 며칠째인가.
+ *
+ * 남은 '시간' 이 아니라 남은 '날' 을 세야 D-3 이 말이 된다. 24시간 단위로 세면
+ * 오늘 밤에 열리는 예매가 D-0 이 아니라 D-1 로 나오는 일이 생긴다.
+ * 서버가 어느 시간대에 있든 같은 답이 나오도록 UTC 에 9시간을 더해 계산한다.
+ */
+const KST = 9 * 3600_000;
+const DAY = 86400_000;
+const kstDay = (ms: number) => Math.floor((ms + KST) / DAY);
+
+/** 그 날(한국 시간) 15:00 의 실제 시각 */
+const cancelSlot = (dayIndex: number) => dayIndex * DAY - KST + CANCEL_HOUR_KST * 3600_000;
+
+export function ticketInfo(startTime: string, now: number = Date.now()): TicketInfo {
+  const start = new Date(startTime).getTime();
+  const openAt = new Date(start - TICKET_LEAD_HOURS * 3600_000);
+  const open = openAt.getTime();
+  const matchDay = kstDay(now) === kstDay(start);
+
+  if (now >= start) return { openAt, phase: 'past', dday: null, cancelAt: null, matchDay };
+  if (now < open) {
+    return { openAt, phase: 'before', dday: kstDay(open) - kstDay(now), cancelAt: null, matchDay };
+  }
+
+  // 예매가 열린 뒤. 경기 전날까지 매일 15:00 에 취소표가 나온다
+  let cancelAt: Date | null = null;
+  if (!matchDay) {
+    const today = cancelSlot(kstDay(now));
+    const next = now < today ? today : cancelSlot(kstDay(now) + 1);
+    // 경기 시작을 넘어가는 회차는 없다
+    if (next < start) cancelAt = new Date(next);
+  }
+  return { openAt, phase: 'open', dday: null, cancelAt, matchDay };
+}
+
+/** "D-3" · "오늘 오픈" */
+export function ddayLabel(dday: number): string {
+  return dday <= 0 ? '오늘 오픈' : `D-${dday}`;
+}
+
+/** "오늘 15:00" · "내일 15:00" */
+export function cancelLabel(at: Date, now: number = Date.now()): string {
+  const gap = kstDay(at.getTime()) - kstDay(now);
+  const hh = `${CANCEL_HOUR_KST}:00`;
+  return gap <= 0 ? `오늘 ${hh}` : gap === 1 ? `내일 ${hh}` : hh;
+}

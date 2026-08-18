@@ -62,7 +62,7 @@ export default async function ScenariosPage() {
               </div>
               <div className="cap-xs" style={{ marginTop: 6 }}>
                 {bands[0].label} {pct(topProb, sc.total).toFixed(1)}%
-                {maybeProb > 0 && <> · 플레이-인행 {pct(maybeProb, sc.total).toFixed(1)}%</>}
+                {maybeProb > 0 && <> · 플레이인행 {pct(maybeProb, sc.total).toFixed(1)}%</>}
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
@@ -77,7 +77,7 @@ export default async function ScenariosPage() {
           </div>
           <div className="note" style={{ marginBottom: 0 }}>
             <b>2026 MSI 우승으로 플레이오프에 오르기만 하면 월즈 진출이 확정</b>됩니다. 그래서 {worldsCut}위
-            안에 들면 그 자리에서 월즈가 결정됩니다. 플레이-인은 통과해야 플레이오프로 올라가므로 아직
+            안에 들면 그 자리에서 월즈가 결정됩니다. 플레이인은 통과해야 플레이오프로 올라가므로 아직
             확정이 아닙니다.
           </div>
         </div>

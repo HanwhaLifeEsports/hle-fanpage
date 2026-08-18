@@ -18,7 +18,10 @@ export default function Standings({ rows, group }: { rows: TeamRow[]; group: Gro
               <th style={{ width: 74 }}>승-패</th>
               <th style={{ width: 88 }}>세트</th>
               <th style={{ width: 62 }}>득실</th>
-              <th className="col-split">스플릿2 / 3</th>
+              {/* API 는 이 두 구간을 "스플릿 2 / 3" 이라 부르지만, 그 번호만 보고
+                  정규 몇 라운드인지 알 수 없다. 게다가 스플릿 1은 컵 대회라 순위와
+                  무관해서 "1은 왜 없지" 하고 찾게 된다. 라운드로 적는다. */}
+              <th className="col-split">1~2R · 3~4R</th>
             </tr>
           </thead>
           <tbody>
@@ -41,7 +44,7 @@ export default function Standings({ rows, group }: { rows: TeamRow[]; group: Gro
                   {t.diff}
                 </td>
                 <td className="cap-xs col-split">
-                  {t.split2.w}-{t.split2.l} / {t.split3.w}-{t.split3.l}
+                  {t.split2.w}-{t.split2.l} · {t.split3.w}-{t.split3.l}
                 </td>
               </tr>
             ))}

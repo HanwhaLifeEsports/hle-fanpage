@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import TicketLine from './Ticket';
 import { dismissToast, useApp, useToasts } from '@/lib/useAppState';
 import { fmtDate, pad } from '@/lib/format';
 import { sidesOf } from '@/lib/pick';
@@ -64,6 +65,7 @@ export function MatchCard({ m }: { m: MatchRow }) {
           BO{m.bo}
         </div>
         <div className="opp">{mine ? `vs ${them.name}` : `${m.a.code} vs ${m.b.code}`}</div>
+        <TicketLine startTime={m.startTime} />
       </div>
     );
   }

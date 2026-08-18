@@ -9,8 +9,10 @@
  *  - 2026 시즌은 스플릿이 분리된 별개 토너먼트로 내려온다. 정규 순위는
  *    스플릿2(1~2라운드) + 스플릿3(3~4라운드 그룹)을 합쳐야 실제 순위가 된다.
  *  - 정규 순위에 반영되는 경기는 blockName 이 "N주 차" 인 것뿐이다.
- *    플레이-인 · 플레이오프 · 결승 · 토너먼트 스테이지는 제외.
+ *    플레이인 · 플레이오프 · 결승 · 토너먼트 스테이지는 제외.
  */
+
+import { buildBracket, type BracketStage, type RawBracketStage } from './bracket';
 
 const API = 'https://esports-api.lolesports.com/persisted/gw';
 
@@ -73,6 +75,8 @@ export interface Season {
   legend: TeamRow[];
   rise: TeamRow[];
   matches: MatchRow[];
+  /** 포스트시즌 대진표. 팀이 정해지기 전에도 뼈대가 내려온다 */
+  bracket: BracketStage[];
 }
 
 async function call<T>(path: string): Promise<T> {
@@ -95,6 +99,7 @@ interface RawStandings {
       name: string;
       stages: {
         slug: string;
+        name: string;
         sections: {
           name: string;
           rankings: {
@@ -145,7 +150,7 @@ const REGULAR_BLOCK = /^\d+주\s*차$/;
 
 function stageOf(blockName: string): MatchStage {
   if (REGULAR_BLOCK.test(blockName)) return 'regular';
-  if (blockName.includes('플레이-인')) return 'playin';
+  if (blockName.includes('플레이인')) return 'playin';
   if (blockName.includes('결승')) return 'final';
   if (blockName.includes('플레이오프')) return 'playoff';
   return 'other';
@@ -223,7 +228,8 @@ export async function fetchStandings(tournamentId: string) {
       }
     }
   }
-  return { name: st.name, teams: out };
+  // 대진표는 같은 응답에 들어 있다. 따로 부르지 않는다
+  return { name: st.name, teams: out, stages: st.stages as unknown as RawBracketStage[] };
 }
 
 /* ------------------------------------------------------------------ */
@@ -313,6 +319,7 @@ export function buildSeason(
     legend: rankGroup(rows.filter((t) => t.group === 'legend')),
     rise: rankGroup(rows.filter((t) => t.group === 'rise')),
     matches,
+    bracket: buildBracket(s3.stages, matches),
   };
 }
 
