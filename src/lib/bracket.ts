@@ -233,18 +233,23 @@ export function formatLossTo(cellSlug: string, matchIndex: number): string | nul
 export function formatDropIn(cellSlug: string, teamIndex: number): string | null {
   if (teamIndex !== 0) return null;
   const d = WB_R2_DROP.find((x) => x.cell === cellSlug);
-  return d ? `승자조 2라운드 ${d.match + 1}경기 패자` : null;
+  return d ? `승자조 2-${d.match + 1}라운드 패자` : null;
 }
 
 /**
- * 출발지 이름 — "승자조 2라운드 1경기".
+ * 출발지 이름 — "승자조 2-1라운드".
  *
  * 도착지(칸 머리글)보다 자세하다. 머리글은 화면의 띠와 열이 이미 어느 조인지
  * 말해 주지만, 패자조 자리에 적히는 "1라운드 패자" 는 어느 조의 1라운드인지도,
  * 두 경기 중 어느 쪽인지도 알려주지 않는다. 그 자리에서는 글자가 전부다.
  *
- * 경기 번호는 한 칸에 경기가 둘 이상일 때만 붙인다. 하나뿐인 칸에 "1경기" 를
- * 달면 어딘가에 2경기가 있다는 뜻이 된다.
+ * 경기 번호는 라운드 번호에 붙여 "1-2라운드" 로 적는다. 이 글자는 팀 이름이
+ * 앉을 자리에 대신 들어가므로 짧아야 한다. 칸 머리글은 줄이지 않는다 —
+ * 거기는 자리가 있고, 줄인 표기는 읽는 사람이 한 번 배워야 하는 것이라
+ * 꼭 필요한 곳에서만 쓴다.
+ *
+ * 한 칸에 경기가 둘 이상일 때만 붙인다. 하나뿐인 칸에 번호를 달면 어딘가에
+ * 다른 경기가 있다는 뜻이 된다.
  */
 function originLabel(
   slug: string,
@@ -258,7 +263,8 @@ function originLabel(
   // 출발지로 쓸 때 여기서 붙인다. 플레이인에는 조가 없다
   const band =
     stageSlug !== 'play_ins' && !isLower(slug) && /round_\d+$/.test(slug) ? '승자조 ' : '';
-  return `${band}${base}${matchCount > 1 ? ` ${matchIndex + 1}경기` : ''}`;
+  const round = matchCount > 1 ? base.replace(/(\d+)라운드/, `$1-${matchIndex + 1}라운드`) : base;
+  return `${band}${round}`;
 }
 
 /** 라운드 전체에 무엇이 들어오는지. 자리마다 적을 수 없는 칸에 쓴다 */
