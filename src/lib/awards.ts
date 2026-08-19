@@ -80,6 +80,7 @@ export const AWARDS: Record<string, Awards> = {
       { year: 2025, name: 'LPL 스플릿 2 정규시즌 MVP' },
       { year: 2023, name: 'LPL 베스트 정글러' },
       { year: 2022, name: 'LPL 베스트 정글러' },
+      { year: 2022, name: 'LPL 베스트 외국인 선수' },
       { year: 2020, name: 'LPL 스프링 정규시즌 MVP' },
     ],
   },
@@ -97,6 +98,7 @@ export const AWARDS: Record<string, Awards> = {
       { year: 2024, name: 'LCK 서머 파이널 MVP' },
       { year: 2023, name: 'LCK 서머 Player of the Split' },
       { year: 2022, name: 'LCK 어워드 올해의 선수' },
+      { year: 2022, name: 'LCK 어워드 올해의 미드' },
     ],
   },
 
@@ -106,6 +108,7 @@ export const AWARDS: Record<string, Awards> = {
       { year: 2025, name: '월드 챔피언십', team: 'T1' },
       { year: 2024, name: '월드 챔피언십', team: 'T1' },
       { year: 2024, name: 'EWC', team: 'T1' },
+      { year: 2023, name: '월드 챔피언십', team: 'T1' },
       { year: 2022, name: 'LCK 스프링', team: 'T1' },
       { year: 2020, name: 'LCK 스프링', team: 'T1' },
     ],
@@ -126,7 +129,10 @@ export const AWARDS: Record<string, Awards> = {
       { year: 2023, name: 'LCK 서머', team: 'Gen.G' },
       { year: 2023, name: 'LCK 스프링', team: 'Gen.G' },
     ],
-    honors: [{ year: 2023, name: 'LCK 어워드 어시스트 킹' }],
+    honors: [
+      { year: 2023, name: 'LCK 어워드 어시스트 킹' },
+      { year: 2022, name: 'LCK 어워드 밝은 협곡에 눈뜨다' },
+    ],
   },
 
   /* 코칭스태프. 감독·코치로 든 트로피다 */
