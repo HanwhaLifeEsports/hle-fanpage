@@ -659,14 +659,26 @@ label.fl{display:block;font-size:12px;font-weight:600;color:var(--mute);margin:0
 /* ---------- modal / toast ---------- */
 .ov{position:fixed;inset:0;z-index:100;background:var(--scrim);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:var(--s4)}
 .modal{background:var(--surface);border:1px solid var(--hairline);border-radius:var(--r-lg);max-width:520px;width:100%;max-height:86vh;overflow-y:auto;
-  /* 홈이 회색 홈을 파고 위아래 화살표가 붙은 기본 스크롤바는 창틀처럼 보인다.
-     바탕은 비우고 막대만 남긴다. 대진표(.bscroll)와 같은 처리다 */
-  scrollbar-width:thin;scrollbar-color:var(--tint-4) transparent}
+  /* 회색 홈을 파고 위아래에 화살표가 붙은 기본 스크롤바는 창틀처럼 보인다.
+     바탕은 비우고 막대만 남긴다. 표준 속성은 아래 @supports 에서 준다 */
+  }
 .modal::-webkit-scrollbar{width:6px}
-.modal::-webkit-scrollbar-track{background:transparent}
+/* 모달 모서리가 둥근데 스크롤바는 위아래 끝까지 그려져 곡선 밖으로 삐져나온다.
+   모서리 반지름만큼 트랙을 안으로 들인다. 값을 따로 적지 않고 같은 토큰을 쓰는
+   것은, 모서리를 바꾸면 스크롤바도 함께 따라와야 하기 때문이다 */
+.modal::-webkit-scrollbar-track{background:transparent;margin:var(--r-lg) 0}
 .modal::-webkit-scrollbar-thumb{background:var(--tint-4);border-radius:var(--r-full)}
 .modal::-webkit-scrollbar-thumb:hover{background:var(--tint-edge)}
 .modal::-webkit-scrollbar-button{display:none;width:0;height:0}
+.modal::-webkit-scrollbar-corner{background:transparent}
+
+/* 크롬은 scrollbar-width / scrollbar-color 가 있으면 ::-webkit-scrollbar 규칙을
+   통째로 무시한다. 그러면 화살표를 없애는 규칙이 닿지 않고, 크롬의 thin 스크롤바는
+   윈도우에서 화살표를 그대로 달고 나온다.
+   그래서 표준 속성은 웹킷 가상요소를 모르는 쪽(파이어폭스)에만 준다 */
+@supports not selector(::-webkit-scrollbar){
+  .modal,.bscroll{scrollbar-width:thin;scrollbar-color:var(--tint-4) transparent}
+}
 .modal-h{display:flex;justify-content:space-between;align-items:center;padding:var(--s5) var(--s5) var(--s3);gap:var(--s4)}
 .modal-b{padding:0 var(--s5) var(--s5)}
 .x{background:var(--tint-2);border:0;color:var(--ink);width:32px;height:32px;border-radius:50%;cursor:pointer;flex:none;
@@ -810,7 +822,7 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
    기본 스크롤바는 끝에 화살표가 붙고 폭도 두꺼워 대진표 옆에서 튄다 — 얇은 막대로 바꾼다 */
 .bscroll{overflow-x:auto;padding:var(--s4) var(--s4) 12px;background:var(--surface);
   border:1px solid var(--hairline);border-top:0;border-radius:0 0 var(--r-card) var(--r-card);
-  scrollbar-width:thin;scrollbar-color:var(--tint-4) transparent;overscroll-behavior-x:contain}
+  overscroll-behavior-x:contain}
 .bscroll::-webkit-scrollbar{height:6px}
 .bscroll::-webkit-scrollbar-track{background:transparent}
 .bscroll::-webkit-scrollbar-thumb{background:var(--tint-4);border-radius:var(--r-full)}

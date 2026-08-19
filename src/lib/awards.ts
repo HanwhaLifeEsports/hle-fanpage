@@ -49,7 +49,7 @@ export const AWARDS: Record<string, Awards> = {
       { year: 2025, name: '퍼스트 스탠드' },
       { year: 2025, name: 'LCK 컵' },
       { year: 2024, name: '월드 챔피언십', team: 'T1' },
-      { year: 2024, name: '에스포츠 월드컵', team: 'T1' },
+      { year: 2024, name: 'EWC', team: 'T1' },
       { year: 2023, name: '월드 챔피언십', team: 'T1' },
       { year: 2023, name: '항저우 아시안게임 금메달', team: '대한민국' },
       { year: 2022, name: 'LCK 스프링', team: 'T1' },
@@ -105,7 +105,7 @@ export const AWARDS: Record<string, Awards> = {
       { year: 2026, name: 'MSI' },
       { year: 2025, name: '월드 챔피언십', team: 'T1' },
       { year: 2024, name: '월드 챔피언십', team: 'T1' },
-      { year: 2024, name: '에스포츠 월드컵', team: 'T1' },
+      { year: 2024, name: 'EWC', team: 'T1' },
       { year: 2022, name: 'LCK 스프링', team: 'T1' },
       { year: 2020, name: 'LCK 스프링', team: 'T1' },
     ],
@@ -167,6 +167,3 @@ export const AWARDS: Record<string, Awards> = {
     honors: [],
   },
 };
-
-/** 화면에 남기는 출처. 손으로 적은 값이라 언제 확인했는지까지 적는다 */
-export const AWARDS_SOURCE = '나무위키, Leaguepedia 대조 (2026-08-18 확인)';
