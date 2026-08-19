@@ -126,7 +126,10 @@ export function cellLabel(slug: string, name: string, stageSlug?: string): strin
   if (slug === 'upper_bracket_finals') return '승자조 결승';
   if (slug.endsWith('_finals')) return '패자조 결승';
   const round = slug.match(/round_(\d+)$/);
-  if (round) return `${round[1]}라운드`;
+  // 패자조는 조 이름을 달고 다닌다. 칸 머리글에서는 띠가 이미 말해 주지만,
+  // 도착지 표기("→ 1라운드")로 쓰이면 어느 조의 1라운드인지 알 수 없다.
+  // 같은 함수가 두 곳에 쓰이므로 더 분명한 쪽으로 맞춘다
+  if (round) return isLower(slug) ? `패자조 ${round[1]}라운드` : `${round[1]}라운드`;
   return name.replace('패자 대진', '하위권 대진').replace(/^(상위권|하위권) 대진 - /, '');
 }
 
@@ -152,10 +155,11 @@ const stageName = (name: string) =>
  *     '그룹 시드 + 플레이인 통과' 한 쌍이었고(T1+DK, KT+BFX), 상위권 2라운드에는
  *     상위 두 팀이 앉아 있었다(HLE, GEN). 높은 시드가 앞자리에 놓이는 통상 배치다
  *
- * 순위를 하나로 콕 집지 않고 범위로 적는다. 한 칸 안에서 어느 쪽이 3위이고
- * 어느 쪽이 4위인지는 응답으로 알 수 없다. 범위는 어느 배치에서도 참이다.
+ * 한동안 '3~4위' 처럼 범위로 적었다. 응답만으로는 한 칸 안에서 어느 쪽이 3위인지
+ * 알 수 없어 범위가 안전했다. 2026 대진이 확정되면서 경기별 순위를 알게 돼
+ * 정확한 값으로 바꿨다.
  *
- * 근거 2가 한 시즌 표본이라, 리그가 배치를 바꾸면 이 표기도 함께 고쳐야 한다.
+ * 포맷에서 온 값이라, 리그가 배치를 바꾸면 이 표기도 함께 고쳐야 한다.
  */
 export function slotSeed(
   stageSlug: string,
@@ -174,9 +178,87 @@ export function slotSeed(
     ];
     return PLAY_IN[matchIndex]?.[teamIndex] ?? null;
   }
-  if (cellSlug === 'round_1') return teamIndex === 0 ? '레전드 그룹 3~4위' : '플레이인 통과';
-  if (cellSlug === 'upper_bracket_round_2' && teamIndex === 0) return '레전드 그룹 1~2위';
-  return null;
+  // 경기별로 어느 순위가 앉는지가 확정됐다. 한 칸 안에서 3위와 4위를 가릴 수
+  // 없어 범위로 적던 것을 정확한 순위로 바꾼다
+  const SEEDS: Record<string, string[]> = {
+    round_1: ['레전드 그룹 3위', '레전드 그룹 4위'],
+    upper_bracket_round_2: ['레전드 그룹 1위', '레전드 그룹 2위'],
+  };
+  // 남은 한 자리는 앞 라운드에서 올라온다. 시드가 아니므로 여기서 적지 않는다
+  if (cellSlug === 'round_1') return teamIndex === 0 ? (SEEDS.round_1[matchIndex] ?? null) : '플레이인 통과';
+  if (cellSlug === 'upper_bracket_round_2' && teamIndex === 0)
+    return SEEDS.upper_bracket_round_2[matchIndex] ?? null;
+  // 승자조 2라운드에서 내려오는 자리. 응답의 origin 이 비어 있어 여기서 적는다
+  return formatDropIn(cellSlug, teamIndex);
+}
+
+/**
+ * 승자조 2라운드 패자가 내려가는 곳.
+ *
+ * 표를 하나만 둔다. "지면 어디로 가는가"(경기 -> 칸)와 "이 자리에 누가
+ * 오는가"(칸 -> 경기)는 같은 연결을 양쪽에서 읽은 것이라, 따로 적어 두면
+ * 언젠가 한쪽만 고쳐져 대진표가 스스로와 어긋난다.
+ *
+ * 두 경기의 도착지가 다르다 — 1경기 패자가 더 깊은 라운드로 간다. 상위 시드가
+ * 앉는 자리라 한 번 져도 남는 길이 짧다.
+ *
+ * 칸 이름이 lower_ 와 losers_ 로 갈려 있는 것은 응답 그대로다.
+ */
+const WB_R2_DROP = [
+  { match: 0, cell: 'losers_bracket_round_3', label: '패자조 3라운드' },
+  { match: 1, cell: 'lower_bracket_round_2', label: '패자조 2라운드' },
+] as const;
+
+/**
+ * 지면 어디로 가는가 — 응답에 없는 연결.
+ *
+ * 승자조 2라운드의 패자 자리는 어느 경기의 origin 으로도 잡히지 않아 도착지가
+ * 비었다. 그대로 두면 '탈락' 으로 떨어지는데, 실제로는 패자조로 내려가 한 번
+ * 더 싸운다. 진 팀이 끝난 것처럼 보이는 것은 대진표가 할 수 있는 가장 큰
+ * 거짓말이다.
+ *
+ * 두 경기의 도착지가 다르다 — 1경기 패자가 더 깊은 라운드로 간다. 상위 시드가
+ * 앉는 자리라 한 번 져도 남는 길이 짧다.
+ *
+ * 포맷에서 온 값이라 리그가 대진을 바꾸면 여기도 함께 고쳐야 한다.
+ * 응답이 연결을 주기 시작하면 그쪽이 이긴다 — 이 함수는 빈 자리만 채운다.
+ */
+export function formatLossTo(cellSlug: string, matchIndex: number): string | null {
+  if (cellSlug === 'round_1') return '패자조 1라운드';
+  if (cellSlug !== 'upper_bracket_round_2') return null;
+  return WB_R2_DROP.find((d) => d.match === matchIndex)?.label ?? null;
+}
+
+/** 승자조 2라운드에서 내려오는 자리를 반대 방향으로 읽는다 */
+export function formatDropIn(cellSlug: string, teamIndex: number): string | null {
+  if (teamIndex !== 0) return null;
+  const d = WB_R2_DROP.find((x) => x.cell === cellSlug);
+  return d ? `승자조 2라운드 ${d.match + 1}경기 패자` : null;
+}
+
+/**
+ * 출발지 이름 — "승자조 2라운드 1경기".
+ *
+ * 도착지(칸 머리글)보다 자세하다. 머리글은 화면의 띠와 열이 이미 어느 조인지
+ * 말해 주지만, 패자조 자리에 적히는 "1라운드 패자" 는 어느 조의 1라운드인지도,
+ * 두 경기 중 어느 쪽인지도 알려주지 않는다. 그 자리에서는 글자가 전부다.
+ *
+ * 경기 번호는 한 칸에 경기가 둘 이상일 때만 붙인다. 하나뿐인 칸에 "1경기" 를
+ * 달면 어딘가에 2경기가 있다는 뜻이 된다.
+ */
+function originLabel(
+  slug: string,
+  name: string,
+  stageSlug: string,
+  matchIndex: number,
+  matchCount: number,
+): string {
+  const base = cellLabel(slug, name, stageSlug);
+  // 패자조는 cellLabel 이 이미 조를 달고 온다. 승자조는 머리글에서 생략하므로
+  // 출발지로 쓸 때 여기서 붙인다. 플레이인에는 조가 없다
+  const band =
+    stageSlug !== 'play_ins' && !isLower(slug) && /round_\d+$/.test(slug) ? '승자조 ' : '';
+  return `${band}${base}${matchCount > 1 ? ` ${matchIndex + 1}경기` : ''}`;
 }
 
 /** 라운드 전체에 무엇이 들어오는지. 자리마다 적을 수 없는 칸에 쓴다 */
@@ -255,9 +337,13 @@ export function buildBracket(stages: RawBracketStage[], matches: MatchRow[]): Br
     for (const sec of st.sections ?? []) {
       for (const col of sec.columns ?? []) {
         for (const cell of col.cells ?? []) {
-          for (const m of cell.matches ?? []) {
-            if (m.structuralId) cellOf.set(m.structuralId, cellLabel(cell.slug, cell.name, st.slug));
-          }
+          (cell.matches ?? []).forEach((m, mi) => {
+            if (m.structuralId)
+              cellOf.set(
+                m.structuralId,
+                originLabel(cell.slug, cell.name, st.slug, mi, (cell.matches ?? []).length),
+              );
+          });
         }
       }
     }
@@ -370,7 +456,10 @@ export function buildBracket(stages: RawBracketStage[], matches: MatchRow[]): Br
                       : st.slug === 'play_ins'
                         ? '플레이오프 진출'
                         : null),
-                  lossTo: d.loss ?? (cell.slug === 'finals' ? '준우승' : '탈락'),
+                  lossTo:
+                    d.loss ??
+                    formatLossTo(cell.slug, mi) ??
+                    (cell.slug === 'finals' ? '준우승' : '탈락'),
                 };
               }),
             });
