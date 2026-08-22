@@ -95,6 +95,51 @@ export function ticketInfo(startTime: string, now: number = Date.now()): TicketI
   return { openAt, phase: 'open', dday: null, cancelAt, matchDay };
 }
 
+/**
+ * 공식이 따로 공지한 예매 일정.
+ *
+ * 216시간 규칙은 정규 경기의 것이다. 결승 주간은 LCK 가 날짜와 시각을 직접
+ * 공지하고, 1차 · 2차로 나눠 두 번 연다. 규칙으로 계산하면 둘 다 틀린다 —
+ * 결승전 216시간 전은 9월 4일인데 실제 1차 오픈은 8월 28일이다. 일주일 차이다.
+ *
+ * 그래서 이 두 경기만 계산을 끄고 공지 값을 쓴다. 나머지는 그대로 규칙을 따른다.
+ *
+ * 출처: LCK 공식 'FINALS TICKET INFO' (2026-08). 장소 KSPO DOME, 예매처 NOL.
+ * 손으로 옮긴 값이라 공지가 바뀌면 여기도 고쳐야 한다.
+ */
+const ANNOUNCED_SALES: Record<string, string[]> = {
+  // 결승 진출전
+  lower_bracket_finals: ['2026-08-27T14:00:00+09:00', '2026-09-07T14:00:00+09:00'],
+  // Grand Finals
+  finals: ['2026-08-28T14:00:00+09:00', '2026-09-08T14:00:00+09:00'],
+};
+
+export interface SaleRound {
+  /** "1차" · "2차" */
+  label: string;
+  at: Date;
+  /** 이미 열렸는가 */
+  past: boolean;
+  /** 남은 날. 이미 열렸으면 null */
+  dday: number | null;
+}
+
+/**
+ * 그 칸에 공지된 예매 회차. 없으면 null 이고, 그때는 216시간 규칙을 쓴다.
+ *
+ * 지난 회차도 지우지 않고 '오픈' 으로 남긴다. 1차를 놓친 사람에게 2차가 언제인지
+ * 알려주려면 둘이 나란히 있어야 하고, 1차가 사라지면 2차가 유일한 기회처럼 보인다.
+ */
+export function announcedSales(cellSlug: string | undefined, now: number = Date.now()): SaleRound[] | null {
+  const list = cellSlug ? ANNOUNCED_SALES[cellSlug] : undefined;
+  if (!list) return null;
+  return list.map((iso, i) => {
+    const at = new Date(iso);
+    const past = now >= at.getTime();
+    return { label: `${i + 1}차`, at, past, dday: past ? null : kstDay(at.getTime()) - kstDay(now) };
+  });
+}
+
 /** "D-3" · "오늘 오픈" */
 export function ddayLabel(dday: number): string {
   return dday <= 0 ? '오늘 오픈' : `D-${dday}`;

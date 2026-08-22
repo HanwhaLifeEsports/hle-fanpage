@@ -3,7 +3,14 @@
 import { useEffect, useState } from 'react';
 import { Ticket as TicketIcon } from 'lucide-react';
 import { fmtDate } from '@/lib/format';
-import { TICKET_URL, TICKET_URL_MOBILE, cancelLabel, ddayLabel, ticketInfo } from '@/lib/ticket';
+import {
+  TICKET_URL,
+  TICKET_URL_MOBILE,
+  announcedSales,
+  cancelLabel,
+  ddayLabel,
+  ticketInfo,
+} from '@/lib/ticket';
 
 /**
  * 경기 카드에 붙는 예매 한 줄.
@@ -22,7 +29,14 @@ import { TICKET_URL, TICKET_URL_MOBILE, cancelLabel, ddayLabel, ticketInfo } fro
  * 클릭 핸들러는 두지 않는다. 예매 줄이 붙는 카드에는 클릭 동작이 없으므로
  * 전파를 막을 이유가 없다.
  */
-export default function TicketLine({ startTime }: { startTime: string }) {
+export default function TicketLine({
+  startTime,
+  cellSlug,
+}: {
+  startTime: string;
+  /** 대진표에서만 넘어온다. 공지된 예매 일정이 있는 칸을 가리는 데 쓴다 */
+  cellSlug?: string;
+}) {
   /* 좁은 화면에서는 다른 예매처로 보낸다.
      서버가 그릴 때는 넓은 쪽으로 두고 붙은 뒤에 바꾼다. 폭은 서버가 알 수 없어
      추측하면 하이드레이션이 어긋난다. 주소는 눈에 보이는 값이 아니라 이 순서로
@@ -39,10 +53,32 @@ export default function TicketLine({ startTime }: { startTime: string }) {
   const t = ticketInfo(startTime);
   if (t.phase === 'past') return null;
 
+  const href = narrow ? TICKET_URL_MOBILE : TICKET_URL;
+
+  /* 공지된 일정이 있으면 계산을 쓰지 않는다. 결승 주간은 216시간 규칙과 일주일
+     넘게 어긋나고, 한 경기에 회차가 둘이라 하나로 접을 수도 없다 */
+  const sales = announcedSales(cellSlug);
+  if (sales && sales.some((r) => !r.past)) {
+    return (
+      /* 회차마다 D-day 는 다르지만 예매처는 같다. 링크를 회차마다 두면 같은
+         곳으로 가는 버튼이 둘이 되어, 서로 다른 데로 간다고 읽힌다 */
+      <a className="tkt multi" href={href} target="_blank" rel="noopener noreferrer">
+        <TicketIcon size={13} aria-hidden />
+        <span className="tkrounds">
+          {sales.map((r) => (
+            <span key={r.label} className={r.past ? 'tkr done' : 'tkr'}>
+              {r.label} {fmtDate(r.at.toISOString())} <b>{r.past ? '오픈' : ddayLabel(r.dday!)}</b>
+            </span>
+          ))}
+        </span>
+      </a>
+    );
+  }
+
   return (
     <a
       className={`tkt${t.phase === 'open' ? ' on' : ''}`}
-      href={narrow ? TICKET_URL_MOBILE : TICKET_URL}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
     >

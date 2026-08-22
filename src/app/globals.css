@@ -976,6 +976,14 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 .modal-b .contract{margin-top:14px}
 .card .contract{margin:10px 0 0}
 
+/* 회차가 둘인 예매. 한 줄에 붙이면 넘치므로 회차끼리 세로로 쌓는다 */
+.tkt.multi{align-items:flex-start}
+.tkrounds{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tkr{white-space:nowrap}
+/* 지난 회차도 지우지 않는다. 1차가 사라지면 2차가 유일한 기회처럼 보인다 */
+.tkr.done{color:var(--faint)}
+.tkr.done b{color:inherit;font-weight:500}
+
 /* ---------- 수상 실적 ---------- */
 
 /* 트로피 하나와 우승 횟수. 배지들과 같은 줄에 서므로 높이를 맞춘다 */
