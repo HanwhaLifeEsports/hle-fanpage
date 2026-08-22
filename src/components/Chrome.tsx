@@ -52,10 +52,32 @@ function useNavLight(path: string) {
   const [box, setBox] = useState<{ x: number; w: number } | null>(null);
   const [off, setOff] = useState(false);
 
-  /* 값이 그대로면 새 객체를 만들지 않는다. 크기 관찰자는 자주 부르는데,
-     매번 새 객체를 넣으면 그때마다 '옮기는 중' 효과가 다시 켜진다 */
+  /* 글자 폭에 딱 맞추면 '홈' 처럼 한 글자짜리 아래에는 점 하나만 한 빛이 남는다.
+     양옆 항목과의 사이 절반까지 늘린다 — 빈 곳을 나눠 가지므로 이웃과 겹치지
+     않고, 항목마다 길이가 달라도 간격이 고르게 보인다.
+
+     맨 끝 항목은 한쪽에 이웃이 없다. 그쪽은 반대쪽과 같은 만큼 바깥으로 늘려
+     좌우 대칭을 맞춘다. 0 으로 두면 끝 두 개만 한쪽이 잘린 것처럼 보인다.
+
+     이웃은 형제 요소로 찾지 않는다. 빛줄기 자신(span)이 같은 부모에 있어
+     nextElementSibling 이 그것을 집는다. 링크만 골라 순서를 센다.
+
+     값이 그대로면 새 객체를 만들지 않는다. 크기 관찰자는 자주 부르는데, 매번
+     새 객체를 넣으면 그때마다 '옮기는 중' 효과가 다시 켜진다 */
   const point = useCallback((el: HTMLElement) => {
-    const next = { x: el.offsetLeft, w: el.offsetWidth };
+    const links = Array.from(el.parentElement?.querySelectorAll<HTMLElement>('a') ?? []);
+    const i = links.indexOf(el);
+    const prev = i > 0 ? links[i - 1] : null;
+    const nextEl = i >= 0 && i < links.length - 1 ? links[i + 1] : null;
+
+    const half = (a: HTMLElement, b: HTMLElement) =>
+      Math.max(0, (b.offsetLeft - (a.offsetLeft + a.offsetWidth)) / 2);
+    const padL = prev ? half(prev, el) : null;
+    const padR = nextEl ? half(el, nextEl) : null;
+    const l = padL ?? padR ?? 0;
+    const r = padR ?? padL ?? 0;
+
+    const next = { x: el.offsetLeft - l, w: el.offsetWidth + l + r };
     setBox((cur) => (cur && cur.x === next.x && cur.w === next.w ? cur : next));
   }, []);
 
