@@ -125,7 +125,7 @@ export function cellLabel(slug: string, name: string, stageSlug?: string): strin
   // 플레이인의 마지막 경기는 진출자를 가리는 자리다. '2라운드' 보다 뜻이 분명하다
   if (stageSlug === 'play_ins' && slug === 'round_2') return '최종전';
   if (slug === 'finals') return 'Grand Finals';
-  if (slug === 'upper_bracket_finals') return '승자조 3라운드';
+  if (slug === 'upper_bracket_finals') return '3라운드';
   if (slug.endsWith('_finals')) return '결승 진출전';
   const round = slug.match(/round_(\d+)$/);
   if (round) return `${round[1]}라운드`;
@@ -142,8 +142,12 @@ export function cellLabel(slug: string, name: string, stageSlug?: string): strin
  */
 export function refLabel(slug: string, name: string, stageSlug?: string): string {
   const base = cellLabel(slug, name, stageSlug);
-  if (stageSlug === 'play_ins' || !/round_\d+$/.test(slug)) return base;
-  return `${isLower(slug) ? '패자조' : '승자조'} ${base}`;
+  if (stageSlug === 'play_ins') return base;
+  if (/round_\d+$/.test(slug)) return `${isLower(slug) ? '패자조' : '승자조'} ${base}`;
+  // 승자조 마지막 칸도 머리글에서는 '3라운드' 다. 승자조 열이 1·2·3라운드로
+  // 이어져야 한 줄로 읽힌다. 다만 패자조에도 3라운드가 있어 가리킬 때는 갈라야 한다
+  if (slug === 'upper_bracket_finals') return `승자조 ${base}`;
+  return base;
 }
 
 /**
