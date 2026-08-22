@@ -44,7 +44,18 @@ function Side({ t, ourTag }: { t: BracketTeam; ourTag: string }) {
   );
 }
 
-function Match({ m, ourTag, label }: { m: BracketMatch; ourTag: string; label: string }) {
+function Match({
+  m,
+  ourTag,
+  label,
+  cellSlug,
+}: {
+  m: BracketMatch;
+  ourTag: string;
+  label: string;
+  /** 공지된 예매 일정이 있는 칸인지 예매 줄이 판단하는 데 쓴다 */
+  cellSlug: string;
+}) {
   return (
     <div
       className={`bmatch${m.state === 'inProgress' ? ' live' : ''}${
@@ -63,7 +74,7 @@ function Match({ m, ourTag, label }: { m: BracketMatch; ourTag: string; label: s
       </div>
       {m.startTime && (
         <div className="btkt">
-          <TicketLine startTime={m.startTime} />
+          <TicketLine startTime={m.startTime} cellSlug={cellSlug} />
         </div>
       )}
       {(m.winTo || m.lossTo) && (
@@ -148,6 +159,7 @@ export default function Bracket({ stages, ourTag }: { stages: BracketStage[]; ou
                           m={m}
                           ourTag={ourTag}
                           label={cell.matches.length > 1 ? `${name} ${i + 1}경기` : name}
+                          cellSlug={cell.slug}
                         />
                       ))}
                     </div>
