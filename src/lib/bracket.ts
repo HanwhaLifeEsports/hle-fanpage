@@ -45,6 +45,8 @@ export interface BracketMatch {
   winTo: string | null;
   /** 지면 어디로 가는가. 탈락이면 null */
   lossTo: string | null;
+  /** 공지된 경기장. 모르면 null */
+  venue: string | null;
 }
 
 /** 승자조 / 패자조. 화면에서 위아래 두 줄로 갈라 놓는다 */
@@ -201,12 +203,44 @@ export function slotSeed(
     round_1: ['레전드 그룹 3위', '레전드 그룹 4위'],
     upper_bracket_round_2: ['레전드 그룹 1위', '레전드 그룹 2위'],
   };
-  // 남은 한 자리는 앞 라운드에서 올라온다. 시드가 아니므로 여기서 적지 않는다
-  if (cellSlug === 'round_1') return teamIndex === 0 ? (SEEDS.round_1[matchIndex] ?? null) : '플레이인 통과';
+  // 남은 한 자리는 지명으로 정해진다. 규칙은 pickSeat 한 곳에만 둔다
+  if (cellSlug === 'round_1')
+    return teamIndex === 0
+      ? (SEEDS.round_1[matchIndex] ?? null)
+      : pickSeat(stageSlug, cellSlug, matchIndex, teamIndex);
   if (cellSlug === 'upper_bracket_round_2' && teamIndex === 0)
     return SEEDS.upper_bracket_round_2[matchIndex] ?? null;
   // 승자조 2라운드에서 내려오는 자리. 응답의 origin 이 비어 있어 여기서 적는다
   return formatDropIn(cellSlug, teamIndex);
+}
+
+/**
+ * 공지로 따로 알려진 경기 정보.
+ *
+ * 응답은 13경기의 시각을 전부 17:00 으로 준다. 자리표시자다 — 실제로 그 시각인
+ * 경기가 대부분이라 티가 잘 안 나지만, 결승 주간 두 경기는 14:00 이다.
+ *
+ * 경기장도 응답에 없다. 결승 주간만 공지에 나와 있어 그 둘에만 적는다.
+ * 모르는 경기에 짐작으로 채우면, 적혀 있다는 사실 자체가 확인된 정보처럼 읽힌다.
+ *
+ * 출처: LCK 공식 'FINALS TICKET INFO' (2026-08). 공지가 바뀌면 여기도 고쳐야 한다.
+ */
+const ANNOUNCED_MATCH: Record<string, { hourKst: number; venue: string }> = {
+  lower_bracket_finals: { hourKst: 14, venue: 'KSPO DOME (올림픽공원)' },
+  finals: { hourKst: 14, venue: 'KSPO DOME (올림픽공원)' },
+};
+
+/**
+ * 그 경기가 열리는 한국 날짜의 지정 시각으로 옮긴다.
+ *
+ * 날짜는 응답을 믿고 시각만 바꾼다. 날짜까지 손으로 적으면 일정이 밀렸을 때
+ * 우리 화면만 옛날 날짜에 머문다.
+ */
+function atKstHour(iso: string, hour: number): string {
+  const KST = 9 * 3600_000;
+  const DAY = 86400_000;
+  const day = Math.floor((new Date(iso).getTime() + KST) / DAY);
+  return new Date(day * DAY - KST + hour * 3600_000).toISOString();
 }
 
 /**
@@ -246,15 +280,19 @@ const WB_R2_DROP = [
 /**
  * 지명으로 채워지는 자리.
  *
- * 승자조 2라운드는 레전드 1위가 승자조 1라운드 승자 둘 중 붙을 상대를 고른다.
- * 고르고 남은 팀이 레전드 2위와 붙는다.
+ * 승자조은 두 라운드 모두 상위 시드가 상대를 고른다.
+ *   1라운드  레전드 3위가 플레이인 통과 두 팀 중 고르고, 남은 팀이 4위와 붙는다
+ *   2라운드  레전드 1위가 1라운드 승자 두 팀 중 고르고, 남은 팀이 2위와 붙는다
  *
  * 그래서 "1경기 승자는 2라운드 1경기로" 가 성립하지 않는다. 응답은 그렇게 못
  * 박아 두지만 그건 대진표의 자리 번호일 뿐, 실제로는 지명이 끝나야 정해진다.
  * 응답을 그대로 쓰면 아직 아무도 모르는 것을 아는 것처럼 적게 된다.
  *
- * 두 자리를 다르게 적는다. 둘 다 '1라운드 승자' 라고만 하면 왜 두 칸으로 갈리는지
- * 알 수 없다 — 하나는 고르는 쪽이고 하나는 남는 쪽이다.
+ * 두 자리를 다르게 적는다. 둘 다 '플레이인 통과' 라고만 하면 왜 두 칸으로
+ * 갈리는지 알 수 없다 — 하나는 고르는 쪽이고 하나는 남는 쪽이다.
+ *
+ * 두 라운드를 한 곳에 둔다. 같은 규칙이 두 군데 흩어져 있으면 포맷이 바뀔 때
+ * 한쪽만 고쳐진다.
  *
  * 팀이 정해지면 이 글자는 쓰이지 않는다. 빈 자리에만 붙기 때문이다.
  */
@@ -264,10 +302,14 @@ function pickSeat(
   matchIndex: number,
   teamIndex: number,
 ): string | null {
-  if (stageSlug === 'play_ins' || cellSlug !== 'upper_bracket_round_2') return null;
-  // 0번 자리는 시드(레전드 1·2위)다. 지명 대상은 상대 자리뿐이다
+  if (stageSlug === 'play_ins') return null;
+  // 0번 자리는 시드(레전드 1~4위)다. 지명 대상은 상대 자리뿐이다
   if (teamIndex !== 1) return null;
-  return matchIndex === 0 ? '승자조 1라운드 승자 중 지명' : '남은 승자조 1라운드 승자';
+  const PICK: Record<string, [string, string]> = {
+    round_1: ['플레이인 통과 팀 중 지명', '남은 플레이인 통과 팀'],
+    upper_bracket_round_2: ['승자조 1라운드 승자 중 지명', '남은 승자조 1라운드 승자'],
+  };
+  return PICK[cellSlug]?.[matchIndex] ?? null;
 }
 
 export function formatLossTo(cellSlug: string): string | null {
@@ -492,10 +534,13 @@ export function buildBracket(stages: RawBracketStage[], matches: MatchRow[]): Br
               band: isLower(cell.slug) ? 'lower' : 'upper',
               matches: (cell.matches ?? []).map((m, mi) => {
                 const d = (m.structuralId && dest.get(m.structuralId)) || {};
+                const fixed = ANNOUNCED_MATCH[cell.slug];
+                const raw = when.get(m.id) ?? null;
                 return {
                   id: m.id,
                   state: m.state,
-                  startTime: when.get(m.id) ?? null,
+                  startTime: raw && fixed ? atKstHour(raw, fixed.hourKst) : raw,
+                  venue: fixed?.venue ?? null,
                   teams: [
                     toTeam(m.teams?.[0], cellOf, { stage: st.slug, cell: cell.slug, match: mi, index: 0 }),
                     toTeam(m.teams?.[1], cellOf, { stage: st.slug, cell: cell.slug, match: mi, index: 1 }),
