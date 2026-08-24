@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { fmtDate } from '@/lib/format';
 import { SEASON } from '@/lib/lck2026';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, MapPin } from 'lucide-react';
 import TicketLine from './Ticket';
 import {
   seedNote,
@@ -72,6 +72,14 @@ function Match({
         <Side t={m.teams[0]} ourTag={ourTag} />
         <Side t={m.teams[1]} ourTag={ourTag} />
       </div>
+      {/* 공지된 경기장. 아는 경기에만 붙는다 — 짐작으로 채우면 적혀 있다는
+          사실 자체가 확인된 정보처럼 읽힌다 */}
+      {m.venue && (
+        <div className="bvenue">
+          <MapPin size={12} aria-hidden />
+          {m.venue}
+        </div>
+      )}
       {m.startTime && (
         <div className="btkt">
           <TicketLine startTime={m.startTime} cellSlug={cellSlug} />

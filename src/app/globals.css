@@ -976,6 +976,12 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 .modal-b .contract{margin-top:14px}
 .card .contract{margin:10px 0 0}
 
+/* 경기장. 아는 경기에만 붙으므로 없는 칸과 높이가 달라진다 — 그래도 자리를
+   비워 두지 않는다. 빈 줄은 '아직 안 정해졌다' 로 읽힌다 */
+.bvenue{display:flex;align-items:center;gap:5px;padding:6px 10px 0;
+  font-size:11.5px;color:var(--mute)}
+.bvenue svg{flex:none;color:var(--faint)}
+
 /* 회차가 둘인 예매. 한 줄에 붙이면 넘치므로 회차끼리 세로로 쌓는다 */
 .tkt.multi{align-items:flex-start}
 .tkrounds{display:flex;flex-direction:column;gap:2px;min-width:0}
