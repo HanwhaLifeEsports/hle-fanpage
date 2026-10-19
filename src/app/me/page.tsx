@@ -3,13 +3,12 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Bell, Eye, RotateCcw, Shield } from 'lucide-react';
-import { PLAYERS } from '@/lib/lck2026';
 import { AccountActions, ProfileCard } from '@/components/Account';
 import InstallButton from '@/components/InstallButton';
-import { LEAD_CHOICES, PREFS, leadLabel, patchState, resetState, toast, useApp, useNotify } from '@/lib/useAppState';
+import { LEAD_CHOICES, PREFS, leadLabel, resetState, notify, useApp, useNotify } from '@/lib/useAppState';
 
 export default function MePage() {
-  const { prefs, leads, fav, setPref, setLead } = useApp();
+  const { prefs, leads, setPref, setLead } = useApp();
   const { permission, ask } = useNotify();
   const [iosHint, setIosHint] = useState(false);
 
@@ -21,8 +20,6 @@ export default function MePage() {
     setIosHint(isIOS && !standalone);
   }, []);
 
-  const favPlayer = fav ? PLAYERS.find((p) => p.id === fav) : null;
-
   const permText: Record<string, string> = {
     granted: '허용됨 — 푸시를 받을 수 있습니다',
     denied: '차단됨 — 브라우저 설정에서 해제해야 합니다',
@@ -30,15 +27,9 @@ export default function MePage() {
     unsupported: '이 브라우저는 웹 알림을 지원하지 않습니다',
   };
 
+  // 실제 기기 알림을 한 번 보내 본다 (화면 안 미리보기는 없다)
   const previewPush = () => {
-    const seq: [string, string, string][] = [
-      ['곧 경기 시작', '경기 시작 10분 전에 이렇게 알려드립니다', '미리보기'],
-      prefs.spoiler
-        ? ['경기 종료', '결과를 확인하려면 탭하세요', '스포일러 차단이 켜져 있을 때']
-        : ['경기 종료', '세트 스코어가 제목에 그대로 표시됩니다', '스포일러 차단이 꺼져 있을 때'],
-    ];
-    if (favPlayer) seq.push([`${favPlayer.nm} 소식`, '지정한 선수 관련 소식만 따로 받습니다', '최애 선수 알림']);
-    seq.forEach((s, i) => setTimeout(() => toast(...s), i * 900));
+    notify('곧 경기 시작', prefs.spoiler ? '알림은 이렇게 옵니다 · 결과는 가려서 보내요' : '알림은 이렇게 옵니다 · 결과도 함께 보내요');
   };
 
   /* lead 가 있는 항목은 몇 분 전에 받을지 고를 수 있다.
@@ -59,11 +50,6 @@ export default function MePage() {
           aria-label={t}
           onClick={() => {
             setPref(k, !prefs[k]);
-            if (k === 'spoiler')
-              toast(
-                !prefs[k] ? '스포일러 차단 켜짐' : '스포일러 차단 꺼짐',
-                !prefs[k] ? '경기 결과가 가려집니다. 탭하면 볼 수 있어요.' : '경기 결과가 바로 표시됩니다.',
-              );
           }}
         />
       </div>
@@ -140,7 +126,6 @@ export default function MePage() {
           onClick={() => {
             if (!confirm('이 브라우저에 저장된 알림 설정·예측 기록을 지울까요?')) return;
             resetState();
-            toast('설정을 초기화했습니다', '알림 설정 · 예측 기록이 모두 지워졌습니다.');
           }}
         >
           <RotateCcw size={16} /> 이 브라우저 설정 초기화

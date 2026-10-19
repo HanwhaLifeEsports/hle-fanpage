@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { LogOut, UserX } from 'lucide-react';
 import Sheet from './Sheet';
 import { PLAYERS } from '@/lib/lck2026';
-import { toast } from '@/lib/useAppState';
+import { warn } from '@/lib/useAppState';
 import {
   GOOGLE_WEB_CLIENT_ID,
   deleteAccount,
@@ -58,7 +58,7 @@ function GoogleButton({ onDone }: { onDone: () => void }) {
             await loginWithGoogle(credential);
             onDone();
           } catch {
-            toast('구글 로그인에 실패했습니다', '잠시 뒤 다시 시도해 주세요', '로그인');
+            warn('구글 로그인에 실패했습니다', '잠시 뒤 다시 시도해 주세요');
           }
         },
       });
@@ -95,7 +95,7 @@ export default function AccountPanel() {
       <button className="acct-kakao" onClick={startKakaoLogin}>
         카카오로 계속하기
       </button>
-      <GoogleButton onDone={() => toast('로그인했습니다', '', '계정')} />
+      <GoogleButton onDone={() => {}} />
     </div>
   );
 }
@@ -186,9 +186,8 @@ export function AccountActions() {
           if (!confirm('계정을 삭제할까요? 예측 기록·글·댓글·채팅이 모두 지워지고 되돌릴 수 없습니다.')) return;
           try {
             await deleteAccount();
-            toast('계정을 삭제했습니다', '', '계정');
           } catch {
-            toast('삭제하지 못했습니다', '잠시 뒤 다시 시도해 주세요', '계정');
+            warn('삭제하지 못했습니다', '잠시 뒤 다시 시도해 주세요');
           }
         }}
       >
@@ -227,10 +226,9 @@ function ProfileForm({ user, onDone }: { user: Account; onDone: () => void }) {
           setSaving(true);
           try {
             await updateProfile(nick.trim(), fav);
-            toast('프로필을 저장했습니다', '', '계정');
             onDone();
           } catch {
-            toast('저장하지 못했습니다', '이미 쓰는 닉네임일 수 있습니다', '계정');
+            warn('저장하지 못했습니다', '이미 쓰는 닉네임일 수 있습니다');
             setSaving(false);
           }
         }}

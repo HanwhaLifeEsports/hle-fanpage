@@ -5,7 +5,7 @@ import MatchScore from '@/components/MatchScore';
 import TeamLogo from '@/components/TeamLogo';
 import { OUR_TAG } from '@/lib/lck2026';
 import { getSeason } from '@/lib/season';
-import { getWorldsMatches } from '@/lib/lolesports-live';
+import { getWorldsAll } from '@/lib/lolesports-live';
 import { fmtDate } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +18,7 @@ export default async function MatchDetail({ params }: { params: Promise<{ id: st
   }
   const [lck, worlds] = await Promise.all([
     getSeason().then((b) => b.season.matches).catch(() => []),
-    getWorldsMatches().catch(() => []),
+    getWorldsAll().catch(() => []),
   ]);
   const match = [...lck, ...worlds].find((m) => m.id === id);
   const vods = match && match.state !== 'unstarted' ? await fetchVods(id).catch(() => []) : [];

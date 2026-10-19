@@ -35,6 +35,13 @@ export const TICKET_URL = 'https://nol.yanolja.com/ticket/genre/sports/lck';
 export const TICKET_URL_MOBILE = 'https://tickets.interpark.com/search?keyword=lck';
 export const TICKET_SELLER = 'NOL 티켓';
 
+/**
+ * 예매 오픈·취소표를 챙길 경기인가.
+ * NOL 티켓 9일 전 오픈·매일 15시 취소표는 LCK 규칙이다. 월즈 같은 국제 대회는 해외 개최라
+ * 이 규칙이 없으므로 표시도 알림 집계도 하지 않는다.
+ */
+export const hasLckTickets = (m: { league?: string }) => m.league !== 'worlds';
+
 export type TicketPhase =
   /** 아직 안 열림 */
   | 'before'

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import TeamLogo from './TeamLogo';
 import { fmtDate } from '@/lib/format';
-import { toast, useApp, type Pick } from '@/lib/useAppState';
+import { warn, useApp, type Pick } from '@/lib/useAppState';
 import { myPredictions, predictionTally, savePrediction, useAccount, type Tally } from '@/lib/hleapi';
 
 /** BO1/3/5별 가능한 최종 점수를 생성한다. */
@@ -84,16 +84,12 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
 
   const choose = async (m: PredictMatch, p: Pick) => {
     setPick(m.id, p);
-    if (!user) {
-      toast('예측을 저장했습니다', `HLE vs ${m.opponent} · ${p[0]} : ${p[1]}`, '이 브라우저에만 저장 · 로그인하면 앱과 이어집니다');
-      return;
-    }
+    if (!user) return;
     try {
       await savePrediction(m.id, m.opponentCode, p[0], p[1]);
       setSynced((n) => n + 1);
-      toast('예측을 저장했습니다', `HLE vs ${m.opponent} · ${p[0]} : ${p[1]}`, '경기 종료 후 자동 채점');
     } catch {
-      toast('서버에 저장하지 못했습니다', '마감됐거나 연결이 불안정합니다', '이 브라우저에는 저장됨');
+      warn('서버에 저장하지 못했습니다', '마감됐거나 연결이 불안정해요. 이 브라우저에는 저장했어요.');
     }
   };
 

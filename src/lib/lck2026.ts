@@ -147,6 +147,12 @@ export interface PlayerPhoto {
   credit: string;
   /** 근거를 확인한 날짜 */
   checkedAt: string;
+  /**
+   * 얼굴 중심(사진 폭·높이 대비 0~1). 동그라미 얼굴 썸네일을 정중앙에 맞추는 데 쓴다.
+   * macOS Vision 얼굴 인식으로 잰 값 — 사진을 바꾸면 다시 잰다.
+   * w 는 참고값이다. 안경 등으로 인식 상자 크기가 들쭉날쭉해서 확대 비율은 모두 같게 둔다.
+   */
+  face?: { x: number; y: number; w: number };
 }
 
 export interface Player {
@@ -180,11 +186,11 @@ export interface Player {
 
 export const PLAYERS: Player[] = [
   // 등번호는 실제 값. naverId 와 lpName 은 각 API 응답에서 확인했다 (2026-08-18)
-  { id: 'zeus', photo: {"src": "/players/zeus-official.jpg", "width": 315, "height": 546, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2024-11-20', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', lpName: 'Zeus' },
-  { id: 'kanavi', photo: {"src": "/players/kanavi-official.jpg", "width": 315, "height": 546, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2025-11-23', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', lpName: 'Kanavi', joined2026: true },
-  { id: 'zeka', photo: {"src": "/players/zeka-official.jpg", "width": 315, "height": 546, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2022-11-25', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', lpName: 'Zeka (Kim Geon-woo)' },
-  { id: 'gumayusi', photo: {"src": "/players/gumayusi-official.jpg", "width": 315, "height": 546, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2025-11-23', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', naverId: '10320', lpName: 'Gumayusi', joined2026: true },
-  { id: 'delight', photo: {"src": "/players/delight-official.jpg", "width": 315, "height": 546, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2023-11-22', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', lpName: 'Delight' },
+  { id: 'zeus', photo: {"src": "/players/zeus-official.jpg", "width": 315, "height": 546, "face": {"x": 0.58, "y": 0.197, "w": 0.238}, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2024-11-20', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', lpName: 'Zeus' },
+  { id: 'kanavi', photo: {"src": "/players/kanavi-official.jpg", "width": 315, "height": 546, "face": {"x": 0.493, "y": 0.204, "w": 0.328}, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2025-11-23', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', lpName: 'Kanavi', joined2026: true },
+  { id: 'zeka', photo: {"src": "/players/zeka-official.jpg", "width": 315, "height": 546, "face": {"x": 0.513, "y": 0.203, "w": 0.319}, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2022-11-25', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', lpName: 'Zeka (Kim Geon-woo)' },
+  { id: 'gumayusi', photo: {"src": "/players/gumayusi-official.jpg", "width": 315, "height": 546, "face": {"x": 0.522, "y": 0.21, "w": 0.321}, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2025-11-23', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', naverId: '10320', lpName: 'Gumayusi', joined2026: true },
+  { id: 'delight', photo: {"src": "/players/delight-official.jpg", "width": 315, "height": 546, "face": {"x": 0.477, "y": 0.206, "w": 0.277}, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2023-11-22', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', lpName: 'Delight' },
 ];
 
 export interface Staff {

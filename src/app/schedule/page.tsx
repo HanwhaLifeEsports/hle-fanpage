@@ -1,7 +1,7 @@
 import MatchFilter from "@/components/MatchFilter";
 import Standings from "@/components/Standings";
 import { getSeason } from "@/lib/season";
-import { getWorldsMatches } from "@/lib/lolesports-live";
+import { getWorldsAll } from "@/lib/lolesports-live";
 import { OUR_TAG, SEASON } from "@/lib/lck2026";
 import type { Metadata } from "next";
 
@@ -13,7 +13,13 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function SchedulePage() {
+export default async function SchedulePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ f?: string }>;
+}) {
+  const { f } = await searchParams;
+  const initial = f === "intl" || f === "lck" ? f : "ours";
   let bundle;
   try {
     bundle = await getSeason();
@@ -29,7 +35,7 @@ export default async function SchedulePage() {
   }
 
   const { season, fetchedAt } = bundle;
-  const worlds = await getWorldsMatches().catch(() => []);
+  const worlds = await getWorldsAll().catch(() => []);
   const matches = [
     ...season.matches,
     ...worlds.filter((m) => m.startTime.startsWith(String(SEASON.year))),
@@ -39,7 +45,7 @@ export default async function SchedulePage() {
     <div className="ui-page wide ui-sched">
       <h1 className="ui-title">일정</h1>
       <div className="ui-main">
-        <MatchFilter matches={matches} ourTag={OUR_TAG} />
+        <MatchFilter matches={matches} ourTag={OUR_TAG} initial={initial} />
       </div>
 
       <aside className="ui-aside">

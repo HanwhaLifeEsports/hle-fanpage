@@ -49,6 +49,8 @@ export interface MatchRow {
   stage: MatchStage;
   a: TeamSide;
   b: TeamSide;
+  /** 월즈 일정에서 온 경기 (일정의 '국제 대회' 구분에 쓴다) */
+  league?: 'worlds';
 }
 
 export interface TeamRow {

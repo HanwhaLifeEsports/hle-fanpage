@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import type { LiveResponse, LiveSource } from '@/lib/live-types';
 import { fmtClock } from '@/lib/format';
 import { ChevronDown, ChevronUp, ExternalLink, Radio } from 'lucide-react';
-import { toast, useApp } from '@/lib/useAppState';
+import { notify, useApp } from '@/lib/useAppState';
 
 // hls.js 를 끌고 오므로 실제로 열릴 때만 로드한다
 const ChzzkPlayer = dynamic(() => import('./ChzzkPlayer'), { ssr: false });
@@ -106,7 +106,7 @@ export default function LiveNow({ match }: { match?: { id: string; startTime: st
         if (wasLive.current === null || wasLive.current !== d.isLive) setExpanded(d.isLive);
         // 꺼짐 → 켜짐 전환 순간에만 알린다
         if (d.isLive && wasLive.current === false && prefs.onair) {
-          toast('방송이 시작됐습니다', d.sources.find((s) => s.live)?.title ?? 'LCK 중계', '방송 시작 알림');
+          notify('방송이 시작됐습니다', d.sources.find((s) => s.live)?.title ?? 'LCK 중계');
         }
         wasLive.current = d.isLive;
       } catch (e) {

@@ -403,7 +403,9 @@ body.ui-live .ui-night .tally-row i{background:rgba(255,255,255,.12)}
 
 /* ---------- 선수 얼굴 (홈 선수단) ---------- */
 .ui-roster i.ui-face{overflow:hidden;position:relative;background:linear-gradient(165deg,#3A2A22,#1A1210);box-shadow:0 0 0 2px var(--flame),0 6px 16px rgba(200,70,10,.25)}
-.ui-face img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0;transform:scale(1.7);transform-origin:50% 8%}
+/* 사진을 같은 비율로 키우고, 얼굴 중심을 동그라미 중심에 맞춘다 (사진 비율 315:546) */
+.ui-face img{--fx:.5;--fy:.22;--k:1.6;position:absolute;max-width:none;height:auto;
+  width:calc(100% * var(--k));left:calc(50% - 100% * var(--k) * var(--fx));top:calc(50% - 100% * var(--k) * 1.7333 * var(--fy))}
 
 /* ---------- 반응형 ---------- */
 .ui-stack,.ui-main,.ui-aside,.ui-live-main{display:flex;flex-direction:column;gap:20px;min-width:0}
@@ -526,3 +528,13 @@ body>footer{flex-shrink:0}
 @media (prefers-reduced-motion:reduce){
   .ui-page *,.ui-page,.ui-tabs *{animation:none!important;transition:none!important}
 }
+
+/* ---------- 헤더와 첫 내용 사이 여백 ---------- */
+.ui-page>.ui-title{margin:30px 4px 2px}
+.ui-page>.ui-livehead{margin-top:26px}
+.ui-page>.ui-back{margin-top:24px}
+@media (min-width:1024px){
+  .ui-page>.ui-title{margin-top:52px}
+  .ui-page>.ui-livehead,.ui-page>.ui-back{margin-top:48px}
+}
+.ui-paper>.ui-list{padding:0}

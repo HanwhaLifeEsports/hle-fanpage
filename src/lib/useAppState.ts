@@ -28,8 +28,8 @@ export const PREFS = [
   { k: 'onair', g: 'match', t: '방송 시작', d: '치지직·SOOP 송출이 실제로 켜지면', def: true },
   { k: 'set', g: 'match', t: '세트 결과', d: '세트마다 스코어 속보', def: false },
   { k: 'result', g: 'match', t: '경기 결과', d: '경기 종료 직후', def: true },
-  { k: 'ticket', g: 'match', t: '예매 오픈', d: '현장 관람 티켓이 열릴 때 (경기 9일 전)', def: false, lead: 10 },
-  { k: 'cancelTicket', g: 'match', t: '취소표', d: '경기 전날까지 매일 오후 3시 · 당일은 수시', def: false, lead: 10 },
+  { k: 'ticket', g: 'match', t: '예매 오픈', d: 'LCK 경기만 · 현장 관람 티켓이 열릴 때 (경기 9일 전)', def: false, lead: 10 },
+  { k: 'cancelTicket', g: 'match', t: '취소표', d: 'LCK 경기만 · 경기 전날까지 매일 오후 3시 · 당일은 수시', def: false, lead: 10 },
   { k: 'spoiler', g: 'etc', t: '스포일러 차단', d: '결과를 가린 채 알림 · 앱에서도 스코어를 가립니다', def: true },
   { k: 'player', g: 'etc', t: '최애 선수 소식', d: '지정한 선수 관련 알림', def: true },
 ] as const;
@@ -150,55 +150,28 @@ export function useApp() {
 /* 알림                                                                 */
 /* ------------------------------------------------------------------ */
 
-export interface Toast {
-  id: number;
-  title: string;
-  body: string;
-  meta?: string;
+/**
+ * 기기 알림(푸시)으로만 알린다. 화면 안에 카드를 띄우지 않는다.
+ * 권한이 없으면 아무것도 하지 않고 false 를 돌려준다.
+ */
+export function notify(title: string, body: string): boolean {
+  if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') return false;
+  // 서비스워커가 있으면 그쪽으로 — 탭이 백그라운드여도 뜬다
+  void navigator.serviceWorker?.ready
+    .then((reg) => reg.showNotification(title, { body, icon: '/icon-192.png', badge: '/badge.png', tag: 'hle' }))
+    .catch(() => {
+      try {
+        new Notification(title, { body, tag: 'hle' });
+      } catch {
+        /* 알림 생성이 막힌 브라우저 */
+      }
+    });
+  return true;
 }
 
-let toasts: Toast[] = [];
-const tsubs = new Set<() => void>();
-let seq = 0;
-const EMPTY: Toast[] = [];
-
-const temit = () => tsubs.forEach((f) => f());
-const tsubscribe = (f: () => void) => {
-  tsubs.add(f);
-  return () => void tsubs.delete(f);
-};
-
-export function toast(title: string, body: string, meta?: string) {
-  const t: Toast = { id: ++seq, title, body, meta: meta ?? '지금' };
-  toasts = [...toasts, t];
-  temit();
-  setTimeout(() => dismissToast(t.id), 5600);
-
-  if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-    // 서비스워커가 있으면 그쪽으로 — 탭이 백그라운드여도 뜬다
-    void navigator.serviceWorker?.ready
-      .then((reg) => reg.showNotification(title, { body, icon: '/icon-192.png', badge: '/badge.png', tag: 'hle' }))
-      .catch(() => {
-        try {
-          new Notification(title, { body, tag: 'hle' });
-        } catch {
-          /* 알림 생성이 막힌 브라우저 — 토스트로만 보여준다 */
-        }
-      });
-  }
-}
-
-export function dismissToast(id: number) {
-  toasts = toasts.filter((t) => t.id !== id);
-  temit();
-}
-
-export function useToasts() {
-  return useSyncExternalStore(
-    tsubscribe,
-    () => toasts,
-    () => EMPTY,
-  );
+/** 꼭 알아야 하는 실패만 브라우저 기본 대화상자로 알린다. 성공은 화면 변화로 충분하다 */
+export function warn(title: string, body = '') {
+  if (typeof window !== 'undefined') window.alert(body ? `${title}\n${body}` : title);
 }
 
 /* ------------------------------------------------------------------ */
@@ -230,16 +203,16 @@ export function useNotify() {
 
   const ask = useCallback(() => {
     if (!('Notification' in window)) {
-      toast('알림 미지원', '이 브라우저는 웹 알림을 지원하지 않습니다.');
+      warn('알림 미지원', '이 브라우저는 웹 알림을 지원하지 않습니다.');
       return;
     }
     if (Notification.permission === 'granted') {
       // 사이트가 권한을 되돌릴 수 없으므로, 실제로 끌 수 있는 두 경로를 알려준다
-      toast('이미 켜져 있습니다', '받을 항목은 아래에서 고를 수 있고, 전체 차단은 브라우저 사이트 설정에서 합니다.');
+      warn('이미 켜져 있습니다', '받을 항목은 MY에서 고를 수 있고, 전체 차단은 브라우저 사이트 설정에서 합니다.');
       return;
     }
     if (Notification.permission === 'denied') {
-      toast('알림이 차단되어 있습니다', '주소창의 자물쇠 아이콘에서 알림을 허용해 주세요.');
+      warn('알림이 차단되어 있습니다', '주소창의 자물쇠 아이콘에서 알림을 허용해 주세요.');
       return;
     }
     // 권한 요청은 반드시 사용자 제스처 뒤에만. 진입 즉시 띄우면 거절률이 크게 오른다.
@@ -247,8 +220,8 @@ export function useNotify() {
       permission = p;
       patchState({ askedNotify: true });
       pemit();
-      if (p === 'granted') toast('알림을 켰습니다', '경기 알림과 방송 시작 알림을 보내드립니다.');
-      else toast('알림을 켜지 않았습니다', 'MY 탭에서 언제든 다시 켤 수 있습니다.');
+      // 켜자마자 실제 기기 알림을 한 번 보내 어떻게 오는지 보여준다
+      if (p === 'granted') notify('알림을 켰습니다', '경기 알림과 방송 시작 알림이 이렇게 옵니다.');
     });
   }, []);
 

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { PLAYERS, type Player } from '@/lib/lck2026';
 import { Star, X } from 'lucide-react';
 import AwardsButton from './Awards';
-import { patchState, toast, useApp } from '@/lib/useAppState';
+import { patchState, useApp } from '@/lib/useAppState';
 import type { PlayerStat, StatMap } from '@/lib/naver';
 import PhotoGallery from './PhotoGallery';
 import { cardFanPhoto, useFanPhotos, type FanPhoto } from '@/lib/photos';
@@ -100,11 +100,6 @@ export default function RosterRail({
     const next = fav === id ? null : id;
     patchState({ fav: next });
     setOpen(null);
-    const p = PLAYERS.find((x) => x.id === id)!;
-    toast(
-      next ? '최애 선수 지정' : '최애 선수 해제',
-      next ? `${p.nm} 관련 알림을 받습니다.` : '선수 알림을 끕니다.',
-    );
   };
 
   return (

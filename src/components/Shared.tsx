@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import TicketLine from './Ticket';
-import { dismissToast, useApp, useToasts } from '@/lib/useAppState';
+import { hasLckTickets } from '@/lib/ticket';
+import { useApp } from '@/lib/useAppState';
 import { fmtDate, pad } from '@/lib/format';
 import { sidesOf } from '@/lib/pick';
 import type { MatchRow } from '@/lib/lolesports';
@@ -66,7 +67,7 @@ export function MatchCard({ m }: { m: MatchRow }) {
           BO{m.bo}
         </div>
         <div className="opp">{mine ? `vs ${them.name}` : `${m.a.code} vs ${m.b.code}`}</div>
-        <TicketLine startTime={m.startTime} />
+        {hasLckTickets(m) && <TicketLine startTime={m.startTime} />}
         <Link className="match-detail-link" href={'/match/' + m.id}>경기 상세 →</Link>
       </div>
     );
@@ -100,21 +101,3 @@ export function MatchCard({ m }: { m: MatchRow }) {
 
 /* ---------------- 토스트 ---------------- */
 
-export function Toasts() {
-  const list = useToasts();
-  if (!list.length) return null;
-  return (
-    <div className="toasts">
-      {list.map((t) => (
-        <div className="toast" key={t.id} onClick={() => dismissToast(t.id)}>
-          <div className="ic">H</div>
-          <div>
-            <b>{t.title}</b>
-            <p>{t.body}</p>
-            <em>{t.meta}</em>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}

@@ -12,7 +12,6 @@ import {
   visibleFor,
   type FanPhoto,
 } from '@/lib/photos';
-import { toast } from '@/lib/useAppState';
 import type { PlayerPhoto } from '@/lib/lck2026';
 
 /** 운영자 사진 확대 보기. 하트도 신고도 없다 — 검증된 사진이라 신고 한 번에
@@ -38,13 +37,11 @@ function Viewer({ photo, onBack }: { photo: FanPhoto; onBack: () => void }) {
 
   const report = () => {
     void reportFanPhoto(photo.id);
-    toast('신고를 접수했습니다', '해당 사진을 즉시 내렸습니다.');
     onBack();
   };
 
   const drop = () => {
     void removeFanPhoto(photo.id);
-    toast('사진을 지웠습니다', '갤러리에서 제거했습니다.');
     onBack();
   };
 

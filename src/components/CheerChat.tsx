@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Send } from 'lucide-react';
-import { toast } from '@/lib/useAppState';
+import { warn } from '@/lib/useAppState';
 import {
   ApiError,
   blockUser,
@@ -91,7 +91,7 @@ export default function CheerChat({ matchId, kickoff }: { matchId: string; kicko
       setDraft('');
     } catch (e) {
       const status = e instanceof ApiError ? e.status : 0;
-      toast(status === 429 ? '조금 천천히 보내 주세요' : status === 400 ? '지금은 채팅이 열려 있지 않습니다' : '보내지 못했습니다', '', '응원 채팅');
+      warn(status === 429 ? '조금 천천히 보내 주세요' : status === 400 ? '지금은 채팅이 열려 있지 않습니다' : '보내지 못했습니다');
     } finally {
       setSending(false);
     }
@@ -103,13 +103,13 @@ export default function CheerChat({ matchId, kickoff }: { matchId: string; kicko
     try {
       if (choice === '1') {
         await reportChat(m.id);
-        toast('신고를 접수했습니다', '24시간 안에 확인합니다', '응원 채팅');
+        warn('신고를 접수했습니다', '24시간 안에 확인합니다');
       } else if (choice === '2') {
         await blockUser(m.author);
         setBlocked((b) => new Set(b).add(m.author));
       }
     } catch {
-      toast('처리하지 못했습니다', '', '응원 채팅');
+      warn('처리하지 못했습니다');
     }
   };
 

@@ -14,7 +14,7 @@ import {
   type CropRect,
 } from '@/lib/crop';
 import { FAN_OUT_H, FAN_OUT_W, FAN_RATIO, addFanPhoto } from '@/lib/photos';
-import { toast } from '@/lib/useAppState';
+import { warn } from '@/lib/useAppState';
 
 /** 원본 상한. 이보다 크면 디코드부터 느려지고, 어차피 잘라서 줄여 내보낸다 */
 const MAX_BYTES = 25 * 1024 * 1024;
@@ -56,11 +56,11 @@ export default function PhotoCropper({
 
   const pick = async (file: File) => {
     if (!file.type.startsWith('image/')) {
-      toast('사진이 아닙니다', '이미지 파일만 올릴 수 있습니다.');
+      warn('사진이 아닙니다', '이미지 파일만 올릴 수 있습니다.');
       return;
     }
     if (file.size > MAX_BYTES) {
-      toast('파일이 너무 큽니다', '25MB 이하 사진만 올릴 수 있습니다.');
+      warn('파일이 너무 큽니다', '25MB 이하 사진만 올릴 수 있습니다.');
       return;
     }
     try {
@@ -70,7 +70,7 @@ export default function PhotoCropper({
       setRect(initialRect(img.naturalWidth, img.naturalHeight, FAN_RATIO));
       setPreview(URL.createObjectURL(file));
     } catch {
-      toast('사진을 읽지 못했습니다', '다른 파일로 시도해 주세요.');
+      warn('사진을 읽지 못했습니다', '다른 파일로 시도해 주세요.');
     }
   };
 
@@ -126,10 +126,9 @@ export default function PhotoCropper({
     try {
       const blob = await cropToBlob(img, rect, FAN_OUT_W, FAN_OUT_H);
       await addFanPhoto(playerId, blob);
-      toast('사진을 올렸습니다', `${playerName} 갤러리에 추가했습니다.`);
       onDone();
     } catch {
-      toast('올리지 못했습니다', '잠시 뒤 다시 시도해 주세요.');
+      warn('올리지 못했습니다', '잠시 뒤 다시 시도해 주세요.');
     } finally {
       setBusy(false);
     }

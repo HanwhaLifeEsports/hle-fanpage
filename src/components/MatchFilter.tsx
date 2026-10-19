@@ -13,7 +13,7 @@ const FILTERS = [
   { k: 'intl', t: '국제 대회' },
   { k: 'lck', t: 'LCK 전체' },
 ] as const;
-type FilterKey = (typeof FILTERS)[number]['k'];
+export type FilterKey = (typeof FILTERS)[number]['k'];
 
 const KST = 'Asia/Seoul';
 const fmt = (iso: string, o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('ko-KR', { timeZone: KST, ...o }).format(new Date(iso));
@@ -57,7 +57,7 @@ function UpcomingCard({ m, ourTag }: { m: MatchRow; ourTag: string }) {
 }
 
 /** 끝난 경기·다른 팀 경기 한 줄 */
-function ResultRow({ m, ourTag }: { m: MatchRow; ourTag: string }) {
+export function ResultRow({ m, ourTag }: { m: MatchRow; ourTag: string }) {
   const { prefs, revealed } = useApp();
   const mine = m.a.code === ourTag || m.b.code === ourTag;
   const { us, them } = sidesOf(m, ourTag);
@@ -98,11 +98,11 @@ function ResultRow({ m, ourTag }: { m: MatchRow; ourTag: string }) {
   );
 }
 
-export default function MatchFilter({ matches, ourTag }: { matches: MatchRow[]; ourTag: string }) {
-  const [f, setF] = useState<FilterKey>('ours');
+export default function MatchFilter({ matches, ourTag, initial = 'ours' }: { matches: MatchRow[]; ourTag: string; initial?: FilterKey }) {
+  const [f, setF] = useState<FilterKey>(initial);
   const mine = (m: MatchRow) => m.a.code === ourTag || m.b.code === ourTag;
-  // 국제 대회: LCK 주차·플레이오프 표기가 아닌 우리 경기 (월즈·MSI·퍼스트 스탠드)
-  const intl = (m: MatchRow) => mine(m) && !/주\s*차|플레이오프|플레이-인|결승/.test(m.blockName || '');
+  // 국제 대회: 월즈 일정 전체(다른 팀 경기 포함) + LCK 표기가 아닌 우리 경기 (MSI·퍼스트 스탠드)
+  const intl = (m: MatchRow) => m.league === 'worlds' || (mine(m) && !/주\s*차|플레이오프|플레이-인|결승/.test(m.blockName || ''));
 
   const list = matches.filter((m) => (f === 'ours' ? mine(m) : f === 'intl' ? intl(m) : !intl(m)));
   const upcoming = list.filter((m) => m.state !== 'completed').sort((a, b) => a.startTime.localeCompare(b.startTime));

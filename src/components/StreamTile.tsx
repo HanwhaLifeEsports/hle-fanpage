@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Maximize2, PictureInPicture2, RotateCw, Volume2, VolumeX, X } from 'lucide-react';
 import { useHls } from './useHls';
-import { toast } from '@/lib/useAppState';
+import { warn } from '@/lib/useAppState';
 import type { ChzzkStream } from '@/lib/chzzk';
 
 /**
@@ -82,7 +82,7 @@ export default function StreamTile({
         else await v.requestPictureInPicture();
         return;
       }
-      toast('PiP 를 지원하지 않는 브라우저입니다', '전체화면으로 보거나 치지직 앱을 이용해 주세요.');
+      warn('PiP 를 지원하지 않는 브라우저입니다', '전체화면으로 보거나 치지직 앱을 이용해 주세요.');
     } catch {
       /* 사용자가 취소했거나 브라우저가 거부 */
     }
@@ -106,7 +106,7 @@ export default function StreamTile({
         v.webkitSetPresentationMode?.('fullscreen');
         return;
       }
-      toast('전체화면을 지원하지 않는 브라우저입니다', '기기를 가로로 돌려 보세요.');
+      warn('전체화면을 지원하지 않는 브라우저입니다', '기기를 가로로 돌려 보세요.');
     } catch {
       /* 브라우저가 거부 */
     }

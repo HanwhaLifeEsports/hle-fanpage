@@ -4,7 +4,6 @@ import { Anton } from 'next/font/google';
 import './globals.css';
 import './app-ui.css';
 import { AppBar, BottomTabs } from '@/components/Chrome';
-import { Toasts } from '@/components/Shared';
 import RegisterSW from '@/components/RegisterSW';
 import Reveal from '@/components/Reveal';
 import { Analytics } from '@vercel/analytics/next';
@@ -74,7 +73,6 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       <body>
         {/* 화면 위쪽 주황 면. 내용과 함께 스크롤된다 (app-ui.css) */}
         <div className="ui-ember" aria-hidden />
-        <Toasts />
         <RegisterSW />
         <Reveal />
         <AppBar />

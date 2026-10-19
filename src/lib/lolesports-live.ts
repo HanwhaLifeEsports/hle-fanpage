@@ -132,7 +132,6 @@ function isHle(team: RawTeam): boolean {
 function normalizeEvent(row: RawEvent): MatchRow | null {
   if (!row.match?.id || row.match.teams?.length !== 2 || row.type !== 'match') return null;
   const [a, b] = row.match.teams;
-  if (!isHle(a) && !isHle(b)) return null;
   const side = (x: RawTeam) => ({
     code: x.code || 'TBD',
     name: x.name || '미정',
@@ -151,12 +150,19 @@ function normalizeEvent(row: RawEvent): MatchRow | null {
     stage: 'other',
     a: side(a),
     b: side(b),
+    league: 'worlds',
   };
 }
 
 /** 2026 국제대회(월즈 포함)의 HLE 경기 목록. 현재 LCK 정규시즌 표를 오염시키지 않는다. */
 export async function getWorldsMatches(): Promise<MatchRow[]> {
-  return cached('worlds-schedule', 5 * 60_000, async () => {
+  const all = await getWorldsAll();
+  return all.filter((m) => m.a.code.toUpperCase() === OUR_TAG || m.b.code.toUpperCase() === OUR_TAG);
+}
+
+/** 월즈 전체 경기 (다른 팀 경기 포함). 월즈 기간에 일정·홈에서 함께 보여준다 */
+export async function getWorldsAll(): Promise<MatchRow[]> {
+  return cached('worlds-schedule-all', 5 * 60_000, async () => {
     const first = await call<RawEvents>('getSchedule?hl=ko-KR&leagueId=' + WORLDS_LEAGUE_ID);
     const schedule = first.data?.schedule;
     const events = [...(schedule?.events || [])];

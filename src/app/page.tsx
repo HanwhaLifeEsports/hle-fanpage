@@ -4,7 +4,8 @@ import LiveMatchStats from "@/components/LiveMatchStats";
 import TeamLogo from "@/components/TeamLogo";
 import { HeroCountdown, PickLogo, RecentTiles } from "@/components/AppHome";
 import { getSeason } from "@/lib/season";
-import { getWorldsMatches } from "@/lib/lolesports-live";
+import { getWorldsAll } from "@/lib/lolesports-live";
+import { ResultRow } from "@/components/MatchFilter";
 import { OUR_TAG, PLAYERS } from "@/lib/lck2026";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ const koreaDay = (d: Date) =>
 const PHOTOS_ON = process.env.NEXT_PUBLIC_PLAYER_PHOTOS !== "off";
 
 export default async function Home() {
-  const worldsPromise = getWorldsMatches().catch(() => []);
+  const worldsPromise = getWorldsAll().catch(() => []);
   let bundle;
   try {
     bundle = await getSeason();
@@ -62,6 +63,22 @@ export default async function Home() {
     .filter((m) => m.state === "unstarted" && Date.parse(m.startTime) > now)
     .sort((a, b) => a.startTime.localeCompare(b.startTime))
     .slice(0, 3);
+  // 월즈 기간에는 다른 팀 경기도 홈에서 몇 개 보여준다: 진행 중·다가오는 것 먼저, 모자라면 최근 결과
+  const worldsOthers = worlds.filter(
+    (m) => m.a.code !== OUR_TAG && m.b.code !== OUR_TAG,
+  );
+  const othersAhead = worldsOthers
+    .filter(
+      (m) =>
+        m.state !== "completed" &&
+        Date.parse(m.startTime) > now - 4 * 60 * 60_000,
+    )
+    .slice(0, 4);
+  const othersDone = worldsOthers
+    .filter((m) => m.state === "completed")
+    .sort((a, b) => b.startTime.localeCompare(a.startTime))
+    .slice(0, Math.max(0, 4 - othersAhead.length));
+  const othersShown = [...othersAhead, ...othersDone];
   const today = next
     ? koreaDay(new Date(next.startTime)) === koreaDay(new Date(now))
     : false;
@@ -217,7 +234,19 @@ export default async function Home() {
               <Link key={p.id} href={`/roster#${p.id}`}>
                 <i className="ui-face">
                   {PHOTOS_ON && p.photo ? (
-                    <img src={p.photo.src} alt="" loading="lazy" />
+                    <img
+                      src={p.photo.src}
+                      alt=""
+                      loading="lazy"
+                      style={
+                        p.photo.face
+                          ? ({
+                              "--fx": p.photo.face.x,
+                              "--fy": p.photo.face.y,
+                            } as React.CSSProperties)
+                          : undefined
+                      }
+                    />
                   ) : (
                     p.no
                   )}
@@ -249,6 +278,19 @@ export default async function Home() {
                 </Link>
               );
             })}
+          </section>
+        )}
+        {othersShown.length > 0 && (
+          <section className="ui-paper">
+            <div className="ui-head">
+              <h2>월즈 다른 경기</h2>
+              <Link href="/schedule?f=intl">전체</Link>
+            </div>
+            <div className="ui-list">
+              {othersShown.map((m) => (
+                <ResultRow key={m.id} m={m} ourTag={OUR_TAG} />
+              ))}
+            </div>
           </section>
         )}
       </div>
