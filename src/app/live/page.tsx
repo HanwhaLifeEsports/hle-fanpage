@@ -37,7 +37,7 @@ export default async function LivePage() {
   const sides = next ? sidesOf(next) : null;
 
   return (
-    <div className="ui-page ui-night">
+    <div className="ui-page ui-night wide">
       {next && sides ? (
         <div className="ui-livehead">
           <TeamLogo image={sides.us.image} size={40} label={sides.us.name} />

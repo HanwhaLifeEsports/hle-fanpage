@@ -24,7 +24,7 @@ export default async function RosterPage() {
   ]);
 
   return (
-    <div className="ui-page">
+    <div className="ui-page wide">
       <h1 className="ui-title">선수단</h1>
       {joined.length > 0 && (
         <p className="ui-sub-cap">
