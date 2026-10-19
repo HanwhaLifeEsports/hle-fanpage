@@ -551,3 +551,21 @@ body>footer{flex-shrink:0}
 /* 실제로 눌리는 구글 위젯: 버튼 전체를 덮고 보이지 않게 */
 .acct-google-hit{position:absolute;inset:0;opacity:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .acct-google-hit>div{transform:scale(1.3)}
+
+/* ---------- 문서 (개인정보 처리방침·출처) ---------- */
+.ui-prose{gap:10px;padding:22px 20px;line-height:1.7;font-size:15px;color:var(--body)}
+.ui-prose h2{font-size:17px;font-weight:800;color:var(--ink);margin:18px 0 2px;letter-spacing:-.01em}
+.ui-prose h2:first-child{margin-top:0}
+.ui-prose p,.ui-prose ul{margin:0}
+.ui-prose ul{padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.ui-prose b{color:var(--ink)}
+.ui-prose a{color:var(--flame-text);text-decoration:underline}
+.ui-prose table{width:100%;border-collapse:collapse;font-size:14px}
+.ui-prose th,.ui-prose td{text-align:left;vertical-align:top;padding:10px 8px;border-top:1px solid var(--hairline)}
+.ui-prose thead th{border-top:0;font-size:12px;color:var(--mute);font-weight:700}
+.ui-prose tbody th{white-space:nowrap;color:var(--ink);font-weight:700;width:1%}
+.ui-source{display:flex;flex-direction:column;gap:3px;padding:14px 0;color:var(--ink)}
+.ui-source + .ui-source{border-top:1px solid var(--hairline)}
+.ui-source b{font-size:15px}
+.ui-source-name{font-size:13px;font-weight:700;color:var(--flame-text)}
+.ui-prose th{letter-spacing:0;text-transform:none;font-family:inherit}

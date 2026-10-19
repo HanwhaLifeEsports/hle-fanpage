@@ -6,7 +6,6 @@ import './app-ui.css';
 import { AppBar, BottomTabs } from '@/components/Chrome';
 import RegisterSW from '@/components/RegisterSW';
 import Reveal from '@/components/Reveal';
-import { Analytics } from '@vercel/analytics/next';
 import { ABUSE_CONTACT, SITE_DESC, SITE_NAME, SITE_URL } from '@/lib/site';
 
 // 라틴 초대형 디스플레이 전용. 한글은 자체 호스팅한 Freesentation (globals.css)
@@ -107,10 +106,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           </div>
         </footer>
         <BottomTabs />
-        {/* 방문 수만 센다. 쿠키를 쓰지 않고 사람을 가로질러 따라다니지 않는다.
-            개인정보 처리방침 5항에 무엇을 켰는지 적어 두었다 — 문서와 코드가
-            어긋나면 문서 쪽이 거짓말이 된다 */}
-        <Analytics />
+
       </body>
     </html>
   );
