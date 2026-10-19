@@ -81,8 +81,8 @@ export default function MePage() {
 
       {iosHint && (
         <div className="ui-paper ui-hint">
-          <b>아이폰은 홈 화면에 추가해야 알림이 와요</b>
-          <span>공유 ↑ → 홈 화면에 추가 → 앱 아이콘으로 실행. iOS는 설치된 웹앱에서만 푸시를 허용해요.</span>
+          <b>알림을 받으려면 홈 화면에 추가</b>
+          <span>공유 ↑ → 홈 화면에 추가</span>
         </div>
       )}
 

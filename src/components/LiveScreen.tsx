@@ -68,7 +68,7 @@ export default function LiveScreen({
             <b>
               {live === null
                 ? "방송 상태를 확인하는 중이에요"
-                : "방송이 시작되면 여기서 바로 볼 수 있어요"}
+                : "방송 전"}
             </b>
             {match && <span>{full(match.startTime)} 시작</span>}
           </div>

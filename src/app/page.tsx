@@ -209,7 +209,6 @@ export default async function Home() {
           <Link href="/predict" className="ui-predict">
             <div className="ui-head">
               <h2>승부예측</h2>
-              <span className="cap">세트 스코어까지 맞히면 3점</span>
             </div>
             <div className="ui-row">
               <span className="ui-chipbtn glass">
@@ -295,9 +294,6 @@ export default async function Home() {
         )}
       </div>
 
-      <p className="ui-notice">
-        비공식 팬 사이트 · 팀·리그 로고의 권리는 각 소유자에게 있습니다
-      </p>
     </div>
   );
 }

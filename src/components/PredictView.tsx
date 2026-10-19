@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import TeamLogo from './TeamLogo';
 import { fmtDate } from '@/lib/format';
 import { warn, useApp, type Pick } from '@/lib/useAppState';
@@ -105,9 +104,8 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
   return (
     <div className="ui-page ui-night">
       <h1 className="ui-title">승부예측</h1>
-      <p className="ui-sub-cap">세트 스코어까지 맞히면 3점, 승패만 맞히면 1점이에요</p>
 
-      {open.length === 0 && <div className="ui-glasscard glass cap">예측할 경기가 없습니다. 다음 일정이 나오면 여기서 예측할 수 있어요.</div>}
+      {open.length === 0 && <div className="ui-glasscard glass cap">예측할 경기가 없어요</div>}
 
       {open.map((m) => {
         const mine = picks[m.id];
@@ -150,9 +148,7 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
             </div>
             {row(true)}
             {row(false)}
-            <p className="ui-sub-cap">
-              {mine ? `${mine[0]} : ${mine[1]} 로 예측했어요. 킥오프 10분 전까지 바꿀 수 있어요.` : '아직 예측하지 않았어요.'}
-            </p>
+            {mine && <p className="ui-sub-cap">내 예측 {mine[0]} : {mine[1]}</p>}
             {user && mine && <TallyBars key={synced} matchId={m.id} bo={m.bo} opponentCode={m.opponentCode} />}
           </section>
         );
@@ -198,15 +194,6 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
         </div>
       )}
 
-      <p className="ui-sub-cap">
-        {user ? (
-          '계정에 저장 · 앱과 이어집니다 · 보상 없음'
-        ) : (
-          <>
-            이 브라우저에만 저장 · <Link href="/me">로그인</Link>하면 앱과 이어지고 다른 팬들의 선택도 볼 수 있어요
-          </>
-        )}
-      </p>
     </div>
   );
 }

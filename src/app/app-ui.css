@@ -396,7 +396,6 @@ body.ui-live .ui-night .tally-row i{background:rgba(255,255,255,.12)}
 .ui-row.danger{color:#E5484D}
 .ui-login{display:flex;flex-direction:column;align-items:center;gap:12px;padding-bottom:8px}
 .ui-login p{font-size:14px;color:var(--body);line-height:1.55;margin:0 0 6px;text-align:center}
-.ui-login .acct-kakao{display:block;border:0;font:inherit;font-size:15px}
 .ui-field{display:flex;flex-direction:column;gap:6px}
 .ui-field>span{font-size:13px;font-weight:700;color:var(--mute);padding-left:4px}
 .ui-compose .ui-chips{flex-wrap:wrap}
@@ -538,5 +537,17 @@ body>footer{flex-shrink:0}
   .ui-page>.ui-livehead,.ui-page>.ui-back{margin-top:48px}
 }
 .ui-paper>.ui-list{padding:0}
-.ui-login .acct-kakao{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.acct-kakao-sym{position:absolute;left:14px;top:50%;transform:translateY(-50%)}
+
+/* ---------- 로그인 버튼: 카카오·구글 같은 글꼴·크기·모양 ---------- */
+.ui-login{align-items:stretch;gap:10px;padding:4px 0 8px}
+.acct-btn{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:52px;border-radius:14px;
+  font:inherit;font-size:16px;font-weight:600;letter-spacing:-.01em;cursor:pointer;box-sizing:border-box;margin:0}
+.acct-sym{position:absolute;left:18px;top:50%;transform:translateY(-50%)}
+.acct-btn.acct-kakao{background:#FEE500;color:rgba(0,0,0,.85);border:0}
+.acct-google{background:#131314;color:#E3E3E3;border:1px solid #8E918F}
+:root[data-theme=light] .acct-google{background:#fff;color:#1F1F1F;border-color:#DADCE0}
+@media (prefers-color-scheme:light){:root:not([data-theme=dark]) .acct-google{background:#fff;color:#1F1F1F;border-color:#DADCE0}}
+.acct-google:focus-within{outline:2px solid var(--flame);outline-offset:2px}
+/* 실제로 눌리는 구글 위젯: 버튼 전체를 덮고 보이지 않게 */
+.acct-google-hit{position:absolute;inset:0;opacity:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.acct-google-hit>div{transform:scale(1.3)}

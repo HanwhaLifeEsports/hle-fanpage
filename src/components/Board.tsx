@@ -108,9 +108,8 @@ export default function BoardView({ thread }: { thread: ThreadMatch | null }) {
             <TeamLogo image={thread.usImage} size={44} label="한화생명e스포츠" />
             <i>vs</i>
             <TeamLogo image={thread.them.image} size={44} label={thread.them.name} />
-            <b>HLE vs {thread.them.code} 같이 봐요</b>
+            <b>HLE vs {thread.them.code}</b>
           </div>
-          <span className="ui-thread-cap">중계 탭에서 영상 보면서 실시간으로 채팅해요</span>
         </Link>
       )}
 
@@ -119,7 +118,6 @@ export default function BoardView({ thread }: { thread: ThreadMatch | null }) {
       ) : visible.length === 0 ? (
         <div className="ui-paper ui-empty">
           <b>{failed ? '글을 불러오지 못했어요' : '아직 글이 없어요'}</b>
-          <span>{failed ? '잠시 뒤 다시 시도해 주세요' : '첫 글을 남겨 보세요'}</span>
         </div>
       ) : (
         <div className="ui-paper ui-list ui-posts">
@@ -188,7 +186,7 @@ function Compose({ initial, onDone }: { initial: PostCategory; onDone: () => voi
         ))}
       </div>
       <input value={title} maxLength={80} onChange={(e) => setTitle(e.target.value)} placeholder="제목" />
-      <textarea value={body} maxLength={5000} rows={8} onChange={(e) => setBody(e.target.value)} placeholder="내용 — 욕설·비방·도배는 신고되면 가려져요" />
+      <textarea value={body} maxLength={5000} rows={8} onChange={(e) => setBody(e.target.value)} placeholder="내용" />
       {err && <span className="ui-err">{err}</span>}
       <button className="ui-cta" disabled={!ok} onClick={submit}>
         {busy ? '올리는 중…' : '올리기'}

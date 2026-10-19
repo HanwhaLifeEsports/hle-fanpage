@@ -118,7 +118,7 @@ export default function CheerChat({ matchId, kickoff }: { matchId: string; kicko
       <div className="cheer off">
         <b>응원 채팅</b>
         <span className="cap">
-          {now < start ? '경기 1시간 전부터 앱·웹 팬들과 함께 채팅할 수 있습니다' : '이 경기의 채팅은 닫혔습니다'}
+          {now < start ? '경기 1시간 전에 열려요' : '이 경기의 채팅은 닫혔습니다'}
         </span>
       </div>
     );

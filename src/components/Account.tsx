@@ -42,7 +42,11 @@ type GoogleId = {
   };
 };
 
-/** 구글 공식 로그인 버튼. 스크립트는 이 버튼이 보일 때만 불러온다 */
+/**
+ * 구글 로그인 버튼.
+ * 구글 위젯(iframe)은 글꼴·크기를 바꿀 수 없어 카카오 버튼과 어긋난다. 그래서 보이는 버튼은
+ * 직접 그리고, 실제로 눌리는 구글 위젯은 그 위에 투명하게 겹쳐 둔다 (ID 토큰 흐름은 그대로).
+ */
 function GoogleButton({ onDone }: { onDone: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -63,12 +67,10 @@ function GoogleButton({ onDone }: { onDone: () => void }) {
         },
       });
       g.accounts.id.renderButton(ref.current, {
-        theme: document.documentElement.dataset.theme === 'light' ? 'outline' : 'filled_black',
         size: 'large',
-        shape: 'pill',
         text: 'continue_with',
         locale: 'ko',
-        width: 280,
+        width: Math.min(400, Math.round(ref.current.getBoundingClientRect().width) || 320),
       });
     };
     if ((window as unknown as { google?: GoogleId }).google) render();
@@ -84,13 +86,31 @@ function GoogleButton({ onDone }: { onDone: () => void }) {
     };
   }, [onDone]);
 
-  return <div ref={ref} style={{ minHeight: 44 }} />;
+  return (
+    <div className="acct-btn acct-google">
+      <GoogleSymbol />
+      Google로 계속하기
+      <div ref={ref} className="acct-google-hit" />
+    </div>
+  );
+}
+
+/** 구글 공식 G 로고 */
+function GoogleSymbol() {
+  return (
+    <svg className="acct-sym" viewBox="0 0 48 48" width="20" height="20" aria-hidden>
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+    </svg>
+  );
 }
 
 /** 카카오 공식 말풍선 심볼 */
 function KakaoSymbol() {
   return (
-    <svg className="acct-kakao-sym" viewBox="0 0 24 24" width="20" height="20" aria-hidden>
+    <svg className="acct-sym" viewBox="0 0 24 24" width="20" height="20" aria-hidden>
       <path
         fill="#000"
         d="M12 3.2C6.6 3.2 2.2 6.6 2.2 10.9c0 2.8 1.9 5.2 4.7 6.6l-1 3.6c-.1.3.3.6.6.4l4.3-2.8c.4 0 .8.1 1.2.1 5.4 0 9.8-3.4 9.8-7.8S17.4 3.2 12 3.2z"
@@ -103,9 +123,8 @@ function KakaoSymbol() {
 export default function AccountPanel() {
   return (
     <div className="ui-login">
-      <p>로그인하면 승부예측이 앱과 이어지고, 게시판과 경기 응원 채팅에 참여할 수 있어요. 일정·순위는 로그인 없이 볼 수 있어요.</p>
       {/* 카카오 로그인 디자인 가이드: 노란 바탕(#FEE500) + 검은 말풍선 심볼 + 85% 검정 글자 */}
-      <button className="acct-kakao" onClick={startKakaoLogin}>
+      <button className="acct-btn acct-kakao" onClick={startKakaoLogin}>
         <KakaoSymbol />
         카카오로 계속하기
       </button>
@@ -165,11 +184,7 @@ export function ProfileCard() {
           </>
         ) : (
           <>
-            <b className="ui-profile-cta">
-              로그인하면 예측과
-              <br />
-              게시판에 참여할 수 있어요
-            </b>
+            <b className="ui-profile-cta">게스트</b>
             <button className="ui-solid" onClick={() => setSheet(true)}>
               로그인
             </button>
