@@ -538,3 +538,5 @@ body>footer{flex-shrink:0}
   .ui-page>.ui-livehead,.ui-page>.ui-back{margin-top:48px}
 }
 .ui-paper>.ui-list{padding:0}
+.ui-login .acct-kakao{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.acct-kakao-sym{position:absolute;left:14px;top:50%;transform:translateY(-50%)}

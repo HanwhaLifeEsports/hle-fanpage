@@ -87,12 +87,26 @@ function GoogleButton({ onDone }: { onDone: () => void }) {
   return <div ref={ref} style={{ minHeight: 44 }} />;
 }
 
+/** 카카오 공식 말풍선 심볼 */
+function KakaoSymbol() {
+  return (
+    <svg className="acct-kakao-sym" viewBox="0 0 24 24" width="20" height="20" aria-hidden>
+      <path
+        fill="#000"
+        d="M12 3.2C6.6 3.2 2.2 6.6 2.2 10.9c0 2.8 1.9 5.2 4.7 6.6l-1 3.6c-.1.3.3.6.6.4l4.3-2.8c.4 0 .8.1 1.2.1 5.4 0 9.8-3.4 9.8-7.8S17.4 3.2 12 3.2z"
+      />
+    </svg>
+  );
+}
+
 /** 카카오 · 구글 로그인 버튼 (MY·게시판·채팅의 로그인 시트 안에 들어간다) */
 export default function AccountPanel() {
   return (
     <div className="ui-login">
       <p>로그인하면 승부예측이 앱과 이어지고, 게시판과 경기 응원 채팅에 참여할 수 있어요. 일정·순위는 로그인 없이 볼 수 있어요.</p>
+      {/* 카카오 로그인 디자인 가이드: 노란 바탕(#FEE500) + 검은 말풍선 심볼 + 85% 검정 글자 */}
       <button className="acct-kakao" onClick={startKakaoLogin}>
+        <KakaoSymbol />
         카카오로 계속하기
       </button>
       <GoogleButton onDone={() => {}} />
