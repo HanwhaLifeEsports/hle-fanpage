@@ -40,12 +40,13 @@ const isOn = (path: string, href: string) => (href === '/' ? path === '/' : path
 export function AppBar() {
   const path = usePathname();
   const { permission, ask } = useNotify();
+  const { theme } = useTheme();
 
   useEffect(() => {
     document.body.classList.toggle('ui-sub', path !== '/');
-    // 중계·승부예측은 앱처럼 늘 어두운 톤
-    document.body.classList.toggle('ui-live', path.startsWith('/live') || path.startsWith('/predict'));
-  }, [path]);
+    // 중계·승부예측의 밤 배경은 다크 테마일 때만. 라이트로 고른 사람에게 갑자기 어두운 화면을 띄우지 않는다
+    document.body.classList.toggle('ui-live', theme === 'dark' && (path.startsWith('/live') || path.startsWith('/predict')));
+  }, [path, theme]);
 
   return (
     <header className="ui-top">
@@ -71,7 +72,13 @@ function ThemeToggle() {
   return (
     <button
       className="ui-iconbtn glass"
-      onClick={toggle}
+      onClick={() => {
+        // 지원하는 브라우저에서는 화면 전체가 부드럽게 바뀌게 한다
+        const d = document as Document & { startViewTransition?: (f: () => void) => unknown };
+        const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (d.startViewTransition && !calm) d.startViewTransition(toggle);
+        else toggle();
+      }}
       aria-label={toLight ? '라이트 모드로 전환' : '다크 모드로 전환'}
       title={toLight ? '라이트 모드로 전환' : '다크 모드로 전환'}
     >
@@ -122,8 +129,11 @@ function NotifyButton({ permission, onAsk }: { permission: string; onAsk: () => 
 /** 아래에 떠 있는 유리 탭바 (iOS 26 탭바와 같은 모양) */
 export function BottomTabs() {
   const path = usePathname();
+  const active = TABS.findIndex((t) => isOn(path, t.href));
   return (
-    <nav className="ui-tabs glass-bar" aria-label="주 메뉴">
+    <nav className="ui-tabs glass-bar" aria-label="주 메뉴" style={{ '--tab-i': Math.max(active, 0) } as React.CSSProperties}>
+      {/* 선택 표시가 탭 사이를 미끄러져 옮겨 간다 */}
+      <span className={`ui-tab-ind${active < 0 ? ' off' : ''}`} aria-hidden />
       {TABS.map((t) => (
         <Link key={t.href} href={t.href} className={isOn(path, t.href) ? 'on' : undefined} aria-current={isOn(path, t.href) ? 'page' : undefined}>
           <t.Icon />

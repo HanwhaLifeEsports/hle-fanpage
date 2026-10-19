@@ -230,7 +230,7 @@ body.ui-live .ui-ember{height:100%;position:fixed;
     radial-gradient(60% 35% at 95% 45%,rgba(220,60,10,.45) 0%,rgba(220,60,10,0) 70%),
     radial-gradient(70% 30% at 10% 92%,rgba(255,150,60,.25) 0%,rgba(255,150,60,0) 70%),#0E0806}
 body.ui-live .ui-brand,body.ui-live .ui-iconbtn{color:#fff}
-.ui-night{--ink:#FFF6F0;--body:rgba(255,246,240,.8);--mute:#D9C2B4;--faint:rgba(255,246,240,.45);
+body.ui-live .ui-night{--ink:#FFF6F0;--body:rgba(255,246,240,.8);--mute:#D9C2B4;--faint:rgba(255,246,240,.45);
   --hairline:rgba(255,255,255,.12);--surface-card:rgba(255,255,255,.06);--tint-btn:rgba(255,255,255,.1);
   --flame-text:#FFB27A;color:var(--ink)}
 body.ui-live footer{color:#D9C2B4}
@@ -238,21 +238,21 @@ body.ui-live footer{color:#D9C2B4}
 .ui-livehead div{display:flex;flex-direction:column}
 .ui-livehead b{font-size:20px;font-weight:900;letter-spacing:-.02em}
 .ui-livehead span{font-size:12px;color:var(--mute)}
-.ui-night .livebar{background:linear-gradient(140deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
+body.ui-live .ui-night .livebar{background:linear-gradient(140deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
   -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
   border:1px solid rgba(255,255,255,.2);border-radius:var(--ui-r);box-shadow:inset 0 1px 1px rgba(255,255,255,.3)}
-.ui-night .plat{border-radius:999px;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:var(--ink)}
-.ui-night .plat.on{background:rgba(244,118,33,.35);border-color:rgba(255,200,160,.5)}
-.ui-night .pframe{border-radius:22px;border-color:rgba(255,255,255,.15)}
-.ui-night .cheer{background:rgba(255,255,255,.06);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+body.ui-live .ui-night .plat{border-radius:999px;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:var(--ink)}
+body.ui-live .ui-night .plat.on{background:rgba(244,118,33,.35);border-color:rgba(255,200,160,.5)}
+body.ui-live .ui-night .pframe{border-radius:22px;border-color:rgba(255,255,255,.15)}
+body.ui-live .ui-night .cheer{background:rgba(255,255,255,.06);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
   border-color:rgba(255,255,255,.16);border-radius:var(--ui-r)}
-.ui-night .cheer-list{height:min(52vh,460px)}
-.ui-night .note{color:var(--mute)}
+body.ui-live .ui-night .cheer-list{height:min(52vh,460px)}
+body.ui-live .ui-night .note{color:var(--mute)}
 .ui-player-wait{aspect-ratio:16/9;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:16px}
 .ui-player-wait b{font-size:14px}
 .ui-player-wait span{font-size:12px;color:var(--mute)}
 .ui-player .tile{border-radius:22px;overflow:hidden}
-.ui-night .glass{background:linear-gradient(140deg,rgba(255,255,255,.12),rgba(255,255,255,.04));border-color:rgba(255,255,255,.2);
+body.ui-live .ui-night .glass{background:linear-gradient(140deg,rgba(255,255,255,.12),rgba(255,255,255,.04));border-color:rgba(255,255,255,.2);
   box-shadow:inset 0 1px 1px rgba(255,255,255,.3),0 14px 36px rgba(0,0,0,.35)}
 
 /* ---------- 승부예측 (어두운 화면, 앱 PredictView 와 같은 구성) ---------- */
@@ -270,8 +270,8 @@ body.ui-live footer{color:#D9C2B4}
 .ui-pickrow{display:flex;flex-direction:column;gap:8px}
 .ui-pickrow > span{font-size:13px;font-weight:800;opacity:.85}
 .ui-pickrow > div{display:flex;gap:8px}
-.ui-pick{flex:1;min-height:60px;border-radius:20px;font:inherit;font-size:20px;font-weight:700;color:#fff;cursor:pointer;font-variant-numeric:tabular-nums}
-.ui-pick.on{background:linear-gradient(140deg,rgba(255,140,60,.62),rgba(244,90,20,.36));border-color:rgba(255,200,160,.6);font-weight:900}
+.ui-pick{flex:1;min-height:60px;border-radius:20px;font:inherit;font-size:20px;font-weight:700;color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
+.ui-pick.on{color:#fff;background:linear-gradient(140deg,rgba(255,140,60,.62),rgba(244,90,20,.36));border-color:rgba(255,200,160,.6);font-weight:900}
 .ui-pick.on.lose{background:linear-gradient(140deg,rgba(169,140,255,.5),rgba(120,90,230,.3));border-color:rgba(200,185,255,.6)}
 .ui-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .ui-stats > div{border-radius:18px;padding:10px 12px;display:flex;flex-direction:column}
@@ -279,7 +279,7 @@ body.ui-live footer{color:#D9C2B4}
 .ui-stats b{font-size:18px;font-weight:900;font-variant-numeric:tabular-nums}
 .ui-pts{font-size:12px;font-weight:800;color:#FFB4A8}
 .ui-pts.hit{color:#FFB27A}
-.ui-night .tally-row i{background:rgba(255,255,255,.12)}
+body.ui-live .ui-night .tally-row i{background:rgba(255,255,255,.12)}
 
 /* ---------- 경기 상세 ---------- */
 .ui-scoreboard{margin-top:12px;border-radius:30px;padding:20px;display:flex;flex-direction:column;gap:16px;color:#fff;text-align:center}
@@ -444,4 +444,85 @@ body.ui-live footer{color:#D9C2B4}
 
   .ui-live-grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}
   .ui-live-grid>.cheer{position:sticky;top:76px}
+}
+
+/* ---------- 푸터: 내용이 짧아도 화면 맨 아래 ---------- */
+body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+body>main{flex:1 0 auto}
+body>footer{flex-shrink:0}
+.ui-top{width:100%;box-sizing:border-box}
+
+/* ---------- 애니메이션 ---------- */
+@keyframes uiIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes uiTick{from{opacity:0;transform:translateY(-40%)}to{opacity:1;transform:none}}
+@keyframes uiPop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:none;opacity:1}}
+@keyframes uiBreath{0%,100%{transform:none}50%{transform:scale(1.08)}}
+@keyframes uiLive{0%{box-shadow:0 0 0 0 rgba(224,27,36,.6)}70%{box-shadow:0 0 0 10px rgba(224,27,36,0)}100%{box-shadow:0 0 0 0 rgba(224,27,36,0)}}
+@keyframes uiBounce{0%{transform:none}40%{transform:translateY(-3px) scale(1.12)}100%{transform:none}}
+
+/* 화면이 열릴 때 위에서부터 차례로 떠오른다 */
+.ui-page>:not(.ui-sheet-bg):not(.ui-fab),.ui-stack>*,.ui-main>*,.ui-aside>*{animation:uiIn .55s cubic-bezier(.2,.8,.2,1) both}
+.ui-page>:nth-child(2),.ui-stack>:nth-child(1){animation-delay:.05s}
+.ui-page>:nth-child(3),.ui-stack>:nth-child(2){animation-delay:.1s}
+.ui-page>:nth-child(4),.ui-stack>:nth-child(3){animation-delay:.15s}
+.ui-page>:nth-child(5),.ui-stack>:nth-child(4){animation-delay:.2s}
+.ui-page>:nth-child(6),.ui-stack>:nth-child(5){animation-delay:.25s}
+.ui-page>:nth-child(n+7),.ui-stack>:nth-child(n+6){animation-delay:.3s}
+.ui-fab{animation:uiPop .5s .35s cubic-bezier(.2,.8,.2,1) both}
+/* 목록 줄도 살짝 시차를 두고 */
+.ui-list>*,.ui-posts>*{animation:uiIn .45s cubic-bezier(.2,.8,.2,1) both}
+.ui-list>:nth-child(2),.ui-posts>:nth-child(2){animation-delay:.04s}
+.ui-list>:nth-child(3),.ui-posts>:nth-child(3){animation-delay:.08s}
+.ui-list>:nth-child(4),.ui-posts>:nth-child(4){animation-delay:.12s}
+.ui-list>:nth-child(5),.ui-posts>:nth-child(5){animation-delay:.16s}
+.ui-list>:nth-child(n+6),.ui-posts>:nth-child(n+6){animation-delay:.2s}
+
+/* 홈 히어로: 로고가 튀어나오고 VS 가 숨 쉰다 */
+.ui-vs .lg{animation:uiPop .6s .2s cubic-bezier(.2,.8,.2,1) both}
+.ui-vs .t:last-child .lg{animation-delay:.32s}
+.ui-vs .m b{display:inline-block;animation:uiBreath 2.6s ease-in-out infinite}
+.ui-cd b{display:block;animation:uiTick .35s cubic-bezier(.2,.8,.2,1)}
+.ui-cd>div{overflow:hidden}
+.ui-badge.live{animation:uiLive 1.6s infinite}
+.ui-roster a:nth-child(1) i{animation:uiPop .5s .25s both}
+.ui-roster a:nth-child(2) i{animation:uiPop .5s .3s both}
+.ui-roster a:nth-child(3) i{animation:uiPop .5s .35s both}
+.ui-roster a:nth-child(4) i{animation:uiPop .5s .4s both}
+.ui-roster a:nth-child(5) i{animation:uiPop .5s .45s both}
+
+/* 누를 때 살짝 눌리고, 마우스를 올리면 떠오른다 */
+.ui-pill,.ui-chips button,.ui-seg button,.ui-tabs a,.ui-line,.ui-post,.ui-upcoming,.ui-thread,.ui-pick,.ui-fab,.ui-cta,.ui-solid,
+.ui-iconbtn,.ui-tile,.ui-roster a,.ui-chipbtn,.ui-predict,.pcard,.ui-row,.ui-brand,.ui-actions button,.ui-composer button{
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),background-color .25s,box-shadow .25s,opacity .2s,color .25s;-webkit-tap-highlight-color:transparent}
+.ui-pill:active,.ui-chips button:active,.ui-seg button:active,.ui-tabs a:active,.ui-line:active,.ui-post:active,.ui-upcoming:active,.ui-thread:active,
+.ui-pick:active,.ui-fab:active,.ui-cta:active,.ui-solid:active,.ui-iconbtn:active,.ui-tile:active,.ui-roster a:active,.ui-chipbtn:active,
+.ui-predict:active,.pcard:active,.ui-row:active,.ui-brand:active,.ui-actions button:active,.ui-composer button:active{transform:scale(.96)}
+@media (hover:hover){
+  .ui-upcoming:hover,.ui-thread:hover,.ui-tile:hover,.ui-predict:hover,.pcard:hover{transform:translateY(-3px)}
+  .ui-roster a:hover i{transform:scale(1.07)}
+  .ui-roster i{transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+  .ui-fab:hover,.ui-cta:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(226,85,15,.45)}
+  .ui-post:hover b,.ui-line:hover b{color:var(--flame-text)}
+  .ui-iconbtn:hover{transform:rotate(-8deg) scale(1.05)}
+}
+
+/* 탭바: 선택 표시가 미끄러져 옮겨 간다 (휴대폰·태블릿) */
+.ui-tab-ind{position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px) / 5);border-radius:999px;
+  background:rgba(244,118,33,.16);transform:translateX(calc(var(--tab-i,0) * 100%));
+  transition:transform .5s cubic-bezier(.3,1.25,.45,1),opacity .25s;pointer-events:none}
+.ui-tab-ind.off{opacity:0}
+.ui-tabs a{position:relative;z-index:1}
+.ui-tabs a.on{background:transparent}
+.ui-tabs a.on svg{animation:uiBounce .45s cubic-bezier(.2,.8,.2,1)}
+@media (min-width:1024px){
+  .ui-tab-ind{display:none}
+  .ui-tabs a.on{background:rgba(244,118,33,.16)}
+}
+
+/* 테마 전환: 화면 전체가 부드럽게 바뀐다 */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.45s;animation-timing-function:ease}
+
+/* 동작 줄이기를 켠 사람에게는 움직임을 끈다 */
+@media (prefers-reduced-motion:reduce){
+  .ui-page *,.ui-page,.ui-tabs *{animation:none!important;transition:none!important}
 }

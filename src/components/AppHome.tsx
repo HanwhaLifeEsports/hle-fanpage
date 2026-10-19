@@ -29,7 +29,8 @@ export function HeroCountdown({ target }: { target: string }) {
     <div className="ui-cd" role="timer" aria-label="경기까지 남은 시간">
       {cells.map(([v, l]) => (
         <div className="glass" key={l}>
-          <b>{v}</b>
+          {/* 숫자가 바뀔 때마다 새로 그려서 넘어가는 효과를 준다 */}
+          <b key={v}>{v}</b>
           <span>{l}</span>
         </div>
       ))}
