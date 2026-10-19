@@ -71,3 +71,22 @@ export async function championLocalizer(): Promise<(name: string) => string> {
   const map = cache?.map;
   return (name: string) => map?.[norm(name)] ?? name;
 }
+
+/** Use the game's own major/minor patch for historically accurate champion and item icons. */
+let assetVersionCache: { at: number; values: string[] } | null = null;
+export async function dataDragonVersionForPatch(patch?: string | null): Promise<string> {
+  const now = Date.now();
+  if (!assetVersionCache || now - assetVersionCache.at > 12 * 60 * 60 * 1000) {
+    try {
+      const response = await fetch(VERSIONS, { signal: AbortSignal.timeout(5000) });
+      if (!response.ok) throw new Error('ddragon versions HTTP ' + response.status);
+      const values = (await response.json()) as string[];
+      if (values.length) assetVersionCache = { at: now, values };
+    } catch {
+      // Keep the last known version when the CDN is temporarily unavailable.
+    }
+  }
+  const values = assetVersionCache?.values || [];
+  const shortPatch = patch?.match(/^\d+\.\d+/)?.[0];
+  return (shortPatch ? values.find((v) => v.startsWith(shortPatch + '.')) : null) || values[0] || '16.19.1';
+}

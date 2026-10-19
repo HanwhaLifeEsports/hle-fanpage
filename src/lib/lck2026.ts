@@ -120,30 +120,15 @@ export const SEASON = {
   /** 스플릿2(정규 1~2R) + 스플릿3(3~4R 그룹)을 합친 것이 실제 정규 순위다 */
   format:
     '정규 1~2라운드 성적으로 레전드·라이즈 그룹을 나누고, 3~4라운드는 그룹 안에서 치른다. 순위는 두 구간 합산.',
-  legend: { label: '레전드 그룹', note: '1~2위 플레이오프 2라운드 직행 · 3~4위 1라운드 · 5위 플레이인' },
-  rise: { label: '라이즈 그룹', note: '1~3위 플레이인 · 4~5위 시즌 종료' },
+  legend: { label: '레전드 그룹', note: '2026 정규시즌 최종 성적' },
+  rise: { label: '라이즈 그룹', note: '2026 정규시즌 최종 성적' },
 } as const;
 
 /* ------------------------------------------------------------------ */
 /* 선수 — 2026 한화생명e스포츠 (실제 로스터)                            */
 /* ------------------------------------------------------------------ */
 
-/**
- * 선수 사진.
- *
- * 이 사이트에서 가장 조심해야 하는 자산이다. 촬영자의 저작권과 선수의 초상권이
- * 겹쳐 있고, 구단 2차 창작 가이드라인은 영상만 다루고 사진은 다루지 않는다.
- * 그래서 파일 경로만 두지 않고 "어디서 왔고 무슨 근거로 쓰는지"를 같이 적는다.
- * 근거를 적을 수 없는 사진은 넣지 않는다.
- *
- * 파일 목록과 출처는 public/players/README.md 에도 표로 남긴다.
- *
- * [현재 등록된 사진 없음]
- * 처음 넣었던 사진은 basis 를 'self'(운영자 직접 촬영)로 적었는데 실제 경위가
- * 그와 달라 내렸다. 근거가 확실하지 않은 사진은 싣지 않는다는 것이 이 타입의
- * 존재 이유이고, 그 타입이 실제로 걸러낸 첫 사례다.
- * 지금은 팬 사진(src/lib/photos)만 뜬다.
- */
+/** 공식 홈페이지 프로필 사진과 팬 사진의 출처를 구분한다. */
 export interface PlayerPhoto {
   src: string;
   /** next/image 가 로딩 전에 자리를 잡으려면 원본 크기가 필요하다 */
@@ -155,7 +140,9 @@ export interface PlayerPhoto {
    *  permission  촬영자 또는 구단에게 사용 허락을 받았다
    *  unverified  아직 확인하지 못했다 — 배포 전에 반드시 해소할 것
    */
-  basis: 'self' | 'permission' | 'unverified';
+  basis: 'self' | 'permission' | 'unverified' | 'official';
+  /** 원본이 게시된 공식 출처. 공식 게시 여부와 별도 사용 허락은 구분한다. */
+  sourceUrl?: string;
   /** 화면과 문서에 표시할 출처 문구 */
   credit: string;
   /** 근거를 확인한 날짜 */
@@ -193,11 +180,11 @@ export interface Player {
 
 export const PLAYERS: Player[] = [
   // 등번호는 실제 값. naverId 와 lpName 은 각 API 응답에서 확인했다 (2026-08-18)
-  { id: 'zeus', since: '2024-11-20', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', lpName: 'Zeus' },
-  { id: 'kanavi', since: '2025-11-23', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', lpName: 'Kanavi', joined2026: true },
-  { id: 'zeka', since: '2022-11-25', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', lpName: 'Zeka (Kim Geon-woo)' },
-  { id: 'gumayusi', since: '2025-11-23', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', naverId: '10320', lpName: 'Gumayusi', joined2026: true },
-  { id: 'delight', since: '2023-11-22', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', lpName: 'Delight' },
+  { id: 'zeus', photo: {"src": "/players/zeus-official.jpg", "width": 315, "height": 546, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2024-11-20', nm: 'Zeus', ko: '최우제', pos: 'TOP', no: '10', naverId: '10485', lpName: 'Zeus' },
+  { id: 'kanavi', photo: {"src": "/players/kanavi-official.jpg", "width": 315, "height": 546, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2025-11-23', nm: 'Kanavi', ko: '서진혁', pos: 'JGL', no: '01', naverId: '2875', lpName: 'Kanavi', joined2026: true },
+  { id: 'zeka', photo: {"src": "/players/zeka-official.jpg", "width": 315, "height": 546, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2022-11-25', nm: 'Zeka', ko: '김건우', pos: 'MID', no: '07', naverId: '10557', lpName: 'Zeka (Kim Geon-woo)' },
+  { id: 'gumayusi', photo: {"src": "/players/gumayusi-official.jpg", "width": 315, "height": 546, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2025-11-23', nm: 'Gumayusi', ko: '이민형', pos: 'BOT', no: '98', naverId: '10320', lpName: 'Gumayusi', joined2026: true },
+  { id: 'delight', photo: {"src": "/players/delight-official.jpg", "width": 315, "height": 546, "basis": "official", "credit": "한화생명e스포츠 공식 홈페이지", "sourceUrl": "https://hle.kr/", "checkedAt": "2026-10-01"}, since: '2023-11-22', nm: 'Delight', ko: '유환중', pos: 'SUP', no: '25', naverId: '10494', lpName: 'Delight' },
 ];
 
 export interface Staff {

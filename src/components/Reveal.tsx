@@ -5,12 +5,12 @@ import { useEffect } from 'react';
 /**
  * 스크롤 등장 효과.
  *
- * `.rv` 가 붙은 요소가 화면에 들어오면 `.show` 를 붙인다. 숨기는 것은 CSS 가
+ * `.rv` 가 붙은 요소가 화면에 들어오면 `data-revealed` 를 붙인다. 숨기는 것은 CSS 가
  * 하고 여기서는 시점만 정한다 — 서버가 그린 HTML 에 이미 `.rv` 가 있어야
  * 첫 페인트부터 숨겨진 상태로 시작한다. 자바스크립트가 붙은 뒤에 숨기면
  * 요소가 한 번 보였다가 사라졌다 다시 나타난다.
  *
- * 한 번 붙은 `.show` 는 떼지 않는다. 위로 다시 올라갈 때마다 다시 재생되면
+ * 한 번 붙은 `data-revealed` 는 떼지 않는다. 위로 다시 올라갈 때마다 다시 재생되면
  * 읽던 화면이 계속 움직여 성가시다.
  *
  * 화면 아래쪽 40px 은 발동 범위에서 뺀다(rootMargin). 바닥에 걸치자마자
@@ -19,10 +19,11 @@ import { useEffect } from 'react';
 export default function Reveal() {
   useEffect(() => {
     // 동작을 줄여 달라고 한 사람에게는 아무것도 하지 않는다. CSS 도 같은 조건으로
-    // 전환을 끄므로, 여기서 show 만 붙여 두면 그냥 보이는 상태가 된다
+    // 전환을 끄므로, 여기서 표시 속성만 붙여 두면 그냥 보이는 상태가 된다
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const show = (el: Element) => el.classList.add('show');
+    // React가 className을 갱신해도 등장 상태가 지워지지 않도록 별도 속성에 둔다.
+    const show = (el: Element) => el.setAttribute('data-revealed', 'true');
 
     if (reduced) {
       document.querySelectorAll('.rv').forEach(show);
@@ -41,7 +42,7 @@ export default function Reveal() {
     );
 
     const watch = (el: Element) => {
-      if (el.classList.contains('show')) return;
+      if (el.hasAttribute('data-revealed')) return;
       // 이미 화면 안에 있는 것은 기다리지 않고 바로 보여준다. 첫 화면이 비어
       // 보이는 일이 없어야 한다
       const r = el.getBoundingClientRect();

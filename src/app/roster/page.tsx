@@ -26,9 +26,7 @@ export default async function RosterPage() {
   return (
     <div className="wrap sec">
       <h2 className="ko ptitle rv">선수단 2026</h2>
-      <p className="lede rv" style={{ margin: '10px 0 var(--s5)' }}>
-        카드를 누르면 정규시즌 기록이 열립니다. 최애 선수로 지정하면 그 선수 알림만 따로 받아요.
-      </p>
+
 
       {joined.length > 0 && (
         <div className="banner rv" style={{ marginBottom: 'var(--s5)' }}>

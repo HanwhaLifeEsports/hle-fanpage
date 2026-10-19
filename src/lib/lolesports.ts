@@ -79,7 +79,7 @@ export interface Season {
   bracket: BracketStage[];
 }
 
-async function call<T>(path: string): Promise<T> {
+export async function call<T>(path: string): Promise<T> {
   const res = await fetch(`${API}/${path}`, {
     headers: { 'x-api-key': KEY, Accept: 'application/json' },
     signal: AbortSignal.timeout(12_000),

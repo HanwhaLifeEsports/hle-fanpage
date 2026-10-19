@@ -2,6 +2,9 @@ import path from 'node:path';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [{ source: '/:path*', has: [{ type: 'host', value: 'www.hle.today' }], destination: 'https://hle.today/:path*', permanent: true }];
+  },
   // 상위 디렉터리에도 lockfile 이 있어 워크스페이스 루트가 잘못 추론되는 것을 막는다
   turbopack: { root: path.resolve(process.cwd()) },
 };

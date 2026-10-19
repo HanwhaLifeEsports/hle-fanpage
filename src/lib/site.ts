@@ -25,4 +25,4 @@ export const REPO_URL = 'https://github.com/HanwhaLifeEsports/hle-fanpage';
 
 export const ABUSE_CONTACT = { label: ABUSE_EMAIL, href: `mailto:${ABUSE_EMAIL}` };
 export const SITE_DESC =
-  '2026 LCK 한화생명e스포츠 비공식 팬페이지. 경기 알림 · 치지직·SOOP 중계 · 통합 순위 · 플레이오프 경우의 수.';
+  '2026 LCK 한화생명e스포츠 비공식 팬페이지. 경기 알림 · 치지직·SOOP 중계 · 통합 순위 · 선수단.';

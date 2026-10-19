@@ -84,22 +84,19 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
                   라이엇 필수 고지 문구는 넣지 않는다 — 게임 아트·로고를 쓰는 프로젝트용이고,
                   이 사이트는 LCK 명칭·챔피언 이름 텍스트·공개 데이터만 쓴다. */}
               <span>
-                한화생명e스포츠를 응원하는 팬이 만든 비공식 페이지입니다. 한화생명e스포츠 · 라이엇 게임즈 ·
-                LCK 어느 곳과도 제휴하거나 후원받지 않으며, 광고 · 후원 · 판매 등 어떠한 방식으로도 수익을
-                만들지 않습니다.
+                비공식·비영리 팬페이지 · 구단·라이엇·LCK와 무관합니다.
               </span>
               {/* 저작권법 제103조 제4항은 중단 요구를 받을 수령인을 "이용자가 쉽게 알 수 있도록"
                   공지할 것을 요구한다. 처리방침 안쪽에만 두면 쉽게 알 수 있다고 보기 어려워
                   모든 화면에 걸리는 푸터에도 적는다. */}
               <span>
-                일정과 순위는 LCK 공식 기록을 실시간으로 반영합니다. 권리자의 요청이 있을 경우 해당 콘텐츠를
-                즉시 삭제합니다. 저작권 · 초상권 관련 요청은{' '}
-                <a href={ABUSE_CONTACT.href}>{ABUSE_CONTACT.label}</a> 로 받습니다.
+                콘텐츠 삭제·저작권·초상권 요청: <a href={ABUSE_CONTACT.href}>{ABUSE_CONTACT.label}</a>
               </span>
             </div>
             <nav>
               <Link href="/board">커뮤니티</Link>
               <Link href="/privacy">개인정보 처리방침</Link>
+              <Link href="/sources">출처 안내</Link>
               <a href="https://github.com/HanwhaLifeEsports/hle-fanpage" target="_blank" rel="noopener noreferrer">
                 소스 저장소
               </a>

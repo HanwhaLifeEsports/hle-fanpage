@@ -8,7 +8,6 @@ import {
   heartFanPhoto,
   removeFanPhoto,
   reportFanPhoto,
-  sharedHearts,
   useFanPhotos,
   visibleFor,
   type FanPhoto,
@@ -17,7 +16,7 @@ import { toast } from '@/lib/useAppState';
 import type { PlayerPhoto } from '@/lib/lck2026';
 
 /** 운영자 사진 확대 보기. 하트도 신고도 없다 — 검증된 사진이라 신고 한 번에
- *  내려가면 안 되고, 하트 경쟁에 끼지도 않는다. 대신 출처를 여기서 보여준다 */
+ *  내려가면 안 되고, 하트 경쟁에 끼지도 않는다. 출처는 공통 출처 안내 페이지에서 확인한다 */
 function OfficialViewer({ photo, onBack }: { photo: PlayerPhoto; onBack: () => void }) {
   return (
     <section className="gwrap">
@@ -29,9 +28,6 @@ function OfficialViewer({ photo, onBack }: { photo: PlayerPhoto; onBack: () => v
       </div>
       {/* eslint-disable-next-line @next/next/no-img-element -- 갤러리 안에서만 쓰는 확대 보기 */}
       <img className="gbig" src={photo.src} alt="" />
-      <div className="gbar">
-        <span className="cap">{photo.credit}</span>
-      </div>
     </section>
   );
 }
@@ -157,7 +153,7 @@ export default function PhotoGallery({
       {photos.length === 0 && !official ? (
         <div className="empty">
           <b>아직 올라온 사진이 없습니다</b>
-          <span>직접 촬영한 {playerName} 사진을 올리면 여기에 쌓입니다.</span>
+
         </div>
       ) : (
         <>
@@ -182,12 +178,6 @@ export default function PhotoGallery({
               </button>
             ))}
           </div>
-          {/* 하트가 공유되지 않는 상태를 조용히 두면, 사용자는 자기 하트가
-              남에게 보인다고 오해한다. 어느 쪽인지 그대로 말한다 */}
-          <p className="note">
-            하트가 가장 많은 사진이 선수 카드에 걸립니다. 하트를 받기 전까지는 공식 사진이 걸립니다.
-            {!sharedHearts && ' 지금은 이 브라우저에만 저장되어 하트도 이 기기에서만 세어집니다.'}
-          </p>
         </>
       )}
     </section>

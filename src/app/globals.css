@@ -350,7 +350,7 @@ header.appbar{position:sticky;top:0;z-index:60;background:var(--canvas);border-b
   .navglow.move{transform:translateX(var(--x,0))}
   .navlight::before{animation:none}
   .pcard:hover{animation:none}
-  tr.me::after{animation:none;background-image:none}
+  .standings-sheen{animation:none!important;background-image:none}
 }
 
 @media(max-width:860px){.tabs{display:grid}body{padding-bottom:calc(64px + var(--safe-b))}}
@@ -633,17 +633,10 @@ tbody tr:last-child td{border-bottom:0}
    왼쪽 3px 막대를 쓰면 td 공통 아래 테두리와 만나 좌하단만 ㄴ 자로 두른 것처럼 보인다. */
 tr.me td{background:var(--flame-soft)}
 
-/* 우리 줄을 20초에 한 번 빛이 대각선으로 훑고 지나간다.
-
-   무늬를 tr 에 직접 걸면 안 된다. 표가 border-collapse:collapse 라서 줄의 배경
-   기준 영역이 '줄' 이 아니라 '표 전체' 가 된다 — 크기와 위치가 엉뚱한 곳을
-   가리켜 빛이 그 줄을 지나가지 않는다. 줄 안에 층을 하나 덮어 거기에 그린다.
-   그 층은 줄 하나를 통째로 덮으므로 빛이 칸 경계에서 끊기지 않는다.
-
-   바탕색은 칸(td)이 그대로 든다. 이 층이 안 그려져도 우리 줄 강조는 남아야
-   한다 — 강조가 효과에 얹혀 있으면 효과가 깨질 때 줄까지 평범해진다. */
-tr.me{position:relative}
-tr.me::after{content:'';position:absolute;inset:0;pointer-events:none;
+/* 일반 블록 위에 HLE 행의 실제 크기만큼 레이어 하나를 둔다.
+   tr의 위치 지정에 의존하지 않고 열 사이에서 끊김 없이 훑는다. */
+.standings-table{position:relative}
+.standings-sheen{position:absolute;pointer-events:none;overflow:hidden;
   /* 줄기 둘을 한 무늬에 넣는다. 지나가는 것은 한 번이지만 줄기가 잇달아
      지나가 '반짝, 반짝' 이 된다.
      앞 줄기를 좁게 잡아 뒤 줄기가 본체로 읽히게 한다 */
@@ -1036,7 +1029,7 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
    .show 는 Reveal 컴포넌트가 붙인다. */
 .rv{opacity:0;transform:translateY(16px);
   transition:opacity .6s var(--ease),transform .6s var(--ease)}
-.rv.show{opacity:1;transform:none}
+.rv[data-revealed]{opacity:1;transform:none}
 
 /* 자바스크립트가 없으면 .show 를 붙일 사람이 없다. 그대로 두면 화면이 통째로
    비므로 효과를 포기하고 내용을 보여준다 */
@@ -1044,5 +1037,66 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 
 /* 동작을 줄여 달라고 한 사람에게는 움직이지 않는다. 내용은 그대로 보인다 */
 @media(prefers-reduced-motion:reduce){
-  .rv,.rv.show{opacity:1;transform:none;transition:none}
+  .rv,.rv[data-revealed]{opacity:1;transform:none;transition:none}
 }
+
+/* 2026 HLE live match cards: use the existing tokens rather than a second visual system. */
+.next-strip{border-bottom:1px solid var(--hairline);background:var(--surface)}
+.next-strip-inner{display:flex;gap:var(--s4);align-items:center;justify-content:space-between;padding-top:var(--s4);padding-bottom:var(--s4)}
+.next-strip-inner>div{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.next-strip-inner b{font-size:16px}
+.live-toggle{width:100%;border:0;background:none;padding:0;cursor:pointer;color:var(--ink);text-align:left;font:inherit}
+.live-toggle .live-meta{display:inline-flex;align-items:center;gap:10px;color:var(--mute)}
+.livebar.off:has(.live-toggle[aria-expanded=false]){padding:var(--s3) var(--s4)}
+.live-stats{border:1px solid var(--hairline);background:var(--surface-card);border-radius:var(--r-card);padding:var(--s5);margin:0 0 var(--s5)}
+.live-stats.compact{padding:var(--s4);margin-bottom:var(--s5)}
+.live-stats-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--s3)}
+.live-stats-heading{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.live-stats-heading>b{font-size:15px}
+.live-stats-meta{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.live-stats-meta>.cap{display:inline-flex;align-items:center;gap:4px}
+.live-score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:var(--s3);border-bottom:1px solid var(--hairline);padding:var(--s5) 0}
+.live-side{display:flex;flex-direction:column;gap:3px}
+.live-side.right{text-align:right}
+.live-side>b{font-family:var(--display);font-size:clamp(26px,5vw,40px);letter-spacing:.02em}
+.live-series{display:flex;flex-direction:column;align-items:center;gap:4px}
+.live-series>b{font-family:var(--display);font-size:clamp(28px,6vw,48px);font-variant-numeric:tabular-nums;white-space:nowrap}
+.live-tabular{font-variant-numeric:tabular-nums}
+.live-team-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;padding:var(--s4) 0}
+.live-stat-pair{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px}
+.live-stat-pair>span{font-size:11px;color:var(--mute)}
+.live-stat-pair>b{font-size:14px;font-weight:600;white-space:nowrap}
+.live-team-players{margin-top:var(--s5)}
+.live-team-caption{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-bottom:8px}
+.live-team-caption strong{font-family:var(--display);font-size:22px}
+.live-player-table-wrap{overflow-x:auto;overscroll-behavior-x:contain}
+.live-player-table{width:100%;border-collapse:collapse;min-width:630px;font-size:13px}
+.live-player-table th{font-size:11px;font-weight:600;color:var(--mute);padding:10px 8px;text-align:left;border-bottom:1px solid var(--hairline)}
+.live-player-table td{padding:9px 8px;border-bottom:1px solid var(--hairline);white-space:nowrap}
+.live-player-table th:not(:first-child),.live-player-table td:not(:first-child){text-align:center}
+.live-player-label{display:inline-flex;align-items:center;gap:10px;text-align:left}
+.live-player-label>span:last-child{display:flex;flex-direction:column;gap:3px}
+.live-player-label small{color:var(--mute);font-size:11px}
+.live-champ{height:38px;width:38px;flex:none;display:inline-grid;place-items:center;overflow:hidden;border:1px solid var(--hairline);border-radius:var(--r-card);background:var(--tint-2);color:var(--mute)}
+.live-champ.small{height:31px;width:31px}
+.live-champ img{width:100%;height:100%;object-fit:cover}
+.live-items{display:inline-flex;align-items:center;gap:3px;min-height:26px}
+.live-items img{height:25px;width:25px;border-radius:4px;border:1px solid var(--hairline)}
+.live-draft{border-top:1px solid var(--hairline);margin-top:var(--s6);padding-top:var(--s5)}
+.live-draft-sides{display:grid;grid-template-columns:1fr 1fr;gap:var(--s5)}
+.live-draft-side{min-width:0}
+.live-champ-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.live-fearless{border-top:1px solid var(--hairline);padding-top:var(--s4);margin-top:var(--s4)}
+.live-game-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:var(--s5)}
+.live-spoiler{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:var(--s4);padding:var(--s5);border:1px dashed var(--hairline);border-radius:var(--r-card);background:var(--tint-1);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+@media(max-width:600px){
+  .next-strip-inner{flex-wrap:wrap}.next-strip-inner>.cap{order:2}
+  .live-stats{padding:var(--s4)}
+  .live-score{padding:var(--s4) 0}
+  .live-draft-sides{gap:var(--s3)}
+  .live-champ{width:33px;height:33px}.live-champ.small{width:27px;height:27px}
+  .live-champ-list{gap:3px}
+  .live-stat-pair>b{font-size:12px}
+}
+
+.match-detail-link{display:inline-flex;align-items:center;align-self:flex-start;color:var(--flame-text);font-size:12px;font-weight:600;margin-top:auto;padding-top:6px}

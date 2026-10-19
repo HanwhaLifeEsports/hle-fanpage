@@ -12,7 +12,7 @@ const FILTERS = [
 ] as const;
 
 export default function MatchFilter({ matches, ourTag }: { matches: MatchRow[]; ourTag: string }) {
-  const [f, setF] = useState<string>('upcoming');
+  const [f, setF] = useState<string>('ours');
 
   const list = matches
     .filter((m) => {
@@ -46,7 +46,7 @@ export default function MatchFilter({ matches, ourTag }: { matches: MatchRow[]; 
         </div>
       ) : (
         <div className="note" style={{ margin: 0 }}>
-          해당하는 경기가 없습니다.
+          경기가 없습니다.
         </div>
       )}
     </>

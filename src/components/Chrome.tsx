@@ -8,7 +8,7 @@ import {
   BellOff,
   BellRing,
   CalendarDays,
-  ChartColumn,
+  Users,
   House,
   MonitorPlay,
   Moon,
@@ -22,7 +22,6 @@ const NAV = [
   { href: '/', label: '홈' },
   { href: '/schedule', label: '일정' },
   { href: '/multi', label: '멀티뷰' },
-  { href: '/scenarios', label: '경우의 수' },
   { href: '/roster', label: '선수' },
   { href: '/predict', label: '예측' },
   { href: '/me', label: 'MY' },
@@ -32,7 +31,7 @@ const TABS = [
   { href: '/', label: '홈', Icon: House },
   { href: '/schedule', label: '일정', Icon: CalendarDays },
   { href: '/multi', label: '멀티뷰', Icon: MonitorPlay },
-  { href: '/scenarios', label: '경우의 수', Icon: ChartColumn },
+  { href: '/roster', label: '선수', Icon: Users },
   { href: '/me', label: 'MY', Icon: UserRound },
 ];
 
@@ -188,7 +187,7 @@ const NOTIFY_VIEW: Record<string, { Icon: typeof Bell; label: string; on: boolea
 };
 
 const NOTIFY_HINT: Record<string, string> = {
-  granted: '받을 항목은 알림 설정에서 고를 수 있습니다. 전체 차단은 브라우저 사이트 설정에서 합니다.',
+  granted: '알림 항목은 설정에서 변경할 수 있습니다.',
   denied: '브라우저 사이트 설정에서 알림을 허용해 주세요.',
   unsupported: '이 브라우저는 웹 알림을 지원하지 않습니다.',
 };

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import TicketLine from './Ticket';
 import { dismissToast, useApp, useToasts } from '@/lib/useAppState';
 import { fmtDate, pad } from '@/lib/format';
@@ -66,6 +67,7 @@ export function MatchCard({ m }: { m: MatchRow }) {
         </div>
         <div className="opp">{mine ? `vs ${them.name}` : `${m.a.code} vs ${m.b.code}`}</div>
         <TicketLine startTime={m.startTime} />
+        <Link className="match-detail-link" href={'/match/' + m.id}>경기 상세 →</Link>
       </div>
     );
   }
@@ -91,6 +93,7 @@ export function MatchCard({ m }: { m: MatchRow }) {
         <span className={win ? 'lo' : 'l'}>{them.games}</span>
       </div>
       <div className="opp">{mine ? `vs ${them.name}` : `${m.a.code} vs ${m.b.code}`}</div>
+      <Link className="match-detail-link" href={'/match/' + m.id} onClick={(e) => e.stopPropagation()}>경기 상세 →</Link>
     </div>
   );
 }

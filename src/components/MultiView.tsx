@@ -121,9 +121,8 @@ export default function MultiView() {
   return (
     <div className="wrap sec">
       <h2 className="ko ptitle rv">멀티뷰</h2>
-      <p className="lede rv" style={{ margin: '10px 0 var(--s5)' }}>
-        치지직 채널을 최대 {MAX_DESKTOP}개까지 동시에 봅니다. 소리는 고른 화면 하나에서만 나오고,
-        화면이 하나일 때는 PiP 와 전체화면을 쓸 수 있습니다.
+      <p className="cap" style={{ margin: '10px 0 var(--s5)' }}>
+        최대 {MAX_DESKTOP}개 화면 · 소리 1개
       </p>
 
       <form className="addbar" onSubmit={submit}>
@@ -181,10 +180,7 @@ export default function MultiView() {
         </p>
       )}
 
-      <div className="note">
-        소리는 한 화면에서만 납니다. 화면 왼쪽 위의 채널 이름을 누르면 그쪽 소리로 바뀝니다. 브라우저가
-        음소거 상태에서만 자동재생을 허용하기 때문에, 처음에는 모두 음소거로 시작합니다.
-      </div>
+
     </div>
   );
 }

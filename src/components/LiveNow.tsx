@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { LiveResponse, LiveSource } from '@/lib/live-types';
 import { fmtClock } from '@/lib/format';
-import { ExternalLink, Radio } from 'lucide-react';
+import { ChevronDown, ChevronUp, ExternalLink, Radio } from 'lucide-react';
 import { toast, useApp } from '@/lib/useAppState';
 
 // hls.js 를 끌고 오므로 실제로 열릴 때만 로드한다
@@ -70,7 +70,7 @@ function LinkCard({ s }: { s: LiveSource }) {
           )}
         </b>
         <div className="cap" style={{ marginTop: 6 }}>
-          {s.live && s.title ? s.title : (s.note ?? '')}
+          {s.live && s.title ? s.title : ''}
           {s.live && s.viewers ? ` · 시청 ${s.viewers.toLocaleString()}명` : ''}
         </div>
       </div>
@@ -88,7 +88,8 @@ export default function LiveNow() {
   const [err, setErr] = useState<string | null>(null);
   const [active, setActive] = useState<string | null>(null);
   const [both, setBoth] = useState(false);
-  const wasLive = useRef(false);
+  const [expanded, setExpanded] = useState(false);
+  const wasLive = useRef<boolean | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -100,8 +101,9 @@ export default function LiveNow() {
         if (!alive) return;
         setData(d);
         setErr(null);
+        if (wasLive.current === null || wasLive.current !== d.isLive) setExpanded(d.isLive);
         // 꺼짐 → 켜짐 전환 순간에만 알린다
-        if (d.isLive && !wasLive.current && prefs.onair) {
+        if (d.isLive && wasLive.current === false && prefs.onair) {
           toast('방송이 시작됐습니다', d.sources.find((s) => s.live)?.title ?? 'LCK 중계', '방송 시작 알림');
         }
         wasLive.current = d.isLive;
@@ -150,26 +152,21 @@ export default function LiveNow() {
 
   return (
     <div className={`livebar${isLive ? '' : ' off'}`}>
-      <div className="live-head">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+      <button type="button" className="live-head live-toggle" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           {isLive ? (
-            <span className="badge b-live">
-              <i className="dot" />
-              LIVE
-            </span>
+            <span className="badge b-live"><i className="dot" /> LIVE</span>
           ) : (
-            <span className="livestat">
-              <Radio size={15} />
-              중계 대기
-            </span>
+            <span className="livestat"><Radio size={15} /> {err ? '상태 확인 불가' : '중계 대기'}</span>
           )}
-          <b style={{ fontSize: 15 }}>{isLive ? (headline ?? 'LCK 중계 진행 중') : '지금은 방송 중이 아닙니다'}</b>
-        </div>
-        <span className="cap">
-          {err ? '상태를 확인하지 못했습니다' : data ? `${fmtClock(data.checkedAt)} 기준` : ''}
+          {isLive && <b style={{ fontSize: 15 }}>{headline ?? 'LCK 중계'}</b>}
         </span>
-      </div>
-
+        <span className="live-meta">
+          {data && !err && isLive && <span className="cap">{fmtClock(data.checkedAt)} 기준</span>}
+          {expanded ? <ChevronUp size={17} /> : <ChevronDown size={17} />}
+        </span>
+      </button>
+      {expanded && <>
       <div className="plat-tabs">
         {sources.map((s) => {
           const playable = channels.some((c) => c.platform === s.platform);
@@ -220,10 +217,7 @@ export default function LiveNow() {
       {linkOnly.map((s) => (
         <LinkCard key={s.platform} s={s} />
       ))}
-
-      <div className="note" style={{ marginTop: 0 }}>
-        LCK 국내 중계는 치지직과 SOOP에서 볼 수 있습니다. 유튜브는 하이라이트·다시보기 채널입니다.
-      </div>
+      </>}
     </div>
   );
 }

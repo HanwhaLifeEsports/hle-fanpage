@@ -1,0 +1,52 @@
+{
+  "zeus": {
+    "src": "/players/zeus-official.jpg",
+    "width": 315,
+    "height": 546,
+    "basis": "official",
+    "credit": "한화생명e스포츠 공식 홈페이지",
+    "sourceUrl": "https://hle.kr/",
+    "originalUrl": "https://hle.kr/tmp/9f7f1cfb-3a91-4b67-b910-391ec6e28648.png",
+    "checkedAt": "2026-10-01"
+  },
+  "kanavi": {
+    "src": "/players/kanavi-official.jpg",
+    "width": 315,
+    "height": 546,
+    "basis": "official",
+    "credit": "한화생명e스포츠 공식 홈페이지",
+    "sourceUrl": "https://hle.kr/",
+    "originalUrl": "https://hle.kr/tmp/77f5de45-4548-4472-a15c-14b1a75e220e.png",
+    "checkedAt": "2026-10-01"
+  },
+  "zeka": {
+    "src": "/players/zeka-official.jpg",
+    "width": 315,
+    "height": 546,
+    "basis": "official",
+    "credit": "한화생명e스포츠 공식 홈페이지",
+    "sourceUrl": "https://hle.kr/",
+    "originalUrl": "https://hle.kr/tmp/d2480fbb-e9d1-40bf-86d2-3fb2d59ed23d.png",
+    "checkedAt": "2026-10-01"
+  },
+  "gumayusi": {
+    "src": "/players/gumayusi-official.jpg",
+    "width": 315,
+    "height": 546,
+    "basis": "official",
+    "credit": "한화생명e스포츠 공식 홈페이지",
+    "sourceUrl": "https://hle.kr/",
+    "originalUrl": "https://hle.kr/tmp/450c5f2a-f61a-4ab6-86f9-db04a55770c9.png",
+    "checkedAt": "2026-10-01"
+  },
+  "delight": {
+    "src": "/players/delight-official.jpg",
+    "width": 315,
+    "height": 546,
+    "basis": "official",
+    "credit": "한화생명e스포츠 공식 홈페이지",
+    "sourceUrl": "https://hle.kr/",
+    "originalUrl": "https://hle.kr/tmp/f803e50f-039a-4d26-9da3-d2fdeb7afed4.png",
+    "checkedAt": "2026-10-01"
+  }
+}

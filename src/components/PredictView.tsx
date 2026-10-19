@@ -3,13 +3,15 @@
 import { fmtDate } from '@/lib/format';
 import { toast, useApp, type Pick } from '@/lib/useAppState';
 
-/** 예측 후보 — BO3 의 모든 결과 */
-const PICKS: Pick[] = [
-  [2, 0],
-  [2, 1],
-  [1, 2],
-  [0, 2],
-];
+/** BO1/3/5별 가능한 최종 점수를 생성한다. */
+const pickOptions = (bestOf: number): Pick[] => {
+  const need = Math.floor(bestOf / 2) + 1;
+  const out: Pick[] = [];
+  for (let i = 0; i < need; i++) {
+    out.push([need, i], [i, need]);
+  }
+  return out;
+};
 
 export interface PredictMatch {
   id: string;
@@ -43,10 +45,7 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
   return (
     <div className="wrap sec">
       <h2 className="ko ptitle rv">승부예측</h2>
-      <p className="lede rv" style={{ marginTop: 10 }}>
-        세트 스코어를 맞히면 3점, 승패만 맞히면 1점입니다. 경기가 끝나면 실제 결과와 대조해 자동으로
-        채점됩니다.
-      </p>
+      <p className="cap" style={{ marginTop: 10 }}>정확한 스코어 3점 · 승패 적중 1점</p>
 
       {graded.length > 0 && (
         <div className="card rv" style={{ marginTop: 'var(--s5)' }}>
@@ -76,7 +75,7 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
       {open.length === 0 ? (
         <div className="empty rv">
           <b>예측할 경기가 없습니다</b>
-          <span>다음 일정이 나오면 여기에서 예측할 수 있습니다.</span>
+
         </div>
       ) : (
         open.map((m) => {
@@ -90,7 +89,7 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
                 </span>
               </div>
               <div className="picks">
-                {PICKS.map((p) => {
+                {pickOptions(m.bo).map((p) => {
                   const on = mine && mine[0] === p[0] && mine[1] === p[1];
                   return (
                     <button
@@ -124,7 +123,7 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
       {graded.length === 0 ? (
         <div className="empty rv">
           <b>아직 채점된 예측이 없습니다</b>
-          <span>예측한 경기가 끝나면 결과가 여기에 쌓입니다.</span>
+
         </div>
       ) : (
         <div className="plist rv">
@@ -148,10 +147,7 @@ export default function PredictView({ matches }: { matches: PredictMatch[] }) {
         </div>
       )}
 
-      <div className="note">
-        예측은 이 브라우저에만 저장되며 서버로 전송되지 않습니다. 브라우저 데이터를 지우면 함께 사라집니다.
-        점수는 사이트 안에서만 쓰이고 어떤 보상과도 교환되지 않습니다.
-      </div>
+      <p className="cap" style={{ marginTop: 20 }}>이 브라우저에만 저장 · 보상 없음</p>
     </div>
   );
 }

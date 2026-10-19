@@ -1,11 +1,10 @@
 import { fetchSeason, type MatchRow, type Season, type TeamRow } from './lolesports';
-import { computeScenarios, type ScenarioResult } from './scenarios';
 import { LIVE_WINDOW, OUR_TAG } from './lck2026';
 
 /**
  * 시즌 데이터 서버 캐시.
  *
- * 한 번 만드는 데 API 4회(순위 2 + 일정 페이징 2)와 경우의 수 전수 계산이 들어간다.
+ * 한 번 만드는 데 API 4회(순위 2 + 일정 페이징 2)가 들어간다.
  * 경기 결과는 하루에 두 번 정도만 바뀌므로 5분 TTL 로 충분하다.
  */
 
@@ -13,8 +12,6 @@ const TTL_MS = 5 * 60 * 1000;
 
 export interface SeasonBundle {
   season: Season;
-  /** 우리 팀이 속한 그룹의 경우의 수 */
-  scenarios: ScenarioResult;
   ourGroup: 'legend' | 'rise';
   us: TeamRow | null;
   next: MatchRow | null;
@@ -58,11 +55,8 @@ async function build(): Promise<SeasonBundle> {
   const season = await fetchSeason();
   const ourGroup = season.legend.some((t) => t.code === OUR_TAG) ? 'legend' : 'rise';
   const group = ourGroup === 'legend' ? season.legend : season.rise;
-  // 레전드는 2위까지 PO 직행, 라이즈는 3위까지 플레이인 진출이 상위 시드선
-  const seedCut = ourGroup === 'legend' ? 2 : 3;
   return {
     season,
-    scenarios: computeScenarios(group, season.matches, OUR_TAG, seedCut),
     ourGroup,
     us: group.find((t) => t.code === OUR_TAG) ?? null,
     next: nextMatchOf(season.matches),

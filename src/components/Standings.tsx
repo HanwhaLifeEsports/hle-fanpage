@@ -1,3 +1,4 @@
+import StandingsSheen from './StandingsSheen';
 import type { GroupId, TeamRow } from '@/lib/lolesports';
 import { OUR_TAG, SEASON } from '@/lib/lck2026';
 
@@ -9,7 +10,7 @@ export default function Standings({ rows, group }: { rows: TeamRow[]; group: Gro
         <b>{meta.label}</b>
         {meta.note}
       </div>
-      <div className="rv" style={{ overflowX: 'auto' }}>
+      <div className="standings-table rv" style={{ overflowX: 'auto' }}>
         <table>
           <thead>
             <tr>
@@ -50,6 +51,7 @@ export default function Standings({ rows, group }: { rows: TeamRow[]; group: Gro
             ))}
           </tbody>
         </table>
+        {rows.some((t) => t.code === OUR_TAG) && <StandingsSheen />}
       </div>
     </>
   );

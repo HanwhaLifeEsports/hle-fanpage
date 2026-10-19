@@ -54,7 +54,7 @@ function Card({
           <Image
             className="pimg"
             src={shot.official.src}
-            alt=""
+            alt={`${p.nm} 공식 프로필 사진`}
             width={shot.official.width}
             height={shot.official.height}
             sizes="(max-width:560px) 50vw, (max-width:900px) 33vw, 220px"
@@ -179,10 +179,6 @@ export default function RosterRail({
                       </span>
                     </div>
                   </div>
-                  {/* 남의 데이터를 쓰면 어디서 왔는지 화면에 남긴다 */}
-                  <p className="note" style={{ marginBottom: 20 }}>
-                    기록 출처: 네이버 e스포츠
-                  </p>
                 </>
               )}
 
@@ -253,7 +249,7 @@ export default function RosterRail({
                     ))}
                   </ul>
                   <p className="note" style={{ marginBottom: 20 }}>
-                    1~4라운드 · 기록 출처: Leaguepedia
+                    1~4라운드 기록
                   </p>
                 </>
               )}
@@ -264,7 +260,7 @@ export default function RosterRail({
                 <Star size={16} fill={fav === open.id ? 'currentColor' : 'none'} />
                 {fav === open.id ? '최애 선수 해제' : '최애 선수로 지정'}
               </button>
-              <div className="note">최애로 지정하면 이 선수 소식만 따로 알림을 받습니다.</div>
+
               {/* 곁들이는 값이라 맨 아래에 가장 작게 둔다. 기록과 나란히 두면
                   성적처럼 읽힌다.
                   계약 종료일만 적는다 — Leaguepedia 는 시작일을 관리하지 않아

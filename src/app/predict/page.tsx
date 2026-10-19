@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import PredictView, { type PredictMatch } from '@/components/PredictView';
 import { getSeason, ourMatches } from '@/lib/season';
 import { sidesOf } from '@/lib/pick';
+import { getWorldsMatches } from '@/lib/lolesports-live';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,9 +14,9 @@ export const metadata: Metadata = {
 export default async function PredictPage() {
   let matches: PredictMatch[] = [];
   try {
-    const { season } = await getSeason();
-    matches = ourMatches(season.matches)
-      .filter((m) => m.stage === 'regular')
+    const [bundle, worlds] = await Promise.all([getSeason(), getWorldsMatches().catch(() => [])]);
+    matches = ourMatches([...bundle.season.matches, ...worlds])
+      .filter((m) => m.startTime.startsWith('2026-'))
       .map((m) => {
         const { us, them } = sidesOf(m);
         return {
