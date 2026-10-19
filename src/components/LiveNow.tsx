@@ -9,6 +9,7 @@ import { toast, useApp } from '@/lib/useAppState';
 
 // hls.js 를 끌고 오므로 실제로 열릴 때만 로드한다
 const ChzzkPlayer = dynamic(() => import('./ChzzkPlayer'), { ssr: false });
+const CheerChat = dynamic(() => import('./CheerChat'), { ssr: false });
 
 const POLL_MS = 30_000;
 /** 치지직 자체 플레이어. 문제가 생기면 환경변수 하나로 전부 끈다. */
@@ -82,7 +83,8 @@ function LinkCard({ s }: { s: LiveSource }) {
   );
 }
 
-export default function LiveNow() {
+/** match: 지금 또는 다음 우리 경기. 있으면 플레이어 아래에 그 경기 응원 채팅을 붙인다 */
+export default function LiveNow({ match }: { match?: { id: string; startTime: string } | null } = {}) {
   const { prefs } = useApp();
   const [data, setData] = useState<LiveResponse | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -213,6 +215,8 @@ export default function LiveNow() {
           )}
         </div>
       )}
+
+      {match && <CheerChat matchId={match.id} kickoff={match.startTime} />}
 
       {linkOnly.map((s) => (
         <LinkCard key={s.platform} s={s} />

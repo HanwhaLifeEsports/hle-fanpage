@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import { Anton } from 'next/font/google';
 import './globals.css';
+import './app-ui.css';
 import { AppBar, BottomTabs } from '@/components/Chrome';
 import { Toasts } from '@/components/Shared';
 import RegisterSW from '@/components/RegisterSW';
@@ -71,6 +72,8 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         </noscript>
       </head>
       <body>
+        {/* 화면 위쪽 주황 면. 내용과 함께 스크롤된다 (app-ui.css) */}
+        <div className="ui-ember" aria-hidden />
         <Toasts />
         <RegisterSW />
         <Reveal />
@@ -86,6 +89,8 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
               <span>
                 비공식·비영리 팬페이지 · 구단·라이엇·LCK와 무관합니다.
               </span>
+              {/* 팀·리그 로고(LoL Esports 공개 이미지)를 쓰기 시작하면서 권리 고지를 붙인다 */}
+              <span>팀·리그 로고와 명칭의 권리는 각 소유자(한화생명e스포츠, Riot Games, LCK 등)에게 있습니다.</span>
               {/* 저작권법 제103조 제4항은 중단 요구를 받을 수령인을 "이용자가 쉽게 알 수 있도록"
                   공지할 것을 요구한다. 처리방침 안쪽에만 두면 쉽게 알 수 있다고 보기 어려워
                   모든 화면에 걸리는 푸터에도 적는다. */}

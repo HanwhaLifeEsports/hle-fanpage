@@ -24,42 +24,33 @@ export default async function RosterPage() {
   ]);
 
   return (
-    <div className="wrap sec">
-      <h2 className="ko ptitle rv">선수단 2026</h2>
-
-
+    <div className="ui-page">
+      <h1 className="ui-title">선수단</h1>
       {joined.length > 0 && (
-        <div className="banner rv" style={{ marginBottom: 'var(--s5)' }}>
-          <div>
-            <b>2026 시즌 새 얼굴</b>
-            <span>
-              {joined.map((p) => `${p.nm}(${p.pos})`).join(' · ')} 합류. 지난 시즌 로스터에서 정글·원딜이
-              교체됐습니다.
-            </span>
-          </div>
-        </div>
+        <p className="ui-sub-cap">
+          2026 시즌 새 얼굴 · {joined.map((p) => `${p.nm}(${p.pos})`).join(' · ')}
+        </p>
       )}
 
       <RosterRail stats={stats} champions={champions} contracts={contracts} />
 
-      <div className="shead rv" style={{ marginTop: 'var(--s7)' }}>
-        <h2 className="ko">코칭스태프</h2>
-      </div>
-      <div className="statgrid rv">
+      <section className="ui-paper">
+        <div className="ui-head">
+          <h2>코칭스태프</h2>
+        </div>
         {STAFF.map((s) => (
-          <div className="card rv" key={s.id}>
-            <div style={{ fontSize: 18, fontWeight: 600 }}>{s.nm}</div>
-            <div className="cap" style={{ marginTop: 2 }}>
-              {s.ko} · {s.role}
+          <div className="ui-line ui-staff" key={s.id}>
+            <span className="ui-staff-role">{s.role}</span>
+            <div>
+              <b>{s.nm}</b>
+              <span className="cap">
+                {s.ko} · 한화생명 소속 {fmtSpan(s.since, contracts?.[s.id])}
+              </span>
             </div>
-            <div style={{ marginTop: 8 }}>
-              <AwardsButton id={s.id} name={s.nm} />
-            </div>
-            <p className="contract">한화생명 소속 {fmtSpan(s.since, contracts?.[s.id])}</p>
+            <AwardsButton id={s.id} name={s.nm} />
           </div>
         ))}
-      </div>
-
+      </section>
     </div>
   );
 }

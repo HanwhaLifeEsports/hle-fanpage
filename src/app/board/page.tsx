@@ -1,20 +1,25 @@
 import type { Metadata } from 'next';
-import BoardView from '@/components/Board';
+import BoardView, { type ThreadMatch } from '@/components/Board';
 import { getSeason } from '@/lib/season';
+import { sidesOf } from '@/lib/pick';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '커뮤니티',
-  description: '한화생명e스포츠 팬 커뮤니티 — 계정 기능 준비 중입니다.',
+  title: '게시판',
+  description: '한화생명e스포츠 팬 게시판 — 앱과 같은 글·댓글.',
 };
 
 export default async function BoardPage() {
-  let nextKickoff: string | null = null;
+  let thread: ThreadMatch | null = null;
   try {
-    nextKickoff = (await getSeason()).next?.startTime ?? null;
+    const next = (await getSeason()).next;
+    if (next) {
+      const { us, them } = sidesOf(next);
+      thread = { start: next.startTime, usImage: us.image ?? null, them: { code: them.code, image: them.image ?? null, name: them.name } };
+    }
   } catch {
-    /* 일정이 없어도 안내는 보여준다 */
+    /* 일정이 없어도 게시판은 보여준다 */
   }
-  return <BoardView nextKickoff={nextKickoff} />;
+  return <BoardView thread={thread} />;
 }

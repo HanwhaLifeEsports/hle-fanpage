@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -8,8 +8,8 @@ import {
   BellOff,
   BellRing,
   CalendarDays,
-  Users,
   House,
+  MessagesSquare,
   MonitorPlay,
   Moon,
   Sun,
@@ -17,145 +17,46 @@ import {
 } from 'lucide-react';
 import { useNotify } from '@/lib/useAppState';
 import { useTheme } from '@/lib/useTheme';
+import TeamLogo from './TeamLogo';
 
-const NAV = [
-  { href: '/', label: '홈' },
-  { href: '/schedule', label: '일정' },
-  { href: '/multi', label: '멀티뷰' },
-  { href: '/roster', label: '선수' },
-  { href: '/predict', label: '예측' },
-  { href: '/me', label: 'MY' },
-];
+/** 상단 캡슐의 HLE 로고 (LoL Esports 공식 이미지) */
+export const HLE_LOGO = 'https://static.lolesports.com/teams/1631819564399_hle-2021-worlds.png';
 
+/** 앱과 같은 다섯 탭. 선수·예측·멀티뷰는 홈과 MY 에서 들어간다 */
 const TABS = [
   { href: '/', label: '홈', Icon: House },
   { href: '/schedule', label: '일정', Icon: CalendarDays },
-  { href: '/multi', label: '멀티뷰', Icon: MonitorPlay },
-  { href: '/roster', label: '선수', Icon: Users },
+  { href: '/live', label: '중계', Icon: MonitorPlay },
+  { href: '/board', label: '게시판', Icon: MessagesSquare },
   { href: '/me', label: 'MY', Icon: UserRound },
 ];
 
 const isOn = (path: string, href: string) => (href === '/' ? path === '/' : path.startsWith(href));
 
 /**
- * 상단 내비게이션의 빛줄기.
- *
- * 하단 탭은 5칸 균등 그리드라 20% 씩 밀면 되지만, 여기는 글자 길이가 제각각이라
- * 실제 위치를 재야 한다. 폭까지 함께 전환해야 다음 항목에 정확히 맞는다.
- *
- * 다시 재는 때가 세 번이다 — 경로가 바뀔 때, 창 크기가 바뀔 때, 그리고 서체가
- * 늦게 붙을 때. 서체가 바뀌면 글자 폭이 달라져 빛줄기가 어긋난 채로 남는다.
+ * 위쪽 유리 캡슐. 홈은 진한 주황 면 위라 흰 글자, 하위 화면은 옅은 면 위라 본문 색.
+ * 하위 화면 표시는 body 에 붙여서 CSS(.ui-sub)가 배경 높이·글자 색을 바꾸게 한다.
  */
-function useNavLight(path: string) {
-  const ref = useRef<HTMLElement | null>(null);
-  const [box, setBox] = useState<{ x: number; w: number } | null>(null);
-  const [off, setOff] = useState(false);
-
-  /* 글자 폭에 딱 맞추면 '홈' 처럼 한 글자짜리 아래에는 점 하나만 한 빛이 남는다.
-     양옆 항목과의 사이 절반까지 늘린다 — 빈 곳을 나눠 가지므로 이웃과 겹치지
-     않고, 항목마다 길이가 달라도 간격이 고르게 보인다.
-
-     맨 끝 항목은 한쪽에 이웃이 없다. 그쪽은 반대쪽과 같은 만큼 바깥으로 늘려
-     좌우 대칭을 맞춘다. 0 으로 두면 끝 두 개만 한쪽이 잘린 것처럼 보인다.
-
-     이웃은 형제 요소로 찾지 않는다. 빛줄기 자신(span)이 같은 부모에 있어
-     nextElementSibling 이 그것을 집는다. 링크만 골라 순서를 센다.
-
-     값이 그대로면 새 객체를 만들지 않는다. 크기 관찰자는 자주 부르는데, 매번
-     새 객체를 넣으면 그때마다 '옮기는 중' 효과가 다시 켜진다 */
-  const point = useCallback((el: HTMLElement) => {
-    const links = Array.from(el.parentElement?.querySelectorAll<HTMLElement>('a') ?? []);
-    const i = links.indexOf(el);
-    const prev = i > 0 ? links[i - 1] : null;
-    const nextEl = i >= 0 && i < links.length - 1 ? links[i + 1] : null;
-
-    const half = (a: HTMLElement, b: HTMLElement) =>
-      Math.max(0, (b.offsetLeft - (a.offsetLeft + a.offsetWidth)) / 2);
-    const padL = prev ? half(prev, el) : null;
-    const padR = nextEl ? half(el, nextEl) : null;
-    const l = padL ?? padR ?? 0;
-    const r = padR ?? padL ?? 0;
-
-    const next = { x: el.offsetLeft - l, w: el.offsetWidth + l + r };
-    setBox((cur) => (cur && cur.x === next.x && cur.w === next.w ? cur : next));
-  }, []);
-
-  useEffect(() => {
-    const nav = ref.current;
-    if (!nav) return;
-
-    const measure = () => {
-      const el = nav.querySelector<HTMLElement>('a.on');
-      // 목록에 없는 화면이면 마지막 자리를 그대로 두고 흐리게만 바꾼다
-      if (!el) {
-        setOff(true);
-        return;
-      }
-      setOff(false);
-      point(el);
-    };
-
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(nav);
-    document.fonts?.ready.then(measure).catch(() => {});
-    return () => ro.disconnect();
-  }, [path, point]);
-
-  return { ref, box, off, point };
-}
-
 export function AppBar() {
   const path = usePathname();
   const { permission, ask } = useNotify();
-  const light = useNavLight(path);
 
-  /* 자리를 옮기는 동안만 늘인다. 하단 탭과 같은 방식이다 */
-  const [moving, setMoving] = useState(false);
   useEffect(() => {
-    if (!light.box || light.off) return;
-    setMoving(true);
-    const t = setTimeout(() => setMoving(false), 500);
-    return () => clearTimeout(t);
-  }, [light.box, light.off]);
+    document.body.classList.toggle('ui-sub', path !== '/');
+    // 중계·승부예측은 앱처럼 늘 어두운 톤
+    document.body.classList.toggle('ui-live', path.startsWith('/live') || path.startsWith('/predict'));
+  }, [path]);
 
   return (
-    <header className="appbar">
-      <div className="hbar">
-        <Link href="/" className="brand">
-          <div className="mark">
-            <i /><i /><i /><i />
-          </div>
-          <div className="wordmark">HLE FAN</div>
-        </Link>
-        <nav className="topnav" ref={light.ref}>
-          {NAV.map((n) => (
-            <Link
-              key={n.href}
-              href={n.href}
-              className={isOn(path, n.href) ? 'on' : undefined}
-              /* 하단 탭과 같은 이유로 누른 자리를 바로 잰다. 경로가 바뀌기를
-                 기다리면 새 화면이 뜨는 순간에야 움직여 미끄러져 보이지 않는다 */
-              onClick={(e) => light.point(e.currentTarget)}
-            >
-              {n.label}
-            </Link>
-          ))}
-          {/* 재기 전에는 그리지 않는다. 0 에서 제자리로 날아오는 것처럼 보인다 */}
-          {light.box && (
-            <span
-              className={`navlight navglow${moving ? ' move' : ''}${light.off ? ' dim' : ''}`}
-              style={
-                { '--x': `${light.box.x}px`, '--w': `${light.box.w}px` } as React.CSSProperties
-              }
-              aria-hidden
-            />
-          )}
-        </nav>
-        <div className="hbar-act">
-          <ThemeToggle />
-          <NotifyButton permission={permission} onAsk={ask} />
-        </div>
+    <header className="ui-top">
+      <Link href="/" className="ui-brand glass" aria-label="HLE FAN 홈">
+        <TeamLogo image={HLE_LOGO} size={32} />
+        <b>HLE FAN</b>
+        <span>비공식</span>
+      </Link>
+      <div className="ui-top-act">
+        <ThemeToggle />
+        <NotifyButton permission={permission} onAsk={ask} />
       </div>
     </header>
   );
@@ -169,7 +70,7 @@ function ThemeToggle() {
   const toLight = theme === 'dark';
   return (
     <button
-      className="tmode"
+      className="ui-iconbtn glass"
       onClick={toggle}
       aria-label={toLight ? '라이트 모드로 전환' : '다크 모드로 전환'}
       title={toLight ? '라이트 모드로 전환' : '다크 모드로 전환'}
@@ -202,68 +103,29 @@ const NOTIFY_HINT: Record<string, string> = {
  * 알림 설정으로 가는 길은 상단 네비·하단 탭·홈 CTA 에 이미 있다.
  */
 function NotifyButton({ permission, onAsk }: { permission: string; onAsk: () => void }) {
-  const { Icon, label, on } = NOTIFY_VIEW[permission] ?? NOTIFY_VIEW.default;
-
+  const { Icon, label } = NOTIFY_VIEW[permission] ?? NOTIFY_VIEW.default;
+  // 요청할 수 있을 때만 권한을 묻고, 나머지 상태는 알림 설정 화면으로 보낸다
   if (permission === 'default') {
     return (
-      <button className="btn btn-ghost btn-sm" onClick={onAsk}>
-        <Icon size={15} />
-        {label}
+      <button className="ui-iconbtn glass" onClick={onAsk} aria-label={label} title={label}>
+        <Icon size={18} />
       </button>
     );
   }
   return (
-    <span className={`livestat${on ? ' on' : ''}`} title={NOTIFY_HINT[permission]}>
-      <Icon size={15} />
-      {label}
-    </span>
+    <Link className="ui-iconbtn glass" href="/me" aria-label={label} title={NOTIFY_HINT[permission] ?? label}>
+      <Icon size={18} />
+    </Link>
   );
 }
 
+/** 아래에 떠 있는 유리 탭바 (iOS 26 탭바와 같은 모양) */
 export function BottomTabs() {
   const path = usePathname();
-  const idx = TABS.findIndex((t) => isOn(path, t.href));
-
-  /* 탭 목록에 없는 화면(선수단 등)에서는 마지막으로 있던 자리에 흐리게 남긴다.
-     그냥 사라지면 어디서 왔는지가 함께 사라져 갑작스럽다.
-     처음부터 그런 화면으로 들어온 경우에는 남길 자리가 없으므로 걸지 않는다. */
-  /* 누른 순간 바로 출발시킨다. 화면들이 force-dynamic 이라 usePathname 은 서버가
-     새 화면을 다 그린 뒤에야 바뀌는데, 그때까지 기다리면 눌러도 한참 가만히
-     있다가 새 화면이 나타나는 순간 함께 튄다 — 미끄러지는 것으로 안 보인다.
-     경로가 실제로 바뀌면 아래 effect 가 같은 값으로 덮어써 어긋날 일이 없다. */
-  const [shown, setShown] = useState<number | null>(idx >= 0 ? idx : null);
-  useEffect(() => {
-    if (idx >= 0) setShown(idx);
-  }, [idx]);
-
-  const dim = idx < 0;
-
-  /* 탭이 바뀌는 동안만 빛줄기를 늘여 준다. 늘어났다 돌아오는 움직임이 있어야
-     "이동" 이 아니라 "흘러갔다" 로 보인다. 전환 시간과 같은 길이로 되돌린다. */
-  const [moving, setMoving] = useState(false);
-  useEffect(() => {
-    if (shown === null || dim) return;
-    setMoving(true);
-    const t = setTimeout(() => setMoving(false), 500);
-    return () => clearTimeout(t);
-  }, [shown, dim]);
-
   return (
-    <nav className="tabs">
-      {shown !== null && (
-        <span
-          className={`navlight tabglow${moving ? ' move' : ''}${dim ? ' dim' : ''}`}
-          style={{ '--i': shown } as React.CSSProperties}
-          aria-hidden
-        />
-      )}
-      {TABS.map((t, i) => (
-        <Link
-          key={t.href}
-          href={t.href}
-          className={isOn(path, t.href) ? 'on' : undefined}
-          onClick={() => setShown(i)}
-        >
+    <nav className="ui-tabs glass-bar" aria-label="주 메뉴">
+      {TABS.map((t) => (
+        <Link key={t.href} href={t.href} className={isOn(path, t.href) ? 'on' : undefined} aria-current={isOn(path, t.href) ? 'page' : undefined}>
           <t.Icon />
           {t.label}
         </Link>

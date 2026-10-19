@@ -30,25 +30,18 @@ export default async function SchedulePage() {
   const matches = [...season.matches, ...worlds.filter((m) => m.startTime.startsWith(String(SEASON.year)))];
 
   return (
-    <div className="wrap sec">
-      <h2 className="ko ptitle rv">일정 &amp; 순위</h2>
-      <p className="cap" style={{ margin: '10px 0 var(--s5)' }}>{SEASON.year} 시즌</p>
-
-      <div className="shead rv">
-        <h2 className="ko">순위표</h2>
-        <span className="cap">{new Date(fetchedAt).toLocaleTimeString('ko-KR')} 기준</span>
-      </div>
-
-      <Standings rows={season.legend} group="legend" />
-      <Standings rows={season.rise} group="rise" />
-
-      <p className="cap">1~4R 합산 · 동률: 승자승 → 세트 득실</p>
-
-      <div className="shead rv">
-        <h2 className="ko">경기 일정</h2>
-      </div>
+    <div className="ui-page">
+      <h1 className="ui-title">일정</h1>
       <MatchFilter matches={matches} ourTag={OUR_TAG} />
 
+      <div className="ui-section-label">
+        순위표 <span className="cap">· {new Date(fetchedAt).toLocaleTimeString('ko-KR')} 기준</span>
+      </div>
+      <div className="ui-paper ui-standings">
+        <Standings rows={season.legend} group="legend" />
+        <Standings rows={season.rise} group="rise" />
+        <p className="cap">1~4R 합산 · 동률: 승자승 → 세트 득실</p>
+      </div>
     </div>
   );
 }

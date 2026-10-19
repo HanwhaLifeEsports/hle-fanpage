@@ -1100,3 +1100,39 @@ footer{border-top:1px solid var(--hairline);padding:var(--s6) 0 var(--s7);margin
 }
 
 .match-detail-link{display:inline-flex;align-items:center;align-self:flex-start;color:var(--flame-text);font-size:12px;font-weight:600;margin-top:auto;padding-top:6px}
+
+/* ==========================================================================
+   계정 · 응원 채팅 · 예측 분포 (api.hle.today, iOS 앱과 같은 계정·같은 채팅방)
+   ========================================================================== */
+.acct{display:flex;flex-direction:column}
+.acct-head{display:flex;align-items:center;gap:10px}
+.acct-head b{font-size:16px}
+.acct-btns{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+/* 카카오 로그인 버튼은 카카오 디자인 가이드의 노란 면 + 검은 글자를 그대로 쓴다 */
+.acct-kakao{background:#FEE500;color:rgba(0,0,0,.85);height:44px;width:280px;border-radius:var(--r-full);font-weight:700}
+.acct-field{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.acct-field input,.cheer-form input{height:44px;padding:0 16px;border-radius:var(--r-full);border:1px solid var(--hairline);
+  background:var(--tint-1);color:var(--ink);font:inherit;font-size:15px;outline:none}
+.acct-field input:focus,.cheer-form input:focus{border-color:var(--flame-edge)}
+.acct-favs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+
+.tally{margin-top:14px;display:flex;flex-direction:column;gap:6px}
+.tally-row{display:grid;grid-template-columns:44px 1fr 40px;align-items:center;gap:10px;font-size:13px;font-variant-numeric:tabular-nums}
+.tally-row i{display:block;height:8px;border-radius:var(--r-full);background:var(--tint-2);overflow:hidden}
+.tally-row i b{display:block;height:100%;border-radius:var(--r-full)}
+.tally-row span:last-child{text-align:right;color:var(--mute)}
+
+.cheer{margin-top:var(--s4);border:1px solid var(--hairline);border-radius:var(--r-lg);background:var(--surface-card);overflow:hidden}
+.cheer.off{display:flex;flex-direction:column;gap:4px;padding:14px 18px}
+.cheer-head{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--hairline)}
+.cheer-dot{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+.cheer-dot.on{background:#22C55E}
+.cheer-list{height:min(46vh,360px);overflow-y:auto;padding:12px 18px;display:flex;flex-direction:column;gap:8px;overscroll-behavior:contain}
+.cheer-empty{margin:auto}
+.cheer-msg{display:flex;align-items:baseline;gap:8px;font-size:14px;line-height:1.45;word-break:break-word}
+.cheer-msg b{flex:none;color:var(--win);font-size:13px}
+.cheer-msg.mine b{color:var(--flame-text)}
+.cheer-more{margin-left:auto;flex:none;border:0;background:none;color:var(--faint);font-size:16px;cursor:pointer;min-width:32px;min-height:28px}
+.cheer-form{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--hairline)}
+.cheer-form input{flex:1;min-width:0}
+.cheer-form .btn{height:44px;padding:0 16px}

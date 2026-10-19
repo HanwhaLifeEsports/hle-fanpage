@@ -24,13 +24,16 @@ export default async function PredictPage() {
           startTime: m.startTime,
           opponent: them.name,
           opponentCode: them.code,
+          usImage: us.image || null,
+          opponentImage: them.image || null,
+          stage: m.blockName || 'LCK',
           bo: m.bo,
           result:
             m.state === 'completed' && us.games != null && them.games != null
               ? ([us.games, them.games] as [number, number])
               : null,
-          // 킥오프가 지났으면 예측을 잠근다
-          locked: m.state !== 'unstarted' || +new Date(m.startTime) <= Date.now(),
+          // 킥오프 10분 전에 잠근다 (서버 prediction_locks 와 같은 기준)
+          locked: m.state !== 'unstarted' || +new Date(m.startTime) - 10 * 60_000 <= Date.now(),
         };
       });
   } catch {

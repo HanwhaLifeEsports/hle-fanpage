@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Bell, Eye, RotateCcw } from 'lucide-react';
+import Link from 'next/link';
+import { Bell, Eye, RotateCcw, Shield } from 'lucide-react';
 import { PLAYERS } from '@/lib/lck2026';
+import { AccountActions, ProfileCard } from '@/components/Account';
+import InstallButton from '@/components/InstallButton';
 import { LEAD_CHOICES, PREFS, leadLabel, patchState, resetState, toast, useApp, useNotify } from '@/lib/useAppState';
 
 export default function MePage() {
@@ -85,73 +88,64 @@ export default function MePage() {
   );
 
   return (
-    <div className="wrap sec">
-      <h2 className="ko ptitle rv" style={{ marginBottom: 'var(--s5)' }}>
-        알림 설정
-      </h2>
+    <div className="ui-page">
+      <h1 className="ui-title">MY</h1>
+      <ProfileCard />
+      <InstallButton />
 
       {iosHint && (
-        <div className="banner rv" style={{ marginBottom: 'var(--s5)' }}>
-          <div>
-            <b>아이폰은 홈 화면에 추가해야 알림이 옵니다</b>
-            <span>
-              공유 ↑ → 홈 화면에 추가 → 앱 아이콘으로 실행. iOS는 PWA 설치 상태에서만 웹 푸시를 허용합니다.
-            </span>
-          </div>
+        <div className="ui-paper ui-hint">
+          <b>아이폰은 홈 화면에 추가해야 알림이 와요</b>
+          <span>공유 ↑ → 홈 화면에 추가 → 앱 아이콘으로 실행. iOS는 설치된 웹앱에서만 푸시를 허용해요.</span>
         </div>
       )}
 
-      <div className="card rv" style={{ marginBottom: 'var(--s5)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
-          <div>
-            <b style={{ fontSize: 15 }}>브라우저 알림 권한</b>
-            <div className="cap">{permText[permission] ?? permission}</div>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-ghost btn-sm" onClick={ask}>
-              <Bell size={14} />
-              권한 요청
-            </button>
-            <button className="btn btn-primary btn-sm" onClick={previewPush}>
-              <Eye size={14} />
-              알림 미리보기
-            </button>
+      <div className="ui-section-label">경기 알림</div>
+      <div className="ui-paper ui-settings">
+        <div className="nitem">
+          <div className="nrow">
+            <div className="l">
+              <b>브라우저 알림 권한</b>
+              <span>{permText[permission] ?? permission}</span>
+            </div>
+            {permission === 'granted' ? (
+              <button className="ui-pill glass" onClick={previewPush}>
+                <Eye size={14} /> 미리보기
+              </button>
+            ) : (
+              <button className="ui-pill ui-pill-on" onClick={ask}>
+                <Bell size={14} /> 허용
+              </button>
+            )}
           </div>
         </div>
-      </div>
-
-      <div className="card rv" style={{ marginBottom: 'var(--s5)' }}>
-        <h3 className="grouphead">경기</h3>
         {PREFS.filter((p) => p.g === 'match').map((p) => (
           <Row key={p.k} k={p.k} t={p.t} d={p.d} lead={'lead' in p ? p.lead : undefined} />
         ))}
       </div>
 
-      <div className="card rv" style={{ marginBottom: 'var(--s5)' }}>
-        <h3 className="grouphead">기타</h3>
+      <div className="ui-section-label">보기 설정</div>
+      <div className="ui-paper ui-settings">
         {PREFS.filter((p) => p.g === 'etc').map((p) => (
           <Row key={p.k} k={p.k} t={p.t} d={p.d} />
         ))}
       </div>
 
-      <div className="card rv">
-        <h3 className="grouphead">내 정보</h3>
-        <p className="cap" style={{ marginBottom: 'var(--s4)' }}>
-          {favPlayer ? `최애 선수 · ${favPlayer.nm} (${favPlayer.ko})` : '최애 선수를 지정하지 않았습니다.'}
-          <br />
-          알림 설정 · 최애 선수 · 승부예측은 <b style={{ color: 'var(--ink)' }}>이 브라우저에만</b> 저장되며 서버로
-          전송되지 않습니다.
-        </p>
+      <div className="ui-paper ui-settings ui-rows">
+        <Link className="ui-row" href="/privacy">
+          <Shield size={16} /> 개인정보처리방침
+        </Link>
         <button
-          className="btn btn-ghost btn-sm"
+          className="ui-row"
           onClick={() => {
+            if (!confirm('이 브라우저에 저장된 알림 설정·예측 기록을 지울까요?')) return;
             resetState();
-            toast('설정을 초기화했습니다', '알림 설정 · 최애 선수 · 예측 기록이 모두 지워졌습니다.');
+            toast('설정을 초기화했습니다', '알림 설정 · 예측 기록이 모두 지워졌습니다.');
           }}
         >
-          <RotateCcw size={14} />
-          저장된 설정 지우기
+          <RotateCcw size={16} /> 이 브라우저 설정 초기화
         </button>
+        <AccountActions />
       </div>
     </div>
   );

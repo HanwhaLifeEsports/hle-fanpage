@@ -45,7 +45,7 @@ type RawTeam = {
 type RawGame = {
   id: string;
   number: number;
-  state: 'completed' | 'inProgress' | 'unstarted';
+  state: 'completed' | 'inProgress' | 'unstarted' | 'unneeded';
   teams?: { id: string; side: string }[];
 };
 type RawEvent = {
@@ -303,10 +303,12 @@ export async function getMatchSnapshot(matchId: string, gameNumber?: number): Pr
     const event = details.data?.event;
     if (!event?.match) throw new Error('경기 정보를 찾을 수 없습니다');
     const teams = event.match.teams || [];
-    const rawGames = event.match.games || [];
+    // BO5 를 3:1 로 끝내면 5세트는 'unneeded' 로 온다. 치르지 않은 세트는 목록·종료 판정에서 뺀다
+    const rawGames = (event.match.games || []).filter((g) => g.state !== 'unneeded');
     const games: MatchGame[] = rawGames.map((g) => ({ id: g.id, number: g.number, state: g.state }));
     const selected = currentGame(rawGames, gameNumber);
-    const allFinished = rawGames.length > 0 && rawGames.every((g) => g.state === 'completed');
+    const decided = (event.match?.teams || []).some((t) => (t.result?.gameWins ?? 0) * 2 > (event.match?.strategy?.count ?? Infinity));
+    const allFinished = rawGames.length > 0 && (decided || rawGames.every((g) => g.state === 'completed'));
     const empty: MatchSnapshot = {
       matchId: id,
       competition: event.league?.name || 'LoL Esports',

@@ -17,7 +17,8 @@ import { buildBracket, type BracketStage, type RawBracketStage } from './bracket
 const API = 'https://esports-api.lolesports.com/persisted/gw';
 
 /** 공개 클라이언트 키 (lolesports.com 웹이 그대로 노출해 쓰는 값) */
-const KEY = process.env.LOLESPORTS_API_KEY ?? '0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z';
+// env 가 빈 문자열로 선언돼 있어도 기본값으로 떨어지게 || 를 쓴다 (?? 면 빈 키가 그대로 가서 403)
+const KEY = process.env.LOLESPORTS_API_KEY || '0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z';
 
 export const LCK_LEAGUE_ID = '98767991310872058';
 
